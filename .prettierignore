@@ -2,3 +2,4 @@ docs/
 .superpowers/
 dist/
 package-lock.json
+CLAUDE.md
