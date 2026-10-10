@@ -1,0 +1,29 @@
+{
+  "name": "naf-explorer",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "beats": "node scripts/beat-table.ts",
+    "verify": "npm run format:check && npm run check && npm test && npm run build && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "prettier": "^3.9.10",
+    "prettier-plugin-svelte": "^4.1.1",
+    "svelte": "^5.57.2",
+    "svelte-check": "^4.7.6",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3"
+  }
+}

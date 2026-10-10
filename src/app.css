@@ -1,0 +1,41 @@
+:root {
+  color-scheme: dark;
+  --bg: #14171c;
+  --panel: #1b1f26;
+  --card: #232832;
+  --border: #3a414c;
+  --text: #e6e9ee;
+  --muted: #b3bcc8;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font:
+    13px/1.4 system-ui,
+    sans-serif;
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+code {
+  font-family: ui-monospace, monospace;
+}
+:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+.viewport {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+}
