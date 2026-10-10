@@ -163,7 +163,7 @@ code {
   font-weight: 600;
 }
 .earlier span + span::before {
-  content: '· ';
+  content: ' · ';
 }
 .body {
   margin: 2px 0 0;

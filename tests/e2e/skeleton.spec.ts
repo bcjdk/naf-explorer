@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { linesOf, stateAt } from '../../src/model/state.ts';
-import { STEPS } from '../../src/scenario/scenario.ts';
+import { MARKER_TEXT, statusText } from '../../src/model/describe.ts';
+import { STEPS, version } from '../../src/scenario/scenario.ts';
 
 const counter = (page: Page) => page.getByTestId('counter');
 const stepIndex = (id: string) => STEPS.findIndex((s) => s.id === id);
@@ -15,6 +16,10 @@ async function expectEndState(page: Page, n: number) {
     const all = (sel: string) => [...document.querySelectorAll<HTMLElement>(sel)];
     const net = document.querySelector<HTMLElement>('[data-party="network"]')!;
     return {
+      text: Object.fromEntries(
+        all('[data-version]').map((e) => [e.dataset.version!, e.textContent!]),
+      ),
+      chips: all('.chip').map((e) => e.textContent!.trim()),
       versions: all('[data-version]').map((e) => e.dataset.version!),
       fresh: all('.new[data-version]').map((e) => e.dataset.version!),
       received: Object.fromEntries(
@@ -34,6 +39,13 @@ async function expectEndState(page: Page, n: number) {
   expect(dom.link, id).toBe(s.linkDegraded ? 'DEGRADED' : 'OK');
   expect(dom.path, id).toBe(s.acmePath ?? 'none');
   expect(dom.lines, id).toBe(linesOf(n).length);
+  for (const vid of s.visible) {
+    const v = version(vid);
+    if (v.status) expect(dom.text[vid], `${id} ${vid}`).toContain(statusText(v.status));
+    const m = s.markers[vid];
+    if (m) expect(dom.text[vid], `${id} ${vid}`).toContain(MARKER_TEXT[m]);
+  }
+  for (const c of dom.chips) expect(c, id).toMatch(/^(✓ HEALTHY|▲ DEGRADED|✕ VIOLATED|✓ CLEARED)$/);
 }
 
 test.beforeEach(async ({ page }) => {
@@ -135,6 +147,12 @@ test('Portal shows what it received and keeps its own request', async ({ page })
   const portal = page.locator('[data-surface="portal"]');
   await expect(portal).toContainText('▲ DEGRADED');
   await expect(portal.locator('[data-version="sr"]')).toContainText('Service request');
+});
+
+test('earlier versions read as spaced text', async ({ page }) => {
+  await tick(page, stepIndex('R14')).click();
+  await expect(page.locator('[data-version="ds1"]')).toHaveText('v1 = IN SYNC');
+  await expect(page.locator('[data-version="wf-prov"]')).toHaveText('provision completed');
 });
 
 test('The Network keeps ground truth: degraded link, interface still UP as plain text', async ({

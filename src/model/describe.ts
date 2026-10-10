@@ -15,6 +15,8 @@ export const STATUS_ICON: Record<Status, string> = {
   CLEARED: '✓',
 };
 
+export const statusText = (s: Status): string => `${STATUS_ICON[s]} ${s}`;
+
 export const MARKER_TEXT: Record<Marker, string> = {
   IN_SYNC: '= IN SYNC',
   UNCHANGED: '= UNCHANGED',
@@ -38,7 +40,7 @@ export function describe(e: Exclude<Event, { t: 'appear' }>, view: View): string
       return `${artifactName(e.version)} ${MARKER_TEXT[e.marker]}`;
     case 'network':
       return e.link
-        ? `${NETWORK.link} ▲ ${e.link.status}`
+        ? `${NETWORK.link} ${statusText(e.link.status)}`
         : NETWORK.acme[e.acmePath ?? 'none'][view];
   }
 }

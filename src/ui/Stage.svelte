@@ -2,7 +2,7 @@
   import { NETWORK, RESPONSIBILITIES, SURFACES, kind, version } from '../scenario/scenario.ts';
   import type { Party, Surface, View } from '../scenario/types.ts';
   import type { Line, StageState } from '../model/state.ts';
-  import { STATUS_ICON, describe } from '../model/describe.ts';
+  import { describe, statusText } from '../model/describe.ts';
   import { COLUMNS, EXCHANGES, REGIONS, type Rect } from '../layout.ts';
   import Card from './Card.svelte';
 
@@ -34,9 +34,7 @@
         {#if received}
           <span class="received"
             >{kind(received.kind).name} · {received.label}
-            {#if received.status}<span class="chip"
-                >{STATUS_ICON[received.status]} {received.status}</span
-              >{/if}</span
+            {#if received.status}<span class="chip">{statusText(received.status)}</span>{/if}</span
           >
         {:else if ownSlots(s).length === 0}
           <span class="idle">idle</span>
@@ -74,7 +72,7 @@
   <p>
     {NETWORK.link}:
     {#if stage.linkDegraded}
-      <span class="chip">{STATUS_ICON.DEGRADED} DEGRADED</span> {NETWORK.linkDegraded[view]}
+      <span class="chip">{statusText('DEGRADED')}</span> {NETWORK.linkDegraded[view]}
     {:else}
       {NETWORK.linkOk[view]}
     {/if}
