@@ -45,7 +45,9 @@ The stage is fixed at 1440×900 and scaled uniformly to fit the window (`transfo
 - **Card placement:** each artifact card lives only with its **producer**.
   - Receivers don't get copies. The handoff line, the receiver's "gains the result" highlight and the inspector's "Used by" show the transfer.
   - **Presentation surfaces** show the latest artifact they have received (their job is to display). The Portal also keeps its own service request as a subdued line.
-  - Versioned collections (derived intent, desired state, configuration change, observed state) show **v2 stacked over v1**.
+  - **One slot per artifact kind** in its producer's region. The slot's card shows the kind's newest version (type, label, status or marker). Earlier versions stay visible inside the same card as a subdued "earlier:" line with their status or marker; this generalises "v2 stacked over v1" to every kind with several versions.
+  - **A card shows its body** (meaning or Technical lines) only in the step where its version is new. The pacing rule means at most one card per region is expanded at a time; the inspector shows any body later.
+  - Nothing on the stage scrolls or clips: regions, cards, surfaces and the caption must fit their content in every beat and both views.
 - **The inspector** is a 400px panel that overlays the responsibilities zone (y 52–760) on the side **opposite the selection**. It opens on the left when the selection is in Intent, Executor or the right half of Presentation and The Network, and on the right otherwise. It never covers the selected element or the caption bar.
 
 ## 4. Scenario data model
@@ -79,7 +81,7 @@ interface ArtifactVersion {
 interface SignalInfo { id: SignalId; label: string; asks: string; answeredBy?: SignalId | KindId }
 
 type Event =
-  | { t: 'signal'; signal: SignalId; from: Party; to: Party; version?: string }
+  | { t: 'signal'; signal: SignalId; from: Party; to: Party; version?: VersionId } // a desired-state version
   | { t: 'handoff'; version: VersionId; from: Party; to: Party; surface?: Surface }
   | { t: 'work'; owner: Party; verb: WorkVerb; label: Text }
   | { t: 'appear'; version: VersionId }
@@ -264,7 +266,7 @@ interface Step { id: string; chapter: 'provision' | 'detect' | 'remediate'; titl
   - each region is a `<section>` with a heading;
   - cards and surfaces are buttons with a full accessible name, for example "Desired state v2, by Intent, in sync";
   - the caption is `aria-live="polite"`;
-  - the view switch is a radio group.
+  - the view switch is two toggle buttons with `aria-pressed` inside a labelled group (native radios would consume ← and →).
 - **Focus is never lost:**
   - keyed elements stay mounted across steps, and the stage never remounts;
   - if the focused element is removed (only a previous step's line label can be), focus moves to the caption heading;
@@ -351,3 +353,4 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
 ## Revision log
 
 - **rev 1 (2026-10-10):** initial design from brainstorming. It includes ADR 0001 (Orchestrator controls every job: completion signals, verify split into read back and check drift, alternate-path query). Layout v3: full-width canvas, caption bar under The Network, and an inspector that overlays the side opposite the selection.
+- **rev 2 (plan 1, with an external plan review):** the view switch uses toggle buttons with `aria-pressed` instead of a radio group, because native radios use ← and →, which step the story. Card visibility is one slot per kind, with earlier versions on an "earlier:" line and the body shown only when new, because the producer regions can't hold every version's body. A signal's `version` names the desired-state version id, so that request/answer pairing can be checked by version.
