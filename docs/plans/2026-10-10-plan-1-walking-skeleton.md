@@ -1006,7 +1006,7 @@ export function producerOf(versionId: string): Party {
 - [ ] **Step 5: Run the tests to verify they pass**
 
 Run: `npx vitest run tests/unit/catalog.test.ts`
-Expected: PASS (11 tests).
+Expected: PASS (12 tests).
 
 - [ ] **Step 6: Mutation check (lesson 25)**
 
