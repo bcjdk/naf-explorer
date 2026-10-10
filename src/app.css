@@ -39,3 +39,184 @@ code {
   left: 50%;
   top: 50%;
 }
+.header {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1440px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--border);
+}
+.header h1 {
+  font-size: 15px;
+  margin: 0;
+}
+.header nav {
+  display: flex;
+  gap: 16px;
+}
+.chapter {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.chapter-name,
+.view button,
+.nav button {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+.chapter-name.current {
+  border-color: var(--text);
+}
+.tick {
+  width: 8px;
+  height: 14px;
+  padding: 0;
+  background: var(--border);
+  border: 0;
+  border-radius: 2px;
+}
+.tick[aria-current='step'] {
+  background: var(--text);
+}
+.view {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+}
+.view button[aria-pressed='true'] {
+  border-color: var(--text);
+  font-weight: 600;
+}
+/* Nothing scrolls or clips silently: the overflow test fails instead. */
+.region {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 3px 8px 4px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1.2;
+}
+.region h2 {
+  font-size: 12px;
+  margin: 0;
+  flex-shrink: 0;
+}
+.region p {
+  margin: 0;
+}
+.role,
+.idle,
+.earlier {
+  color: var(--muted);
+  font-weight: 400;
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr));
+  gap: 3px;
+  align-items: start;
+}
+.surfaces {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+.card,
+.surface {
+  box-sizing: border-box;
+  padding: 1px 5px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.surface {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.card:not(.new) {
+  color: var(--muted);
+}
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 6px;
+}
+.type {
+  font-weight: 600;
+}
+.earlier span + span::before {
+  content: '· ';
+}
+.body {
+  margin: 2px 0 0;
+}
+.line {
+  display: block;
+  font-size: 11px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.chip {
+  border: 1px solid currentColor;
+  border-radius: 10px;
+  padding: 0 6px;
+  font-size: 11px;
+}
+.exchanges ol {
+  margin: 0;
+  padding-left: 18px;
+}
+.caption {
+  position: absolute;
+  left: 16px;
+  top: 768px;
+  width: 1408px;
+  height: 124px;
+  box-sizing: border-box;
+  padding: 6px 190px 6px 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.caption h2 {
+  font-size: 13px;
+  margin: 0 0 4px;
+}
+.caption p {
+  margin: 0 0 4px;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.caption .scope {
+  font-size: 11px;
+  color: var(--muted);
+}
+.nav {
+  position: absolute;
+  right: 14px;
+  top: 8px;
+  display: flex;
+  gap: 8px;
+}
+.nav button[aria-disabled='true'] {
+  color: var(--muted);
+}
