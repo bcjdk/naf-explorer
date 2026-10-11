@@ -16,3 +16,4 @@
 - **Plan 4: Line labels are focusable buttons with no action yet.** The inspector gives them their handoff and signal views.
 - **Plan 4: Selection ring vs gain.** The motion overlay's gain highlight animates `box-shadow` on regions and surfaces (`GAIN` in `src/ui/motion.ts`, composite replace). Draw the selection ring with `outline`, or set `composite: 'add'`, so a gain never erases the ring.
 - **Plan 4: Invisible labels mid-beat.** While a beat plays, line labels before their slot are at opacity 0 but still focusable and clickable. Once labels open the inspector, finish the motion on focusin of a story element, or decide otherwise.
+- **Plan 5: Probe line in R7.** In Technical view, the dotted probe line switches from ODE01 to KOL01 at the start of R7 instead of fading in with the path change (`.probe` in `Network.svelte` is not in the `path` motion target).
