@@ -2,7 +2,7 @@
 
 ## Behaviour
 
-- **One window, two ways to open it:** it opens automatically on a visitor's **first visit** (remembered per browser), and from an **About** button next to the Simple/Technical switch.
+- **One window, two ways to open it:** it opens automatically on **every load and refresh** (changed from first visit only by the user, 2026-10-11), and from an **About** button just right of the Simple/Technical switch.
 - **Closing:** a **✕ in the top-right corner**, **Esc**, or a click outside. There is **no Start button**.
 - **It is a modal dialog:**
   - focus moves to ✕ when it opens and returns to where it was when it closes;

@@ -18,6 +18,43 @@ import type {
 const T = (simple: string, technical: string = simple): Text => ({ simple, technical });
 
 export const TITLE = 'How Network Automation Works';
+/** The About window (brief 06). Links open in a new tab. */
+export const ABOUT = {
+  title: 'How Network Automation Works',
+  intro:
+    'An interactive explainer of network automation as separate responsibilities connected by typed handoffs, based on the Network Automation Forum (NAF) framework. It follows one ACME L3VPN service through Provision → Detect → Remediate.',
+  sections: [
+    {
+      heading: 'Who it is for',
+      text: 'Network engineers, architects and senior technical leadership who know networking and want a clear mental model of how automation systems divide the work.',
+    },
+    {
+      heading: 'Why',
+      text: 'Automation is easier to reason about as roles and handoffs than as a list of tools — and “the interface is UP” is not the same as “the service is healthy”.',
+    },
+  ],
+  framing:
+    'This is an example of how good network automation can look when the NAF framework is used as the reference — not a prescription for how network automation should look.',
+  howTo: [
+    { keys: ['→', '←'], text: 'step through the story' },
+    { keys: ['Simple', 'Technical'], text: 'choose the depth' },
+    { keys: ['click'], text: 'anything to inspect it' },
+  ],
+  naf: {
+    label: 'Network Automation Forum Automation Framework',
+    href: 'https://reference.networkautomation.forum/Framework/Framework/',
+    after: ' — the Network Automation Forum reference architecture this story is built on.',
+  },
+  credit: {
+    before: 'With warm thanks to my good friend Thomas Kjær Aabo, whose ',
+    label: 'How the Internet Works',
+    href: 'https://tkjaer.github.io/how-the-internet-works/',
+    source: 'https://github.com/tkjaer/how-the-internet-works',
+    after:
+      ' directly inspired this project — its explorable, step-by-step picture of a complex system and its switch between simple and technical explanations shaped the approach here.',
+  },
+};
+
 export const SCOPE_NOTE = 'Values illustrative · NAF does not require SR-MPLS, gNMI or TWAMP.';
 
 /** Ground-truth text for The Network region; which entry applies comes from stateAt. */

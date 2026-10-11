@@ -54,7 +54,9 @@ async function expectEndState(page: Page, n: number) {
 }
 
 test.beforeEach(async ({ page }) => {
+  // About opens on every load (brief 06); story tests close it first. tests/e2e/about.spec.ts covers it.
   await page.goto('/');
+  await page.keyboard.press('Escape');
 });
 
 test('the app loads at the first beat', async ({ page }) => {
@@ -327,6 +329,7 @@ for (const [name, block] of Object.entries(blockers)) {
     page.on('pageerror', (e) => errors.push(e.message));
     await page.addInitScript(block);
     await page.goto('/');
+    await page.keyboard.press('Escape');
     await page.getByRole('button', { name: 'Technical' }).click();
     await expect(page.getByRole('button', { name: 'Technical' })).toHaveAttribute(
       'aria-pressed',

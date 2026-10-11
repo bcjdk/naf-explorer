@@ -74,6 +74,6 @@ The demo is done when every item holds. Items marked **[auto]** must be automate
 - [ ] Reduced motion reaches exactly the same end state.
 - [ ] The inspector opens on Enter and closes on Esc with focus returned; Back with the inspector open keeps focus on Back; focus never drops to the page.
 - [ ] A forward step and Replay keep keyboard focus.
-- [ ] The About window opens on the first visit only and reopens via About; ✕ and Esc close it with focus returned; arrows are blocked while it's open.
+- [ ] The About window opens on every load and refresh and reopens via About; ✕ and Esc close it with focus returned; arrows are blocked while it's open.
 - [ ] An automated accessibility scan finds no serious or critical violations at the start, at the SLO breach and at the end (both views), or with About open.
 - [ ] Keyboard focus is always visible.

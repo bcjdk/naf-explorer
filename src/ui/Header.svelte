@@ -7,8 +7,14 @@
     view,
     onJump,
     onView,
-  }: { step: number; view: View; onJump: (n: number) => void; onView: (v: View) => void } =
-    $props();
+    onAbout,
+  }: {
+    step: number;
+    view: View;
+    onJump: (n: number) => void;
+    onView: (v: View) => void;
+    onAbout: () => void;
+  } = $props();
 
   const chapters = Object.keys(CHAPTERS) as Chapter[];
   const indexed = STEPS.map((s, i) => ({ s, i }));
@@ -42,4 +48,5 @@
       >Technical</button
     >
   </div>
+  <button class="about-open" onclick={onAbout}>About</button>
 </header>

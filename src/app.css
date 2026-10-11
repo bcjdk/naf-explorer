@@ -109,6 +109,154 @@ code {
   color: var(--text);
 }
 
+/* About (brief 06): a modal reading pane, calm and narrow. */
+.about-open {
+  margin-left: 8px;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+}
+.about-open:hover {
+  color: var(--text);
+}
+.about {
+  width: min(780px, 92vw);
+  max-height: 90vh;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--orchestrator);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 24px 64px rgb(0 0 0 / 0.5);
+  font:
+    15px/1.6 system-ui,
+    sans-serif;
+}
+.about::backdrop {
+  background: rgb(5 7 10 / 0.72);
+}
+.about-body {
+  position: relative;
+  padding: 32px 40px 30px;
+}
+.about-eyebrow {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.about h2 {
+  margin: 0 40px 12px 0;
+  font-size: 26px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.about-lead {
+  margin: 0;
+  font-size: 16px;
+  color: var(--muted);
+}
+.about h3 {
+  margin: 24px 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.about p {
+  margin: 0;
+}
+.about-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 32px;
+}
+.about blockquote {
+  margin: 24px 0 0;
+  padding: 14px 18px;
+  border-left: 3px solid var(--orchestrator);
+  border-radius: 0 6px 6px 0;
+  background: var(--card);
+  font-size: 15.5px;
+}
+.about ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.about-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+}
+.about-keys li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.about-keys li > span:last-child {
+  margin-left: 4px;
+  color: var(--muted);
+}
+.about kbd {
+  padding: 1px 8px;
+  border: 1px solid var(--border-new);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--card);
+  font:
+    600 13px/1.5 system-ui,
+    sans-serif;
+}
+.about-or {
+  color: var(--muted);
+}
+.about-refs li {
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+.about-refs li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.about-refs li > a:first-child {
+  display: block;
+  font-weight: 600;
+}
+.about-refs span {
+  color: var(--muted);
+}
+.about a {
+  color: var(--text);
+  text-decoration-color: var(--border-new);
+  text-underline-offset: 3px;
+}
+.about a:hover {
+  text-decoration-color: currentColor;
+}
+.about-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
+  font-size: 15px;
+}
+.about-close:hover {
+  color: var(--text);
+  border-color: var(--border-new);
+}
+
 /* Regions: provenance is the top edge and the swatch only. */
 .region {
   position: absolute;
