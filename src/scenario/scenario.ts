@@ -207,6 +207,10 @@ export const KINDS: ArtifactKind[] = [
     producer: 'presentation',
     producerSurface: 'portal',
     consumers: ['orchestrator'],
+    uses: {
+      orchestrator:
+        'It starts a provisioning workflow and relays the request to Intent as its own intent request.',
+    },
     whatItIs: 'A customer’s request for a service, made through the Portal.',
   },
   {
@@ -214,6 +218,10 @@ export const KINDS: ArtifactKind[] = [
     name: 'Intent request',
     producer: 'orchestrator',
     consumers: ['intent'],
+    uses: {
+      intent:
+        'It records the requested service as service intent, the source of truth for what ACME should get.',
+    },
     answeredBy: 'desiredStateReady',
     whatItIs: 'Orchestrator’s own request asking Intent to create a service.',
   },
@@ -236,6 +244,10 @@ export const KINDS: ArtifactKind[] = [
     name: 'Desired network state',
     producer: 'intent',
     consumers: ['executor'],
+    uses: {
+      executor:
+        'It renders and applies the configuration that Orchestrator’s apply request names. Executor takes it directly from Intent.',
+    },
     whatItIs: 'The per-device configuration intent derived from network intent.',
   },
   {
@@ -243,6 +255,10 @@ export const KINDS: ArtifactKind[] = [
     name: 'SLO definition',
     producer: 'intent',
     consumers: ['observability'],
+    uses: {
+      observability:
+        'It turns the definition into its own SLO rule, so it can evaluate the SLI without asking Intent again.',
+    },
     whatItIs: 'How the service is judged: the SLI definition and its objective.',
   },
   {
@@ -264,6 +280,10 @@ export const KINDS: ArtifactKind[] = [
     name: 'Apply request',
     producer: 'orchestrator',
     consumers: ['executor'],
+    uses: {
+      executor:
+        'It tells Executor which desired-state version to apply. The order names the version; the content stays with Intent.',
+    },
     answeredBy: 'applied',
     whatItIs:
       'Orchestrator’s own work order asking Executor to apply a named desired-state version. It names the version only; Executor takes the content directly from Intent (ADR 0002).',
@@ -273,6 +293,10 @@ export const KINDS: ArtifactKind[] = [
     name: 'Remediation decision',
     producer: 'orchestrator',
     consumers: ['intent'],
+    uses: {
+      intent:
+        'It says what to change (exclude the faulty link). Intent updates network intent, selects the path and derives the new desired state.',
+    },
     answeredBy: 'desiredStateReady',
     whatItIs: 'An intent change request produced by the remediation workflow’s policy evaluation.',
   },
@@ -281,6 +305,9 @@ export const KINDS: ArtifactKind[] = [
     name: 'Configuration change',
     producer: 'executor',
     consumers: ['network'],
+    uses: {
+      network: 'The devices run the new configuration.',
+    },
     whatItIs: 'Rendered configuration applied to devices.',
   },
   {
@@ -288,6 +315,9 @@ export const KINDS: ArtifactKind[] = [
     name: 'Raw signals',
     producer: 'network',
     consumers: ['collector'],
+    uses: {
+      collector: 'It gathers them and normalizes them into one shape that can be compared.',
+    },
     whatItIs:
       'Measurements and configuration exactly as devices report them, each in its own format.',
   },
@@ -296,6 +326,9 @@ export const KINDS: ArtifactKind[] = [
     name: 'Observed device state',
     producer: 'collector',
     consumers: ['intent'],
+    uses: {
+      intent: 'It checks drift: does what the devices actually have match the desired state?',
+    },
     whatItIs: 'Applied configuration as read back from devices, for Intent’s drift check.',
   },
   {
@@ -310,6 +343,10 @@ export const KINDS: ArtifactKind[] = [
     name: 'Enriched observations',
     producer: 'collector',
     consumers: ['observability'],
+    uses: {
+      observability:
+        'It computes the SLI and correlates observations, to understand the service’s state.',
+    },
     whatItIs: 'Normalized observations tagged with link, path and service IDs.',
   },
   {
@@ -331,6 +368,11 @@ export const KINDS: ArtifactKind[] = [
     name: 'Service state',
     producer: 'observability',
     consumers: ['presentation', 'orchestrator'],
+    uses: {
+      presentation:
+        'It displays the service’s state to the people who use it, for example in the Portal.',
+      orchestrator: 'A running workflow waits for the service to be HEALTHY before it completes.',
+    },
     whatItIs: 'Whether the service meets its objective, from the SLI and the SLO rule.',
   },
   {
@@ -338,6 +380,11 @@ export const KINDS: ArtifactKind[] = [
     name: 'Service-impact event',
     producer: 'observability',
     consumers: ['presentation', 'orchestrator'],
+    uses: {
+      presentation:
+        'It displays the event: service impact in fault management, repair work in ITSM.',
+      orchestrator: 'An event, not raw service state, is what starts its remediation workflow.',
+    },
     whatItIs: 'A raised, cleared or follow-up event about impact on a service.',
   },
   {
@@ -345,6 +392,10 @@ export const KINDS: ArtifactKind[] = [
     name: 'Path health',
     producer: 'observability',
     consumers: ['orchestrator'],
+    uses: {
+      orchestrator:
+        'Its remediation policy moves the service only if the alternate path is healthy.',
+    },
     whatItIs: 'Health of a path, assessed from link telemetry.',
   },
 ];

@@ -26,6 +26,29 @@ export const MARKER_TEXT: Record<Marker, string> = {
 const end = (p: Party, surface?: Surface) =>
   p === 'presentation' && surface ? SURFACES[surface] : RESPONSIBILITIES[p].name;
 
+const MARKER_WORDS: Record<Marker, string> = {
+  IN_SYNC: 'in sync',
+  UNCHANGED: 'unchanged',
+  COMPLETED: 'completed',
+};
+
+/** A card's accessible name (spec §11): "Desired network state v2, by Intent, in sync, 1 earlier version". */
+export function cardName(id: string, marker?: Marker, earlier = 0): string {
+  const v = version(id);
+  const k = kind(v.kind);
+  return [
+    `${k.name} ${v.label}, by ${RESPONSIBILITIES[k.producer].name}`,
+    v.status?.toLowerCase(),
+    marker && MARKER_WORDS[marker],
+    earlier > 0 && `${earlier} earlier version${earlier > 1 ? 's' : ''}`,
+  ]
+    .filter(Boolean)
+    .join(', ');
+}
+
+export const surfaceName = (s: Surface, received?: string): string =>
+  received ? `${SURFACES[s]}, showing ${cardName(received)}` : SURFACES[s];
+
 export const artifactName = (id: string) => `${kind(version(id).kind).name} (${version(id).label})`;
 
 export function describe(e: Exclude<Event, { t: 'appear' }>, view: View): string {
