@@ -10,8 +10,14 @@
   import Header from './ui/Header.svelte';
   import Stage from './ui/Stage.svelte';
   import CaptionBar from './ui/CaptionBar.svelte';
+  import About from './ui/About.svelte';
 
   const VIEW_KEY = 'naf.view';
+  let about = $state<HTMLDialogElement>();
+  // The About window opens on every load and refresh (brief 06, as changed by the user on 2026-10-11).
+  $effect(() => {
+    if (about && !about.open) about.showModal();
+  });
 
   let step = $state(0);
   let view = $state<View>(load(VIEW_KEY) === 'technical' ? 'technical' : 'simple');
@@ -40,6 +46,8 @@
   function onKeydown(e: KeyboardEvent) {
     // Modified arrows belong to the browser and OS (history, text selection, spaces).
     if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    // The story stands still while About is open.
+    if (about?.open) return;
     if (e.key === 'ArrowRight') {
       e.preventDefault();
       go(step + 1);
@@ -59,8 +67,10 @@
     style:height="{STAGE.h}px"
     style:transform="translate(-50%, -50%) scale({scale})"
   >
-    <Header {step} {view} onJump={go} onView={setView} />
+    <Header {step} {view} onJump={go} onView={setView} onAbout={() => about?.showModal()} />
     <Stage {stage} {routes} {view} {step} />
     <CaptionBar {step} {view} onBack={() => go(step - 1)} onNext={() => go(step + 1)} />
   </div>
+  <!-- Inside .viewport so the dialog inherits the colour tokens; showModal() lifts it to the top layer. -->
+  <About bind:dialog={about} />
 </div>

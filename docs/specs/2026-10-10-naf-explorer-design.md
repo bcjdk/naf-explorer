@@ -19,7 +19,7 @@ A desktop-first, self-guided explainer. A reader who knows networking steps thro
 - The header shows the three chapter names with a tick per beat. Clicking a chapter name or tick jumps to that beat and shows its end state. **Replay** animates the current beat.
 - **Simple | Technical** changes text only.
 - Clicking any card, surface, region title or current line label, or pressing Enter on it, opens the **inspector**.
-- **About** opens on the first visit (remembered per browser) and from the About button next to the view switch. It closes with ✕, Esc or a click outside. The content is as in `06`.
+- **About** opens on every load and refresh (rev 8) and from the About button just right of the view switch. It closes with ✕, Esc or a click outside. The content is as in `06`.
 
 ## 3. Spatial model
 
@@ -279,7 +279,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
   - Back with the inspector open keeps focus on Back;
   - Next and Replay keep focus on themselves.
 - **Focus is always visible:** a 2px high-contrast ring, separate from the selection ring.
-- **About** is a native `<dialog>` opened with `showModal()`, which provides the focus trap, Esc, the inert background and focus restoration. Focus starts on ✕. A backdrop click closes it, and links open in a new tab. The first visit is recorded in `localStorage` (wrapped in try/catch; if storage fails, About opens every visit).
+- **About** is a native `<dialog>` opened with `showModal()`, which provides the focus trap, Esc, the inert background and focus restoration. Focus starts on ✕. A backdrop click closes it, and links open in a new tab.
 
 ## 12. Stack and project layout
 
@@ -290,7 +290,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
   - Vitest for unit tests;
   - Playwright (Chromium) for browser tests;
   - `@axe-core/playwright` for the accessibility scan.
-- **Playwright** always starts its own fresh `vite preview` on a free port and never reuses a running server. Story tests set the "About seen" flag first, and one test covers the first visit.
+- **Playwright** always starts its own fresh `vite preview` on a free port and never reuses a running server. Story tests close About first; `tests/e2e/about.spec.ts` covers it.
 
 ```
 src/
@@ -331,7 +331,7 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
   - **layout, per beat and view:** no clipped text (`scrollHeight > clientHeight` or `scrollWidth > clientWidth` on any card fails), no overlapping cards, cards inside their region, no label over a card, line endpoints inside their source and target, the SLO route outside Orchestrator and Presentation, every line labelled, no `UP` chip, and no chip in a provenance colour;
   - **fit:** no scrollbars at 1280×720 and 1920×1080;
   - **axe:** no serious or critical violations at P1, D8 and R14 in both views, and with About open;
-  - **About:** first visit only, reopen, ✕ and Esc, focus return, and arrow keys blocked.
+  - **About:** opens on load and refresh, reopen, ✕, Esc and click outside, focus return, and arrow keys blocked.
 - **Mutation check (lesson 25):** each new semantic test is shown failing once, by temporarily breaking the data, before it is accepted.
 
 ## 14. Delivery order
@@ -367,3 +367,4 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
 - **rev 5 (plan 2, user review):** balanced spacing, with narrower lanes and more room between blocks. Orchestrator spans the full height, so Collector and Executor exchanges cross the side lanes too. Orchestrator's own artifacts leave from their card. The workflow card shows its steps and what Orchestrator is waiting for. The apply request names its desired-state version (`names`). The topology takes most of The Network band. "Configure" replaces "Steer".
 - **rev 6 (plan 2, user review):** one spacing unit (12px) for every margin and gap; lanes are the only wider spaces (the top lane under Presentation, 30px; the side lanes, 72px). Orchestrator lines up with the rows beside it. The topology is centred in The Network band, between raw signals and a mirrored facts column. Line dots move 20% slower (1.2s, staggered 0.42s) and start with a larger blink and ring.
 - **rev 7 (plan 2, user review):** every canvas block has the same 30px above and below it, matching the space under Presentation. The header and caption bars hug the canvas at 16px. The stage grows to 1440×952 so no card loses room; it still scales to fit, about 95% on a 900px-tall window.
+- **rev 8 (user):** About opens on every load and refresh (brief 06 and 07 amended), in a larger window.
