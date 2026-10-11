@@ -6,16 +6,14 @@
 
   const drawn = $derived(routes.filter((r) => r.kind !== 'work'));
   const work = $derived(routes.filter((r) => r.kind === 'work'));
-  /** Lines appear one after another in causal order; reduced motion shows them at once (app.css). */
-  const delay = (i: number) => `${i * 0.42}s`;
 </script>
 
 <!-- The current beat's lines (spec §9). Labels are HTML so they can take focus; the SVG is decoration.
-     Keyed by step so each beat's lines draw in afresh. -->
+     Lines are part of the beat's end state; `ui/motion.ts` animates them in (spec §8). Keyed by step. -->
 {#key step}
   <svg class="lines under" width={STAGE.w} height={STAGE.h} aria-hidden="true">
-    {#each work as r, i (r.key)}
-      <path class="route work" d={smoothPath(r.points)} style:animation-delay={delay(i)} />
+    {#each work as r (r.key)}
+      <path class="route work" d={smoothPath(r.points)} data-party={r.ends[0]} />
     {/each}
   </svg>
   <svg class="lines" width={STAGE.w} height={STAGE.h} aria-hidden="true">
@@ -32,21 +30,21 @@
         <path d="M0,0 L10,5 L0,10 z" fill="var(--line)" />
       </marker>
     </defs>
-    {#each drawn as r, i (r.key)}
+    {#each drawn as r (r.key)}
       <path
         class="route {r.kind}"
         d={smoothPath(r.points)}
         marker-end="url(#arrow)"
-        style:animation-delay={delay(i)}
+        data-route={r.key}
       />
     {/each}
   </svg>
-  {#each drawn as r, i (r.key)}
+  {#each drawn as r (r.key)}
     <span
       class="pulse"
       aria-hidden="true"
+      data-route={r.key}
       style:offset-path="path('{smoothPath(r.points)}')"
-      style:animation-delay={delay(i)}
     ></span>
     <!-- Work lines are labelled by the region's work label (● …), not by a button of their own. -->
     <button
@@ -56,8 +54,7 @@
       data-route={r.key}
       aria-label={r.spoken}
       style:left="{r.at[0]}px"
-      style:top="{r.at[1]}px"
-      style:animation-delay={delay(i)}>{r.label}</button
+      style:top="{r.at[1]}px">{r.label}</button
     >
   {/each}
 {/key}

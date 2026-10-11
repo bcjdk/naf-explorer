@@ -4,6 +4,7 @@
   import type { View } from './scenario/types.ts';
   import { stateAt } from './model/state.ts';
   import { routesOf } from './routes.ts';
+  import { timeline } from './model/timeline.ts';
   import { tokenStyle } from './theme.ts';
   import { fitScale, STAGE } from './layout.ts';
   import { load, save } from './storage.ts';
@@ -11,6 +12,7 @@
   import Stage from './ui/Stage.svelte';
   import CaptionBar from './ui/CaptionBar.svelte';
   import About from './ui/About.svelte';
+  import { finishAll, play, prefersReducedMotion } from './ui/motion.ts';
 
   const VIEW_KEY = 'naf.view';
   let about = $state<HTMLDialogElement>();
@@ -27,15 +29,27 @@
   const stage = $derived(stateAt(step));
   const routes = $derived(routesOf(step, view));
 
-  async function go(n: number) {
+  /** Every navigation finishes running motion first; only a single step forward plays (spec §8). */
+  async function go(n: number, animate = false) {
+    finishAll();
     // A focused line label belongs to the old beat and is about to unmount: keep focus on the story.
     const onLabel = document.activeElement?.classList.contains('label');
-    step = Math.max(0, Math.min(STEPS.length - 1, n));
-    if (!onLabel) return;
+    const target = Math.max(0, Math.min(STEPS.length - 1, n));
+    const from = step;
+    step = target;
     await tick();
-    (
-      document.querySelector<HTMLElement>('.label') ?? document.getElementById('caption-heading')
-    )?.focus();
+    // Rapid presses: only the latest navigation plays, once its beat is rendered.
+    if (animate && step === target && target === from + 1 && !prefersReducedMotion()) {
+      play(timeline(target));
+    } else {
+      // The re-rendered cards have just started their CSS fades; a jump shows the end state at once.
+      void document.body.offsetHeight;
+      finishAll();
+    }
+    if (onLabel)
+      (
+        document.querySelector<HTMLElement>('.label') ?? document.getElementById('caption-heading')
+      )?.focus();
   }
 
   function setView(v: View) {
@@ -50,7 +64,7 @@
     if (about?.open) return;
     if (e.key === 'ArrowRight') {
       e.preventDefault();
-      go(step + 1);
+      go(step + 1, true);
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
       go(step - 1);
@@ -69,7 +83,7 @@
   >
     <Header {step} {view} onJump={go} onView={setView} onAbout={() => about?.showModal()} />
     <Stage {stage} {routes} {view} {step} />
-    <CaptionBar {step} {view} onBack={() => go(step - 1)} onNext={() => go(step + 1)} />
+    <CaptionBar {step} {view} onBack={() => go(step - 1)} onNext={() => go(step + 1, true)} />
   </div>
   <!-- Inside .viewport so the dialog inherits the colour tokens; showModal() lifts it to the top layer. -->
   <About bind:dialog={about} />
