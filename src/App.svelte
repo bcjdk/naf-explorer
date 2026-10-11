@@ -39,13 +39,8 @@
     step = target;
     await tick();
     // Rapid presses: only the latest navigation plays, once its beat is rendered.
-    if (animate && step === target && target === from + 1 && !prefersReducedMotion()) {
+    if (animate && step === target && target === from + 1 && !prefersReducedMotion())
       play(timeline(target));
-    } else {
-      // The re-rendered cards have just started their CSS fades; a jump shows the end state at once.
-      void document.body.offsetHeight;
-      finishAll();
-    }
     if (onLabel)
       (
         document.querySelector<HTMLElement>('.label') ?? document.getElementById('caption-heading')

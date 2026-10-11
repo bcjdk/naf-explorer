@@ -318,14 +318,6 @@ code {
   border-left: 3px solid color-mix(in srgb, var(--accent) 40%, var(--card-earlier));
   color: var(--faded);
 }
-@media (prefers-reduced-motion: no-preference) {
-  .card {
-    transition:
-      color 0.4s,
-      border-color 0.4s,
-      background-color 0.4s;
-  }
-}
 .card:not(.new):not(.touched) .chip {
   border-color: var(--faded);
   background: none;
