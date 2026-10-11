@@ -4,3 +4,5 @@ node_modules/
 dist/
 test-results/
 playwright-report/
+.impeccable/config.local.json
+.impeccable/hook.cache.json
