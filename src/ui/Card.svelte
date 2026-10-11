@@ -50,7 +50,7 @@
       .join(' ');
 </script>
 
-<!-- Earlier versions sit stacked behind (box-shadow layers); their text stays in the DOM for screen readers. -->
+<!-- Earlier versions sit stacked behind (box-shadow layers); their text stays in the DOM for the e2e end-state check; the button's name carries how many. -->
 <button
   type="button"
   class="card stack-{Math.min(earlier.length, 2)}"

@@ -28,6 +28,10 @@ test('clicking a card rings it; selection is not focus styling', async ({ page }
   await expect(card(page, 'ds1')).toHaveClass(/\bselected\b/);
   await expect(card(page, 'ds1')).toHaveAttribute('aria-current', 'true');
   await expect(card(page, 'ds1')).toHaveCSS('outline-style', 'dashed');
+  await page.keyboard.press('Tab');
+  await card(page, 'ds1').focus();
+  await page.keyboard.press('Enter');
+  await expect(card(page, 'ds1')).toHaveCSS('outline-style', 'solid');
 });
 
 test('Enter on a region title, a surface and a line label selects them', async ({ page }) => {
@@ -53,6 +57,7 @@ test('selecting, or focusing a line label, finishes running motion', async ({ pa
   expect(await running(page)).toBe(0);
   await tick(page, at('P9') - 1).click();
   await page.getByRole('button', { name: 'Next ►' }).click();
+  expect(await running(page)).toBeGreaterThan(0);
   await card(page, 'rb-a').click();
   expect(await running(page)).toBe(0);
 });

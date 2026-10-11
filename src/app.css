@@ -312,6 +312,11 @@ code {
   outline: 2px dashed var(--text);
   outline-offset: 3px;
 }
+/* Focus stays visible on the selected element itself; the open inspector still shows what is selected. */
+.selected:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: -2px;
+}
 .work {
   font-style: italic;
 }
@@ -344,9 +349,6 @@ code {
   border-color: var(--faded);
   background: none;
   color: var(--faded);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
 }
 .card:not(.new):not(.touched) .chip.violated {
   border-color: var(--violated);
