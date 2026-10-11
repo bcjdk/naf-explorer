@@ -1,14 +1,28 @@
 <script lang="ts">
   import { smoothPath, type Route } from '../routes.ts';
   import { STAGE } from '../layout.ts';
+  import type { Target } from '../model/inspect.ts';
+  import { finishAll } from './motion.ts';
 
-  let { routes, step }: { routes: Route[]; step: number } = $props();
+  let {
+    routes,
+    step,
+    selected,
+    onSelect,
+  }: {
+    routes: Route[];
+    step: number;
+    selected: Target | null;
+    onSelect: (t: Target) => void;
+  } = $props();
+  const isSelected = (key: string) =>
+    selected?.t === 'line' && selected.step === step && selected.key === key;
 
   const drawn = $derived(routes.filter((r) => r.kind !== 'work'));
   const work = $derived(routes.filter((r) => r.kind === 'work'));
 </script>
 
-<!-- The current beat's lines (spec §9). Labels are HTML so they can take focus; the SVG is decoration.
+<!-- The current beat's lines (spec §9). Labels are HTML buttons: focusable and inspectable; the SVG is decoration.
      Lines are part of the beat's end state; `ui/motion.ts` animates them in (spec §8). Keyed by step. -->
 {#key step}
   <svg class="lines under" width={STAGE.w} height={STAGE.h} aria-hidden="true">
@@ -51,6 +65,10 @@
       class="label {r.kind}"
       class:lane={r.lane !== undefined}
       style:max-width={r.lane ? `${r.lane}px` : null}
+      class:selected={isSelected(r.key)}
+      aria-current={isSelected(r.key) ? 'true' : undefined}
+      onclick={() => onSelect({ t: 'line', step, key: r.key })}
+      onfocus={finishAll}
       data-route={r.key}
       aria-label={r.spoken}
       style:left="{r.at[0]}px"

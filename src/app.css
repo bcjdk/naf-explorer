@@ -298,6 +298,20 @@ code {
 .role {
   color: var(--muted);
 }
+.region-name {
+  all: unset;
+  cursor: pointer;
+}
+.region-name:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+/* Selection (spec §7): a dashed ring outside the element. Focus is a solid ring inside it; activity is the
+   region's background; the motion overlay's gain uses box-shadow. None of them shares another's styling. */
+.selected {
+  outline: 2px dashed var(--text);
+  outline-offset: 3px;
+}
 .work {
   font-style: italic;
 }
@@ -322,11 +336,17 @@ code {
   border: 1px solid var(--border-faint);
   border-left: 3px solid color-mix(in srgb, var(--accent) 40%, var(--card-earlier));
   color: var(--faded);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 .card:not(.new):not(.touched) .chip {
   border-color: var(--faded);
   background: none;
   color: var(--faded);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 .card:not(.new):not(.touched) .chip.violated {
   border-color: var(--violated);
@@ -369,6 +389,7 @@ code {
   }
 }
 .head {
+  display: block;
   font-size: 10px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -384,6 +405,7 @@ code {
   white-space: nowrap;
 }
 .body {
+  display: block;
   margin-top: 3px;
 }
 .line {
@@ -408,7 +430,7 @@ code {
   font-size: 10.5px;
   color: var(--muted);
 }
-.wf-steps li + li::before {
+.wf-step + .wf-step::before {
   content: '› ';
 }
 .wf-steps .done::after {
@@ -419,6 +441,7 @@ code {
   font-weight: 700;
 }
 .waiting {
+  display: block;
   margin: 3px 0 0;
   font-size: 11px;
   font-style: italic;
@@ -457,6 +480,11 @@ code {
   border-radius: 4px;
   background: var(--card-earlier);
   overflow: hidden;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  display: block;
 }
 .surface-name {
   display: block;

@@ -2,6 +2,7 @@
   import { tick } from 'svelte';
   import { STEPS } from './scenario/scenario.ts';
   import type { View } from './scenario/types.ts';
+  import type { Target } from './model/inspect.ts';
   import { stateAt } from './model/state.ts';
   import { routesOf } from './routes.ts';
   import { timeline } from './model/timeline.ts';
@@ -28,6 +29,13 @@
   const scale = $derived(fitScale(innerWidth, innerHeight));
   const stage = $derived(stateAt(step));
   const routes = $derived(routesOf(step, view));
+
+  let selected = $state<Target | null>(null);
+
+  function select(t: Target) {
+    finishAll();
+    selected = t;
+  }
 
   /** Every navigation finishes running motion first; only a single step forward plays (spec §8). */
   async function go(n: number, animate = false) {
@@ -87,7 +95,7 @@
     style:transform="translate(-50%, -50%) scale({scale})"
   >
     <Header {step} {view} onJump={go} onView={setView} onAbout={openAbout} onReplay={replay} />
-    <Stage {stage} {routes} {view} {step} />
+    <Stage {stage} {routes} {view} {step} {selected} onSelect={select} />
     <CaptionBar {step} {view} onBack={() => go(step - 1)} onNext={() => go(step + 1, true)} />
   </div>
   <!-- Inside .viewport so the dialog inherits the colour tokens; showModal() lifts it to the top layer. -->

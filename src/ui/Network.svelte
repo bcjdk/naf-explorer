@@ -4,9 +4,23 @@
   import type { StageState } from '../model/state.ts';
   import { statusText } from '../model/describe.ts';
   import { DIAMOND, FACTS, REGIONS, SLOTS } from '../layout.ts';
+  import type { Target } from '../model/inspect.ts';
   import Card from './Card.svelte';
 
-  let { stage, view, work }: { stage: StageState; view: View; work: string } = $props();
+  let {
+    stage,
+    view,
+    work,
+    selected,
+    onSelect,
+  }: {
+    stage: StageState;
+    view: View;
+    work: string;
+    selected: Target | null;
+    onSelect: (t: Target) => void;
+  } = $props();
+  const isSelected = $derived(selected?.t === 'responsibility' && selected.party === 'network');
 
   // Topology inside DIAMOND (relative to the region): a stretched diamond (spec §3).
   const N = {
@@ -32,6 +46,8 @@
 <section
   class="region network"
   class:active={work !== ''}
+  class:selected={isSelected}
+  aria-current={isSelected ? 'true' : undefined}
   data-party="network"
   data-link={stage.linkDegraded ? 'DEGRADED' : 'OK'}
   data-path={stage.acmePath ?? 'none'}
@@ -40,7 +56,7 @@
     .w}px;height:{REGIONS.network.h}px;--accent:var(--network)"
 >
   {#each stage.slots.network ?? [] as slot (slot.kind)}
-    <Card {slot} {stage} {view} rect={SLOTS[slot.kind]!} />
+    <Card {slot} {stage} {view} rect={SLOTS[slot.kind]!} {selected} {onSelect} />
   {/each}
 
   <svg
@@ -106,7 +122,14 @@
     {/each}
   </svg>
 
-  <h2 id="h-network"><span class="swatch"></span>{RESPONSIBILITIES.network.name}</h2>
+  <h2 id="h-network">
+    <button
+      type="button"
+      class="region-name"
+      onclick={() => onSelect({ t: 'responsibility', party: 'network' })}
+      ><span class="swatch"></span>{RESPONSIBILITIES.network.name}</button
+    >
+  </h2>
   <!-- The role sits at the top right, leaving the band's top left free for line labels. -->
   <p class="net-role">{RESPONSIBILITIES.network.role}</p>
   <div class="facts" style:left="{FACTS.x}px" style:top="{FACTS.y}px" style:width="{FACTS.w}px">
