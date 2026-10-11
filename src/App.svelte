@@ -13,6 +13,7 @@
   import Stage from './ui/Stage.svelte';
   import CaptionBar from './ui/CaptionBar.svelte';
   import About from './ui/About.svelte';
+  import Inspector from './ui/Inspector.svelte';
   import { finishAll, play, prefersReducedMotion } from './ui/motion.ts';
 
   const VIEW_KEY = 'naf.view';
@@ -32,9 +33,32 @@
 
   let selected = $state<Target | null>(null);
 
-  function select(t: Target) {
+  let side = $state<'left' | 'right'>('right');
+  let opener: HTMLElement | null = null;
+
+  /** Opens or moves the inspector (spec §7): finishes motion, sides it opposite the ring, focuses its heading. */
+  async function select(t: Target) {
     finishAll();
+    if (!selected) opener = document.activeElement as HTMLElement | null;
     selected = t;
+    await tick();
+    const ring = document.querySelector('.selected');
+    const stageEl = document.querySelector('.stage');
+    // Nothing is ringed when the target isn't drawn in this beat: keep the side.
+    if (ring && stageEl) {
+      const a = ring.getBoundingClientRect();
+      const b = stageEl.getBoundingClientRect();
+      side = a.left + a.width / 2 > b.left + b.width / 2 ? 'left' : 'right';
+    }
+    await tick();
+    document.getElementById('inspector-title')?.focus();
+  }
+
+  async function closeInspector() {
+    selected = null;
+    await tick();
+    (opener?.isConnected ? opener : document.getElementById('caption-heading'))?.focus();
+    opener = null;
   }
 
   /** Every navigation finishes running motion first; only a single step forward plays (spec §8). */
@@ -75,6 +99,11 @@
     if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
     // The story stands still while About is open.
     if (about?.open) return;
+    if (e.key === 'Escape' && selected) {
+      e.preventDefault();
+      closeInspector();
+      return;
+    }
     if (e.key === 'ArrowRight') {
       e.preventDefault();
       go(step + 1, true);
@@ -96,6 +125,16 @@
   >
     <Header {step} {view} onJump={go} onView={setView} onAbout={openAbout} onReplay={replay} />
     <Stage {stage} {routes} {view} {step} {selected} onSelect={select} />
+    {#if selected}
+      <Inspector
+        target={selected}
+        {step}
+        {view}
+        {side}
+        onSelect={select}
+        onClose={closeInspector}
+      />
+    {/if}
     <CaptionBar {step} {view} onBack={() => go(step - 1)} onNext={() => go(step + 1, true)} />
   </div>
   <!-- Inside .viewport so the dialog inherits the colour tokens; showModal() lifts it to the top layer. -->

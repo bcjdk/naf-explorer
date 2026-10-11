@@ -31,6 +31,8 @@ test('clicking a card rings it; selection is not focus styling', async ({ page }
   await page.keyboard.press('Tab');
   await card(page, 'ds1').focus();
   await page.keyboard.press('Enter');
+  // Enter moves focus to the inspector heading; return it to the ringed card.
+  await card(page, 'ds1').focus();
   await expect(card(page, 'ds1')).toHaveCSS('outline-style', 'solid');
 });
 
@@ -60,4 +62,108 @@ test('selecting, or focusing a line label, finishes running motion', async ({ pa
   expect(await running(page)).toBeGreaterThan(0);
   await card(page, 'rb-a').click();
   expect(await running(page)).toBe(0);
+});
+
+const panel = (page: Page) => page.locator('aside.inspector');
+const heading = (page: Page) => page.locator('#inspector-title');
+
+test('a card opens the inspector opposite it, with focus on its heading', async ({ page }) => {
+  await tick(page, at('P10')).click();
+  await card(page, 'ds1').click();
+  await expect(panel(page)).toHaveClass(/\bleft\b/);
+  await expect(heading(page)).toBeFocused();
+  await expect(heading(page)).toContainText('v1');
+  await expect(panel(page)).toContainText('Produced by');
+  await expect(panel(page)).toContainText('Executor');
+  // The open panel now covers Observability, so use the keyboard, as a reader would.
+  await page.locator('.region[data-party="observability"] .region-name').focus();
+  await page.keyboard.press('Enter');
+  await expect(panel(page)).toHaveClass(/\bright\b/);
+  await expect(panel(page)).toContainText('Does not');
+});
+
+test('Esc and ✕ close it and return focus to what opened it', async ({ page }) => {
+  await tick(page, at('P10')).click();
+  await card(page, 'ds1').focus();
+  await page.keyboard.press('Enter');
+  await expect(heading(page)).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(panel(page)).toHaveCount(0);
+  await expect(card(page, 'ds1')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await page.getByRole('button', { name: 'Close inspector' }).click();
+  await expect(panel(page)).toHaveCount(0);
+  await expect(card(page, 'ds1')).toBeFocused();
+});
+
+test('stepping keeps the panel and focus; content follows the beat', async ({ page }) => {
+  await tick(page, at('P5')).click();
+  await page.getByRole('button', { name: 'Intent', exact: true }).click();
+  const back = page.getByRole('button', { name: '◄ Back' });
+  await back.focus();
+  await back.click();
+  await expect(panel(page)).toBeVisible();
+  await expect(back).toBeFocused();
+  await expect(panel(page)).toContainText('derive network intent');
+  await page.keyboard.press('ArrowRight');
+  await expect(panel(page)).toContainText('derive desired state');
+});
+
+test('a line label shows its signal view, and says so when its beat has passed', async ({
+  page,
+}) => {
+  await tick(page, at('P10')).click();
+  await page.locator('.label', { hasText: 'check drift' }).click();
+  await expect(panel(page)).toContainText('Answered by');
+  await expect(panel(page)).toContainText('in sync');
+  await page.keyboard.press('ArrowRight');
+  await expect(panel(page)).toContainText('Signalled in P10');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#caption-heading')).toBeFocused();
+});
+
+test('a lineage link moves the selection; an earlier version rings its slot card', async ({
+  page,
+}) => {
+  await tick(page, at('R7')).click();
+  const ds = page.locator('.card[data-version^="ds"]').first();
+  await ds.click();
+  const side = await panel(page).getAttribute('class');
+  await page.locator('.inspector-link', { hasText: 'Desired network state (v1)' }).click();
+  await expect(heading(page)).toContainText('v1');
+  await expect(heading(page)).toBeFocused();
+  await expect(ds).toHaveClass(/\bselected\b/);
+  expect(await panel(page).getAttribute('class')).toBe(side);
+});
+
+test('Esc with About open closes only About', async ({ page }) => {
+  await tick(page, at('P10')).click();
+  await card(page, 'ds1').click();
+  await page.getByRole('button', { name: 'About' }).click();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('dialog.about')).not.toHaveAttribute('open');
+  await expect(panel(page)).toBeVisible();
+});
+
+test('the panel never covers the selected card or the caption bar', async ({ page }) => {
+  for (const v of ['ds1', 'slorule', 'wf-prov']) {
+    // Close the previous panel first: it may cover the next card.
+    await page.keyboard.press('Escape');
+    await tick(page, at('P10')).click();
+    await card(page, v).click();
+    const [a, b, c] = await Promise.all([
+      panel(page).boundingBox(),
+      card(page, v).boundingBox(),
+      page.locator('footer.caption').boundingBox(),
+    ]);
+    const overlap = (p: typeof a, q: typeof a) =>
+      !!p &&
+      !!q &&
+      p.x < q.x + q.width &&
+      q.x < p.x + p.width &&
+      p.y < q.y + q.height &&
+      q.y < p.y + p.height;
+    expect(overlap(a, b), v).toBe(false);
+    expect(overlap(a, c), v).toBe(false);
+  }
 });
