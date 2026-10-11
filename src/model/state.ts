@@ -1,4 +1,4 @@
-import { SIGNALS, STEPS, VERSIONS, WORKFLOW_STEPS, kind } from '../scenario/scenario.ts';
+import { SIGNALS, STEPS, VERSIONS, WORKFLOW_STEPS, kind, version } from '../scenario/scenario.ts';
 import type {
   ArtifactVersion,
   Event,
@@ -33,6 +33,14 @@ export interface StageState {
 }
 
 export type Line = Extract<Event, { t: 'signal' | 'handoff' | 'work' }>;
+
+export type Exchange = Extract<Event, { t: 'signal' | 'handoff' }>;
+
+/** The key of an exchange's line: shared by the routes (geometry) and the timeline (motion). */
+export const lineKey = (e: Exchange): string =>
+  `${e.from}>${e.to}:${e.t === 'handoff' ? version(e.version).kind : e.signal}${
+    e.t === 'handoff' && e.surface ? `@${e.surface}` : ''
+  }`;
 
 /** The end state of step n: everything that has happened in steps 0..n. */
 export function stateAt(
@@ -94,6 +102,8 @@ export function stateAt(
             s.waiting = { answer: SIGNALS[e.signal].answeredBy!, from: e.to };
           else if (e.to === 'orchestrator' && s.waiting?.answer === e.signal) s.waiting = null;
           break;
+        default:
+          e satisfies never;
       }
     }
   });
