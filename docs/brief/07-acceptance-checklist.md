@@ -7,7 +7,7 @@ The demo is done when every item holds. Items marked **[auto]** must be automate
 - [ ] There is no artifact handoff between Orchestrator and The Network, and a coordination signal can never name The Network.
 - [ ] Every coordination signal has Orchestrator as exactly one endpoint.
 - [ ] Only Executor sends to The Network (configuration change only), and The Network sends only raw signals, only to Collector.
-- [ ] Executor receives only desired state from Intent, and sends only configuration changes to The Network.
+- [ ] Executor receives only desired state from Intent and apply requests from Orchestrator (ADR 0002), and sends only configuration changes to The Network.
 - [ ] Collector receives only raw signals from The Network, sends only enriched observations to Observability and observed device state to Intent, and never produces a status.
 - [ ] Every piece of work is done by its owner:
   - **Intent:** record, derive, check drift;
@@ -40,10 +40,10 @@ The demo is done when every item holds. Items marked **[auto]** must be automate
   - its clear goes to Fault Management;
   - the repair event goes to ITSM.
 - [ ] At most one new artifact per responsibility per step.
-- [ ] Every apply step ends with Executor ⇢ Orchestrator *applied* for the same version, and is followed immediately by two verify steps:
+- [ ] Every apply is ordered in its own step by Orchestrator → Executor *apply request* (ADR 0002). The apply step ends with Executor ⇢ Orchestrator *applied* for the same version, and is followed immediately by two verify steps:
   - **read back:** Orchestrator ⇢ Collector *read back applied state*, observed state → Intent, then Collector ⇢ Orchestrator *read back done*;
   - **check drift:** Orchestrator ⇢ Intent *check drift*, desired state IN SYNC, and finally Intent ⇢ Orchestrator *in sync*.
-- [ ] Every apply comes after Intent ⇢ Orchestrator *desired state ready* for the same version, and the first apply comes after Observability ⇢ Orchestrator *assurance onboarded*.
+- [ ] Every apply request comes after Intent ⇢ Orchestrator *desired state ready* for the same version, and the first comes after Observability ⇢ Orchestrator *assurance onboarded*.
 - [ ] Every signal from Orchestrator that requests work is answered to Orchestrator (by a signal or the requested artifact) before Orchestrator sends its next request in that workflow.
 - [ ] No signal or Orchestrator artifact names a path that Orchestrator was not told by Observability: the query asks for *alternate-path health*, and the remediation decision names only the link to exclude.
 - [ ] The SLO rule exists before the first evaluation; every evaluation produces a service state derived from an SLI computed in an earlier step and the SLO rule.

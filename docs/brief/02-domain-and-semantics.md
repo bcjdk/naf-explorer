@@ -21,16 +21,16 @@ The NAF framework names six responsibilities. In this demo they are **roles**, n
 
 There are two different kinds of communication. The demo must keep them visibly distinct.
 
-- **Coordination signals** are workflow messages that always involve Orchestrator: start, *desired state ready*, *onboard service assurance*, *assurance onboarded*, *apply desired state*, *applied*, *read back applied state*, *read back done*, *check drift*, *in sync*, and *query alternate-path health*. Signals are **not artifacts**.
+- **Coordination signals** are workflow messages that always involve Orchestrator: start, *desired state ready*, *onboard service assurance*, *assurance onboarded*, *applied*, *read back applied state*, *read back done*, *check drift*, *in sync*, and *query alternate-path health*. Signals are **not artifacts**.
 - **Artifacts** are typed content handed from the responsibility that **produces** them to the one that **uses** them, for example desired state, the SLO definition or observations. Each handoff carries one specific artifact version.
 
 The rules:
 
-- Orchestrator sequences the workflow with signals. **Intent-derived content never travels through Orchestrator.** When Orchestrator tells Executor to apply, Executor takes the desired state directly from Intent. When Orchestrator asks Observability to onboard assurance, Observability takes the SLO definition directly from Intent.
+- Orchestrator sequences the workflow with signals. **Intent-derived content never travels through Orchestrator.** When Orchestrator hands Executor an apply request (its own work order naming a desired-state version, ADR 0002), Executor takes the desired state directly from Intent. When Orchestrator asks Observability to onboard assurance, Observability takes the SLO definition directly from Intent.
 - **Orchestrator stays in control of every job it starts.** Each signal that asks a responsibility to do work is answered to Orchestrator when that work is done (*desired state ready*, *assurance onboarded*, *applied*, *read back done*, *in sync*, or the requested artifact), and Orchestrator sends the next job only after that answer. Orchestrator coordinates work **between** responsibilities, not the steps **inside** one: Intent's record → derive network intent → derive desired state runs as one job, answered by *desired state ready*.
 - Orchestrator never learns intended state by reading it. Anything its workflow needs to decide (the implicated link, the current path, whether a healthy alternate exists) reaches it in Observability's artifacts, and its decisions name only what to change (for example "exclude CPH01–ODE01"), never the resulting path: Intent selects that.
 - A running workflow that waits for an outcome subscribes to it (for example "wait for service state HEALTHY") and closes the subscription when it completes. Outside a workflow, Orchestrator reacts to **events**, not to raw service state.
-- Orchestrator hands over only its **own** artifacts: an *intent request* (relaying a service request to Intent) and a *remediation decision* (an intent change request).
+- Orchestrator hands over only its **own** artifacts: an *intent request* (relaying a service request to Intent), a *remediation decision* (an intent change request) and an *apply request* (a work order naming a desired-state version, ADR 0002).
 - Every artifact handoff names exactly one artifact version, and must go from that artifact's producer to one of its declared consumers.
 - An artifact version is transferred across a given boundary at most once. Re-using it later is "in use", not a new transfer.
 
