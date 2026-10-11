@@ -14,3 +14,5 @@
 - **Plan 5: Chapter buttons.** Add `aria-current` to the current chapter.
 - **Plan 5: Copy trimmed to fit (plan 2), for review.** Shortened to fit fixed card slots: ev-viol (meaning, Technical), evid (meaning, Technical), pathB (meaning, Technical), ev-repair (Technical), norm-deg (Technical), enr-base/enr-deg/enr-after (Technical, and enr-deg's meaning), obs1 (Technical). The test-required substrings are kept.
 - **Plan 4: Line labels are focusable buttons with no action yet.** The inspector gives them their handoff and signal views.
+- **Plan 4: Selection ring vs gain.** The motion overlay's gain highlight animates `box-shadow` on regions and surfaces (`GAIN` in `src/ui/motion.ts`, composite replace). Draw the selection ring with `outline`, or set `composite: 'add'`, so a gain never erases the ring.
+- **Plan 4: Invisible labels mid-beat.** While a beat plays, line labels before their slot are at opacity 0 but still focusable and clickable. Once labels open the inspector, finish the motion on focusin of a story element, or decide otherwise.

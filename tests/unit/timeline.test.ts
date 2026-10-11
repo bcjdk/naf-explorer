@@ -10,6 +10,16 @@ const newest = (s: StageState, k: string) =>
   (Object.values(s.slots).flat() as Slot[]).find((x) => x.kind === k)?.versions.at(-1);
 
 describe('timeline (spec §8)', () => {
+  it('a network event animates only the field it changes', () => {
+    const targets = (id: string) =>
+      timeline(at(id))
+        .filter((s) => s.kind === 'network')
+        .map((s) => s.target);
+    expect(targets('D1')).toEqual(['link']);
+    expect(targets('P8')).toEqual(['path']);
+    expect(targets('R7')).toEqual(['path']);
+  });
+
   it('a beat without events has no motion', () => {
     expect(timeline(at('P1'))).toEqual([]);
   });

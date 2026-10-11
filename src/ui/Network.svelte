@@ -110,7 +110,7 @@
   <!-- The role sits at the top right, leaving the band's top left free for line labels. -->
   <p class="net-role">{RESPONSIBILITIES.network.role}</p>
   <div class="facts" style:left="{FACTS.x}px" style:top="{FACTS.y}px" style:width="{FACTS.w}px">
-    <p>
+    <p data-fact="link">
       {NETWORK.link}:
       {#if stage.linkDegraded}
         <span class="chip degraded">{statusText('DEGRADED')}</span> {NETWORK.linkDegraded[view]}
@@ -118,7 +118,7 @@
         {NETWORK.linkOk[view]}
       {/if}
     </p>
-    <p>{NETWORK.acme[stage.acmePath ?? 'none'][view]}</p>
+    <p data-fact="path">{NETWORK.acme[stage.acmePath ?? 'none'][view]}</p>
     <p>{NETWORK.device[view]}</p>
   </div>
 </section>

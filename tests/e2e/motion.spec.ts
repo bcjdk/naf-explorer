@@ -126,3 +126,24 @@ test.describe('reduced motion', () => {
     await expect(replay(page)).toBeFocused();
   });
 });
+
+test('at time 0 of a beat, unchanged content shows and regions are not lit early', async ({
+  page,
+}) => {
+  await tick(page, at('R7') - 1).click();
+  await next(page).click();
+  const style = await page.evaluate(() => {
+    document.getAnimations().forEach((a) => {
+      a.pause();
+      a.currentTime = 0;
+    });
+    const css = (sel: string) => getComputedStyle(document.querySelector(sel)!);
+    return {
+      strand: css('[data-party="network"] .topology .degraded').opacity,
+      fact: css('[data-fact="link"]').opacity,
+      // Executor's work comes after the first handoff, so it is idle at time 0.
+      executor: css('.region[data-party="executor"]').backgroundColor,
+    };
+  });
+  expect(style).toEqual({ strand: '1', fact: '1', executor: 'rgb(21, 26, 32)' });
+});

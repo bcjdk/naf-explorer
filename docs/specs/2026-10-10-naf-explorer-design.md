@@ -299,10 +299,10 @@ src/
   scenario/scenario.ts     catalogs + 38 steps (the only story content)
   model/state.ts           stateAt, linesOf
   model/timeline.ts        timeline + timing constants
-  ui/motion.ts             the WAAPI overlay: play, finishAll
   model/inspect.ts         inspector content
   layout.ts                geometry and line routes
   theme.css                colour tokens
+  ui/motion.ts             the WAAPI overlay: play, finishAll
   ui/*.svelte              App, Header, Stage, Region, Card, Surface, Network, Lines, CaptionBar, Inspector, About
 scripts/beat-table.ts      prints §5 from scenario.ts
 tests/unit/                semantics, story, timeline, contrast

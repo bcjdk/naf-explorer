@@ -85,7 +85,10 @@ export function timeline(n: number, steps: readonly Step[] = STEPS): MotionSlot[
         t = add('mark', e.version, i, t, TIMING.mark);
         break;
       case 'network': {
-        const shown = add('network', 'network', i, t, TIMING.network);
+        // One slot per changed field, so motion fades only what the event changed.
+        let shown = t;
+        if (e.link) shown = add('network', 'link', i, t, TIMING.network);
+        if (e.acmePath) shown = add('network', 'path', i, t, TIMING.network);
         if (e.link && !before.linkDegraded) add('pulse', 'link', i, shown, TIMING.pulse);
         t = shown;
         break;

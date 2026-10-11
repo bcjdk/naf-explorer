@@ -25,7 +25,7 @@ const TRAVEL: Keyframe[] = [
   { offset: 1, offsetDistance: '100%', transform: 'scale(1)', opacity: 0 },
 ];
 /** The region's idle background; the end state (active or not) is whatever the CSS renders. */
-const LIGHT_UP: Keyframe[] = [{ backgroundColor: TOKENS.panel }];
+const LIGHT_UP: Keyframe[] = [{ offset: 0, backgroundColor: TOKENS.panel }];
 /** "Gains the result": a brief inset edge, neither the activity background nor the selection ring. */
 const GAIN: Keyframe[] = [{ offset: 0.35, boxShadow: `inset 0 0 0 1px ${TOKENS['border-new']}` }];
 const PULSE: Keyframe[] = [
@@ -66,9 +66,9 @@ function targets(s: MotionSlot): Target[] {
       return each(`.card[data-version="${t}"] .marker`, FADE);
     case 'network':
       return each(
-        ['.acme', '.degraded', '.direction']
-          .map((c) => `[data-party="network"] .topology ${c}`)
-          .join(', ') + ', [data-party="network"] .facts',
+        t === 'link'
+          ? '[data-party="network"] .topology :is(.degraded, .direction), [data-fact="link"]'
+          : '[data-party="network"] .topology .acme, [data-fact="path"]',
         FADE,
       );
     case 'gain':
