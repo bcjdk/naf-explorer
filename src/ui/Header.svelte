@@ -8,12 +8,14 @@
     onJump,
     onView,
     onAbout,
+    onReplay,
   }: {
     step: number;
     view: View;
     onJump: (n: number) => void;
     onView: (v: View) => void;
     onAbout: () => void;
+    onReplay: () => void;
   } = $props();
 
   const chapters = Object.keys(CHAPTERS) as Chapter[];
@@ -49,4 +51,5 @@
     >
   </div>
   <button class="about-open" onclick={onAbout}>About</button>
+  <button class="replay" onclick={onReplay}>Replay</button>
 </header>

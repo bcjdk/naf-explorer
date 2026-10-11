@@ -51,7 +51,7 @@ code {
   height: 36px;
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 16px;
   padding: 0 12px;
   box-sizing: border-box;
   border-bottom: 1px solid var(--border);
@@ -60,6 +60,7 @@ code {
   font-size: 15px;
   font-weight: 600;
   margin: 0;
+  white-space: nowrap;
 }
 .header nav {
   display: flex;
@@ -93,6 +94,7 @@ code {
 }
 .view {
   margin-left: auto;
+  flex-shrink: 0;
   display: flex;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -110,15 +112,18 @@ code {
 }
 
 /* About (brief 06): a modal reading pane, calm and narrow. */
-.about-open {
-  margin-left: 8px;
+.about-open,
+.replay {
+  flex-shrink: 0;
+  margin-left: 0;
   padding: 4px 12px;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: none;
   color: var(--muted);
 }
-.about-open:hover {
+.about-open:hover,
+.replay:hover {
   color: var(--text);
 }
 .about {

@@ -47,6 +47,16 @@
       )?.focus();
   }
 
+  function replay() {
+    finishAll();
+    if (!prefersReducedMotion()) play(timeline(step));
+  }
+
+  function openAbout() {
+    finishAll();
+    about?.showModal();
+  }
+
   function setView(v: View) {
     view = v;
     save(VIEW_KEY, v);
@@ -76,7 +86,7 @@
     style:height="{STAGE.h}px"
     style:transform="translate(-50%, -50%) scale({scale})"
   >
-    <Header {step} {view} onJump={go} onView={setView} onAbout={() => about?.showModal()} />
+    <Header {step} {view} onJump={go} onView={setView} onAbout={openAbout} onReplay={replay} />
     <Stage {stage} {routes} {view} {step} />
     <CaptionBar {step} {view} onBack={() => go(step - 1)} onNext={() => go(step + 1, true)} />
   </div>

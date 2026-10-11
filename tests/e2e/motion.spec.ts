@@ -46,6 +46,56 @@ test('Back and jumps show the end state at once, finishing any running motion', 
   expect(await running(page)).toBe(0);
 });
 
+const replay = (page: Page) => page.getByRole('button', { name: 'Replay' });
+
+test('Replay plays the current beat again and keeps focus', async ({ page }) => {
+  await tick(page, at('P6')).click();
+  expect(await running(page)).toBe(0);
+  await replay(page).click();
+  expect(await running(page)).toBeGreaterThan(0);
+  await expect(replay(page)).toBeFocused();
+  await expect(counter(page)).toHaveText(`${at('P6') + 1} / ${STEPS.length}`);
+});
+
+test('rapid presses land exactly N beats later, play only the last, and settle at its end state', async ({
+  page,
+}) => {
+  for (let i = 0; i < 5; i++) await page.keyboard.press('ArrowRight');
+  await expect(counter(page)).toHaveText(`6 / ${STEPS.length}`);
+  await expect.poll(() => running(page), { timeout: stepLength(timeline(5)) + 3000 }).toBe(0);
+  const animated = await stageHtml(page);
+  await tick(page, 4).click();
+  await tick(page, 5).click();
+  expect(await stageHtml(page)).toBe(animated);
+});
+
+test('Next keeps focus through rapid clicks, and focus never drops to body', async ({ page }) => {
+  for (let i = 0; i < 3; i++) await next(page).click();
+  await expect(next(page)).toBeFocused();
+  await expect(counter(page)).toHaveText(`4 / ${STEPS.length}`);
+  expect(await page.evaluate(() => document.activeElement === document.body)).toBe(false);
+});
+
+test('switching views mid-motion keeps the beat, the motion and focus', async ({ page }) => {
+  await tick(page, at('P9') - 1).click();
+  await next(page).click();
+  const technical = page.getByRole('button', { name: 'Technical' });
+  await technical.click();
+  await expect(counter(page)).toHaveText(`${at('P9') + 1} / ${STEPS.length}`);
+  expect(await running(page)).toBeGreaterThan(0);
+  await expect(technical).toBeFocused();
+});
+
+test('opening About finishes the running motion, and the story stays put', async ({ page }) => {
+  await tick(page, at('P9') - 1).click();
+  await next(page).click();
+  await page.getByRole('button', { name: 'About' }).click();
+  expect(await running(page)).toBe(0);
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('Escape');
+  await expect(counter(page)).toHaveText(`${at('P9') + 1} / ${STEPS.length}`);
+});
+
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
 
@@ -67,5 +117,12 @@ test.describe('reduced motion', () => {
       await page.evaluate(() => document.getAnimations().forEach((a) => a.finish()));
       expect(await stageHtml(page), STEPS[n]!.id).toBe(reduced[n - 1]);
     }
+  });
+
+  test('Replay does nothing but keeps focus', async ({ page }) => {
+    await tick(page, at('P6')).click();
+    await replay(page).click();
+    expect(await running(page)).toBe(0);
+    await expect(replay(page)).toBeFocused();
   });
 });
