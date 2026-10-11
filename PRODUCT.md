@@ -43,7 +43,7 @@ Automation is easier to reason about as roles and handoffs than as a list of too
 - Independent personal project, **not** an official or endorsed NAF product. It must not imply NAF endorsement.
 - Uses the NAF block colours as provenance colours by reference: Presentation `#f5c518`, Observability `#00e676`, Orchestrator `#00d4ff`, Intent `#ff6d2e`, Collector `#F43F5E`, Executor `#6366F1`, Infrastructure `#64748b` (https://reference.networkautomation.forum/Framework/brand-guidelines/).
 - Voice: calm, precise, technical; plain words for Simple view, identifiers and values for Technical.
-- Credits (decided, `docs/brief/06-about-and-credits.md`): NAF Automation Framework, and Thomas Kjær Aabo's *How the Internet Works* as inspiration. No code, text or assets from it are used.
+- Credits (decided, `docs/brief/06-about-and-credits.md`): NAF Automation Framework, and Thomas Kjær Aabo's _How the Internet Works_ as inspiration. No code, text or assets from it are used.
 
 ## Evidence on Hand
 
