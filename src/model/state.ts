@@ -1,4 +1,4 @@
-import { STEPS, VERSIONS, kind } from '../scenario/scenario.ts';
+import { SIGNALS, STEPS, VERSIONS, WORKFLOW_STEPS, kind } from '../scenario/scenario.ts';
 import type {
   ArtifactVersion,
   Event,
@@ -18,12 +18,18 @@ export interface Slot {
 export interface StageState {
   visible: string[];
   newIds: string[];
+  /** Earlier versions this step uses: marked or handed on. */
+  touched: string[];
   markers: Record<string, Marker>;
   surfaces: Partial<Record<Surface, string>>;
   slots: Partial<Record<Party, Slot[]>>;
   linkDegraded: boolean;
   acmePath: 'A' | 'B' | null;
   work: Partial<Record<Party, Text[]>>;
+  /** The answer Orchestrator is still waiting for at the end of this step, and from whom (ADR 0001). */
+  waiting: { answer: string; from: Party } | null;
+  /** For each workflow record: the index of its current step in WORKFLOW_STEPS (its length once completed). */
+  progress: Record<string, number>;
 }
 
 export type Line = Extract<Event, { t: 'signal' | 'handoff' | 'work' }>;
@@ -38,12 +44,15 @@ export function stateAt(
   const s: StageState = {
     visible: [],
     newIds: [],
+    touched: [],
     markers: {},
     surfaces: {},
     slots: {},
     linkDegraded: false,
     acmePath: null,
     work: {},
+    waiting: null,
+    progress: {},
   };
   steps.slice(0, n + 1).forEach((step, i) => {
     const current = i === n;
@@ -62,10 +71,17 @@ export function stateAt(
         }
         case 'mark':
           s.markers[e.version] = e.marker;
+          if (current) s.touched.push(e.version);
           break;
-        case 'handoff':
+        case 'handoff': {
+          const k = kindOf.get(e.version);
+          const asks = k && e.from === 'orchestrator' ? kind(k).answeredBy : undefined;
+          if (asks) s.waiting = { answer: asks, from: e.to };
+          else if (e.to === 'orchestrator' && s.waiting?.answer === k) s.waiting = null;
+          if (current && !s.touched.includes(e.version)) s.touched.push(e.version);
           if (e.to === 'presentation' && e.surface) s.surfaces[e.surface] = e.version;
           break;
+        }
         case 'network':
           if (e.link) s.linkDegraded = true;
           if (e.acmePath) s.acmePath = e.acmePath;
@@ -74,10 +90,21 @@ export function stateAt(
           if (current) (s.work[e.owner] ??= []).push(e.label);
           break;
         case 'signal':
+          if (e.from === 'orchestrator' && SIGNALS[e.signal].answeredBy)
+            s.waiting = { answer: SIGNALS[e.signal].answeredBy!, from: e.to };
+          else if (e.to === 'orchestrator' && s.waiting?.answer === e.signal) s.waiting = null;
           break;
       }
     }
   });
+  for (const [wf, list] of Object.entries(WORKFLOW_STEPS)) {
+    if (!s.visible.includes(wf)) continue;
+    const reached = list.filter((x) => {
+      const at = steps.findIndex((st) => st.id === x.from);
+      return at !== -1 && at <= n;
+    }).length;
+    s.progress[wf] = s.markers[wf] === 'COMPLETED' ? list.length : reached - 1;
+  }
   return s;
 }
 

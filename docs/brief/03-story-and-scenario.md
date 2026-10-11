@@ -1,6 +1,6 @@
 # Story and scenario (decided)
 
-The causal flow below is decided. How it maps to individual on-screen steps ("beats") is for the new build, under the pacing rule at the end of this document. The earlier build used 33 beats: Provision 13, Detect 8, Remediate 12. Revision 2026-10-10 (ADR 0001) added completion signals so Orchestrator controls every job it starts, and split verification into *read back* and *check drift*.
+The causal flow below is decided. How it maps to individual on-screen steps ("beats") is for the new build, under the pacing rule at the end of this document. The earlier build used 33 beats: Provision 13, Detect 8, Remediate 12. Revision 2026-10-10 (ADR 0001) added completion signals so Orchestrator controls every job it starts, and split verification into *read back* and *check drift*. Revision 2026-10-11 (ADR 0002) made the apply an Orchestrator work order (*apply request*) in its own step.
 
 ## Scenario facts
 
@@ -40,14 +40,15 @@ Each line is one causal change. "→" is an artifact handoff; "⇢" is a coordin
 4. **Derive network intent.** Intent derives **network intent**: SR policy colour 100, preferred path A via ODE01, alternate path B via KOL01.
 5. **Derive desired state.** Intent derives per-device **desired state** for CPH01 and AAR01. Intent ⇢ Orchestrator: *desired state v1 ready*.
 6. **Onboard assurance.** Orchestrator ⇢ Observability: *onboard service assurance*. Intent publishes the **SLO definition** from the service intent; Intent → Observability (*SLO definition*, direct). Observability creates its **SLO rule**. Observability ⇢ Orchestrator: *assurance onboarded*.
-7. **Apply.** Orchestrator ⇢ Executor: *apply desired state v1*. Intent → Executor (*desired state*, direct). Executor renders and applies the **configuration change** to CPH01 and AAR01, including the TWAMP-Light probe → The Network. ACME's traffic now uses path A. Executor ⇢ Orchestrator: *applied v1* (the commit succeeded; that is not verification).
-8. **Read back.** Orchestrator ⇢ Collector: *read back applied state*. The Network → Collector (configuration read back via gNMI Get). Collector → Intent (*observed device state*, direct). Collector ⇢ Orchestrator: *read back done*.
-9. **Check drift.** Orchestrator ⇢ Intent: *check drift v1*. Intent's drift check finds **no drift**, so desired state is marked IN SYNC. Intent ⇢ Orchestrator: *in sync*. A mismatch would lead the workflow to roll back.
-10. **Collect.** "Configured as intended is not yet a working service." The Network → Collector (raw signals); Collector **normalizes** them.
-11. **Enrich.** Collector tags the measurements with service IDs from its cached intent. Collector → Observability (*enriched observations*).
-12. **Compute SLI.** Observability computes ACME's SLI: 0.00% loss in the last minute.
-13. **Evaluate.** Observability evaluates the SLI against the SLO rule: within objective, so service state is **HEALTHY**.
-14. **Report.** Observability → Portal and Orchestrator (*service state HEALTHY*; the provisioning workflow has been waiting for it). Orchestrator completes the provisioning workflow.
+7. **Order apply.** Orchestrator → Executor (*apply request*: its own work order naming desired state v1; ADR 0002).
+8. **Apply.** Intent → Executor (*desired state v1*, direct). Executor renders and applies the **configuration change** to CPH01 and AAR01, including the TWAMP-Light probe → The Network. ACME's traffic now uses path A. Executor ⇢ Orchestrator: *applied v1* (the commit succeeded; that is not verification).
+9. **Read back.** Orchestrator ⇢ Collector: *read back applied state*. The Network → Collector (configuration read back via gNMI Get). Collector → Intent (*observed device state*, direct). Collector ⇢ Orchestrator: *read back done*.
+10. **Check drift.** Orchestrator ⇢ Intent: *check drift v1*. Intent's drift check finds **no drift**, so desired state is marked IN SYNC. Intent ⇢ Orchestrator: *in sync*. A mismatch would lead the workflow to roll back.
+11. **Collect.** "Configured as intended is not yet a working service." The Network → Collector (raw signals); Collector **normalizes** them.
+12. **Enrich.** Collector tags the measurements with service IDs from its cached intent. Collector → Observability (*enriched observations*).
+13. **Compute SLI.** Observability computes ACME's SLI: 0.00% loss in the last minute.
+14. **Evaluate.** Observability evaluates the SLI against the SLO rule: within objective, so service state is **HEALTHY**.
+15. **Report.** Observability → Portal and Orchestrator (*service state HEALTHY*; the provisioning workflow has been waiting for it). Orchestrator completes the provisioning workflow.
 
 ### Detect: network signals become service understanding
 
@@ -67,15 +68,16 @@ Each line is one causal change. "→" is an artifact handoff; "⇢" is a coordin
 3. **Evaluate policy.** The workflow evaluates the policy and sends Orchestrator → Intent (*remediation decision*: exclude CPH01–ODE01 for ACME). The decision names only what to exclude; Intent selects the path. In this scenario the workflow evaluates the policy; other designs may evaluate policy elsewhere.
 4. **Record.** **Service intent is UNCHANGED.** Intent records **derived network intent v2**: exclude CPH01–ODE01, select path B.
 5. **Derive.** Intent derives **desired state v2**. Intent ⇢ Orchestrator: *desired state v2 ready*.
-6. **Apply.** Orchestrator ⇢ Executor: *apply desired state v2*. Intent → Executor (*desired state v2*). Executor applies the **configuration change v2** → The Network. ACME's traffic moves to path B via KOL01; the probe follows, because it is steered by colour 100. Executor ⇢ Orchestrator: *applied v2*.
-7. **Read back.** Orchestrator ⇢ Collector: *read back applied state*. The Network → Collector (read back). Collector → Intent (*observed device state v2*). Collector ⇢ Orchestrator: *read back done*.
-8. **Check drift.** Orchestrator ⇢ Intent: *check drift v2*. No drift (IN SYNC). Intent ⇢ Orchestrator: *in sync*.
-9. **Collect.** Collector collects and normalizes fresh measurements.
-10. **Enrich.** Collector tags them from its updated cached intent: the ACME probe is now on path B, and CPH01–ODE01 no longer carries ACME. Collector → Observability.
-11. **Compute SLI.** 0.00% loss in the last minute.
-12. **Evaluate.** Against the same, unchanged SLO rule, service state is **HEALTHY**.
-13. **Report and clear.** Observability → Portal and Orchestrator (*service state HEALTHY*; the remediation workflow has been waiting for it). Observability **clears** the service-impact event in Fault Management (**CLEARED**). Orchestrator completes the remediation workflow.
-14. **Closing.** The fibre is still faulty. Observability sends ITSM a service-impact event saying ACME was auto-remediated onto path B and the link needs repair. The service is healthy while the link is degraded: device state is not service state, in both directions. "Here the remediation policy was pre-approved, so the loop closes automatically. Another deployment could pause here for operator approval."
+6. **Order apply.** Orchestrator → Executor (*apply request* naming desired state v2; ADR 0002).
+7. **Apply.** Intent → Executor (*desired state v2*, direct). Executor applies the **configuration change v2** → The Network. ACME's traffic moves to path B via KOL01; the probe follows, because it is steered by colour 100. Executor ⇢ Orchestrator: *applied v2*.
+8. **Read back.** Orchestrator ⇢ Collector: *read back applied state*. The Network → Collector (read back). Collector → Intent (*observed device state v2*). Collector ⇢ Orchestrator: *read back done*.
+9. **Check drift.** Orchestrator ⇢ Intent: *check drift v2*. No drift (IN SYNC). Intent ⇢ Orchestrator: *in sync*.
+10. **Collect.** Collector collects and normalizes fresh measurements.
+11. **Enrich.** Collector tags them from its updated cached intent: the ACME probe is now on path B, and CPH01–ODE01 no longer carries ACME. Collector → Observability.
+12. **Compute SLI.** 0.00% loss in the last minute.
+13. **Evaluate.** Against the same, unchanged SLO rule, service state is **HEALTHY**.
+14. **Report and clear.** Observability → Portal and Orchestrator (*service state HEALTHY*; the remediation workflow has been waiting for it). Observability **clears** the service-impact event in Fault Management (**CLEARED**). Orchestrator completes the remediation workflow.
+15. **Closing.** The fibre is still faulty. Observability sends ITSM a service-impact event saying ACME was auto-remediated onto path B and the link needs repair. The service is healthy while the link is degraded: device state is not service state, in both directions. "Here the remediation policy was pre-approved, so the loop closes automatically. Another deployment could pause here for operator approval."
 
 ## Artifacts
 
@@ -90,6 +92,7 @@ Each line is one causal change. "→" is an artifact handoff; "⇢" is a coordin
 | SLO rule | Observability | — | one version |
 | Workflow record: provision / remediation | Orchestrator | — | running · completed |
 | Remediation decision | Orchestrator | Intent | exclude CPH01–ODE01 |
+| Apply request (ADR 0002) | Orchestrator | Executor | v1 · v2 (each names a desired-state version only) |
 | Configuration change (per device) | Executor | The Network | v1 · v2 |
 | Raw signals | The Network | Collector | config read-back A · baseline telemetry · degraded · config read-back B · after reroute |
 | Observed device state | Collector | Intent | v1 · v2 |

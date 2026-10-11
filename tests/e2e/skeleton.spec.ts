@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
-import { linesOf, stateAt } from '../../src/model/state.ts';
+import { stateAt } from '../../src/model/state.ts';
+import { routesOf } from '../../src/routes.ts';
 import { MARKER_TEXT, statusText } from '../../src/model/describe.ts';
 import { STEPS, version } from '../../src/scenario/scenario.ts';
 
@@ -29,7 +30,7 @@ async function expectEndState(page: Page, n: number) {
       ),
       link: net.dataset.link,
       path: net.dataset.path,
-      lines: all('.exchanges li').length,
+      labels: all('.label').map((e) => e.textContent!.trim()),
     };
   });
   const id = STEPS[n]!.id;
@@ -38,7 +39,11 @@ async function expectEndState(page: Page, n: number) {
   expect(dom.received, id).toEqual(s.surfaces);
   expect(dom.link, id).toBe(s.linkDegraded ? 'DEGRADED' : 'OK');
   expect(dom.path, id).toBe(s.acmePath ?? 'none');
-  expect(dom.lines, id).toBe(linesOf(n).length);
+  expect(dom.labels, id).toEqual(
+    routesOf(n, 'simple')
+      .filter((r) => r.kind !== 'work')
+      .map((r) => r.label),
+  );
   for (const vid of s.visible) {
     const v = version(vid);
     if (v.status) expect(dom.text[vid], `${id} ${vid}`).toContain(statusText(v.status));
@@ -85,23 +90,38 @@ test('jumps in any order show the target beat’s end state', async ({ page }) =
 
 test('a step tick jumps to that beat and shows its end state', async ({ page }) => {
   await page.getByRole('button', { name: 'Go to D8: Raise event' }).click();
-  await expect(counter(page)).toHaveText('22 / 36');
+  await expect(counter(page)).toHaveText('23 / 38');
   await expect(page.locator('[data-surface="faultMgmt"]')).toContainText('✕ VIOLATED');
   await expect(page.locator('[data-version="ev-viol"]')).toBeVisible();
 });
 
-test('the exchange list shows the step’s signals, handoffs and work in causal order', async ({
+test('the beat’s lines are drawn and labelled in causal order', async ({ page }) => {
+  await page.getByRole('button', { name: 'Go to P8: Apply' }).click();
+  await expect(page.locator('.label')).toHaveText([
+    'Desired network state (v1)',
+    'Configuration change (v1)',
+    'applied v1',
+  ]);
+  await expect(page.locator('path.route.signal')).toHaveCount(1);
+  await expect(page.locator('path.route.handoff')).toHaveCount(2);
+});
+
+test('Orchestrator orders the apply with its own work order, in its own beat', async ({ page }) => {
+  await page.getByRole('button', { name: 'Go to P7: Order apply' }).click();
+  await expect(page.locator('.label')).toHaveText(['Apply request (desired state v1)']);
+  await expect(page.locator('[data-version="ar1"]')).toHaveClass(/new/);
+});
+
+test('the running workflow shows its steps and what Orchestrator is waiting for', async ({
   page,
 }) => {
-  await page.getByRole('button', { name: 'Go to P7: Apply' }).click();
-  await expect(page.locator('.exchanges li')).toHaveText([
-    'Orchestrator ⇢ Executor: apply desired state v1',
-    'Intent → Executor: Desired network state (v1)',
-    'Executor: render',
-    'Executor: apply',
-    'Executor → The Network: Configuration change (v1)',
-    'Executor ⇢ Orchestrator: applied v1',
-  ]);
+  await page.getByRole('button', { name: 'Go to P4: Derive network intent' }).click();
+  const wf = page.locator('[data-version="wf-prov"]');
+  await expect(wf.locator('.wf-steps .now')).toHaveText('derive');
+  await expect(wf.locator('.waiting')).toHaveText('waiting for Intent: desired state ready');
+  await page.getByRole('button', { name: 'Go to P15: Report' }).click();
+  await expect(wf.locator('.waiting')).toHaveCount(0);
+  await expect(wf.locator('.wf-steps .done')).toHaveCount(6);
 });
 
 test('the view switch changes text only, keeps the step and is remembered', async ({ page }) => {
@@ -110,7 +130,7 @@ test('the view switch changes text only, keeps the step and is remembered', asyn
   await expect(caption).toContainText('Through the Portal');
   await page.getByRole('button', { name: 'Technical' }).click();
   await expect(caption).toContainText('ACME-L3VPN-001');
-  await expect(counter(page)).toHaveText('2 / 36');
+  await expect(counter(page)).toHaveText('2 / 38');
   await expect(page.getByText('Values illustrative')).toBeVisible();
   await page.reload();
   await expect(page.getByRole('button', { name: 'Technical' })).toHaveAttribute(
@@ -119,7 +139,7 @@ test('the view switch changes text only, keeps the step and is remembered', asyn
   );
 });
 
-test('switching views keeps every card, surface, network fact, exchange and focus', async ({
+test('switching views keeps every card, surface, network fact, line and focus', async ({
   page,
 }) => {
   const d8 = stepIndex('D8');
@@ -129,9 +149,7 @@ test('switching views keeps every card, surface, network fact, exchange and focu
   await page.keyboard.press('Enter');
   await expect(technical).toHaveAttribute('aria-pressed', 'true');
   await expect(technical).toBeFocused();
-  await expect(page.locator('[data-version="ev-viol"]')).toContainText(
-    'event: acme-loss-violation',
-  );
+  await expect(page.locator('[data-version="ev-viol"]')).toContainText('acme-loss-violation');
   await expectEndState(page, d8);
   await page.keyboard.press('Shift+Tab');
   await page.keyboard.press('Enter');
@@ -151,21 +169,25 @@ test('Portal shows what it received and keeps its own request', async ({ page })
 
 test('earlier versions read as spaced text', async ({ page }) => {
   await tick(page, stepIndex('R14')).click();
-  await expect(page.locator('[data-version="ds1"]')).toHaveText('v1 = IN SYNC');
-  await expect(page.locator('[data-version="wf-prov"]')).toHaveText('provision completed');
+  await expect(page.locator('[data-version="ds1"]')).toHaveText('earlier version: v1 = IN SYNC');
+  await expect(page.locator('[data-version="wf-prov"]')).toHaveText(
+    'earlier version: provision completed',
+  );
 });
 
 test('The Network keeps ground truth: degraded link, interface still UP as plain text', async ({
   page,
 }) => {
-  await page.getByRole('button', { name: 'Go to R14: Closing' }).click();
+  await page.getByRole('button', { name: 'Go to R15: Closing' }).click();
   const net = page.locator('section[data-party="network"]');
   await expect(net).toContainText('▲ DEGRADED');
   await expect(net).toContainText('path B');
   await expect(page.locator('.chip', { hasText: 'UP' })).toHaveCount(0);
 });
 
-test('nothing in the stage overflows, in any beat or either view', async ({ page }) => {
+test('nothing overflows, cards stay in their region without overlapping, and labels cover no card', async ({
+  page,
+}) => {
   test.setTimeout(120_000);
   for (const view of ['Simple', 'Technical'] as const) {
     await page.getByRole('button', { name: view }).click();
@@ -173,7 +195,7 @@ test('nothing in the stage overflows, in any beat or either view', async ({ page
       await tick(page, n).click();
       await expect(counter(page)).toHaveText(`${n + 1} / ${STEPS.length}`);
       const over = await page.evaluate(() =>
-        [...document.querySelectorAll<HTMLElement>('.region, .card, .surface, .caption')]
+        [...document.querySelectorAll<HTMLElement>('.region, .card, .surface, .caption, .label')]
           .filter(
             (el) => el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1,
           )
@@ -182,6 +204,53 @@ test('nothing in the stage overflows, in any beat or either view', async ({ page
           ),
       );
       expect(over, `${STEPS[n]!.id} ${view}`).toEqual([]);
+      const clash = await page.evaluate(() => {
+        const box = (el: Element) => el.getBoundingClientRect();
+        const hit = (a: DOMRect, b: DOMRect) =>
+          a.left < b.right - 0.5 &&
+          b.left < a.right - 0.5 &&
+          a.top < b.bottom - 0.5 &&
+          b.top < a.bottom - 0.5;
+        const inside = (a: DOMRect, b: DOMRect) =>
+          a.left >= b.left - 0.5 &&
+          a.right <= b.right + 0.5 &&
+          a.top >= b.top - 0.5 &&
+          a.bottom <= b.bottom + 0.5;
+        const cards = [...document.querySelectorAll<HTMLElement>('.card')];
+        const out: string[] = [];
+        const labels = [...document.querySelectorAll<HTMLElement>('.label')];
+        const others = [...document.querySelectorAll<HTMLElement>('.surface, .facts, .net-role')];
+        // Region headers: measure the text itself, since the heading box spans the region's width.
+        const headers = [...document.querySelectorAll<HTMLElement>('.region h2')].map((h) => {
+          const range = document.createRange();
+          range.selectNodeContents(h);
+          return { name: h.textContent!.trim().slice(0, 24), rect: range.getBoundingClientRect() };
+        });
+        labels.forEach((l, i) => {
+          for (const m of labels.slice(i + 1))
+            if (hit(box(l), box(m)))
+              out.push(`label "${l.textContent}" overlaps "${m.textContent}"`);
+          for (const o of others)
+            if (hit(box(l), box(o))) out.push(`label "${l.textContent}" covers ${o.className}`);
+          for (const h of headers)
+            if (hit(box(l), h.rect)) out.push(`label "${l.textContent}" covers header "${h.name}"`);
+        });
+        for (const c of cards) {
+          const earlier = c.querySelectorAll('[data-version]').length;
+          if (!c.classList.contains(`stack-${Math.min(earlier, 2)}`))
+            out.push(`${c.dataset.version} not stacked`);
+          if (!inside(box(c), box(c.closest('.region')!)))
+            out.push(`${c.dataset.version} outside region`);
+          for (const d of cards)
+            if (c !== d && hit(box(c), box(d)))
+              out.push(`${c.dataset.version} overlaps ${d.dataset.version}`);
+          for (const l of document.querySelectorAll<HTMLElement>('.label'))
+            if (hit(box(l), box(c)))
+              out.push(`label "${l.textContent}" covers ${c.dataset.version}`);
+        }
+        return out;
+      });
+      expect(clash, `${STEPS[n]!.id} ${view}`).toEqual([]);
     }
   }
 });
@@ -191,16 +260,29 @@ test('arrow keys still step the story while a header control has focus', async (
   const technical = page.getByRole('button', { name: 'Technical' });
   await technical.focus();
   await page.keyboard.press('ArrowRight');
-  await expect(counter(page)).toHaveText('2 / 36');
+  await expect(counter(page)).toHaveText('2 / 38');
   await expect(technical).toHaveAttribute('aria-pressed', 'false');
   await expect(technical).toBeFocused();
+});
+
+test('stepping while a line label has focus keeps focus on the story', async ({ page }) => {
+  await page.getByRole('button', { name: 'Go to P8: Apply' }).click();
+  await page.locator('.label').first().focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(counter(page)).toHaveText('9 / 38');
+  const focused = await page.evaluate(
+    () =>
+      document.activeElement?.classList.contains('label') ||
+      document.activeElement?.id === 'caption-heading',
+  );
+  expect(focused).toBe(true);
 });
 
 // Review Focus 2
 test('modified arrows do not step the story', async ({ page }) => {
   for (const key of ['Alt+ArrowRight', 'Shift+ArrowRight', 'Control+ArrowRight']) {
     await page.keyboard.press(key);
-    await expect(counter(page)).toHaveText('1 / 36');
+    await expect(counter(page)).toHaveText('1 / 38');
   }
 });
 
@@ -209,14 +291,14 @@ test('Next on the last beat and Back on the first keep focus and stay put', asyn
   const back = page.getByRole('button', { name: '◄ Back' });
   await back.focus();
   await page.keyboard.press('Enter');
-  await expect(counter(page)).toHaveText('1 / 36');
+  await expect(counter(page)).toHaveText('1 / 38');
   await expect(back).toBeFocused();
 
-  await page.getByRole('button', { name: 'Go to R14: Closing' }).click();
+  await page.getByRole('button', { name: 'Go to R15: Closing' }).click();
   const next = page.getByRole('button', { name: 'Next ►' });
   await next.focus();
   await page.keyboard.press('Enter');
-  await expect(counter(page)).toHaveText('36 / 36');
+  await expect(counter(page)).toHaveText('38 / 38');
   await expect(next).toBeFocused();
   await expect(next).toHaveAttribute('aria-disabled', 'true');
 });
@@ -251,7 +333,7 @@ for (const [name, block] of Object.entries(blockers)) {
       'true',
     );
     await page.keyboard.press('ArrowRight');
-    await expect(counter(page)).toHaveText('2 / 36');
+    await expect(counter(page)).toHaveText('2 / 38');
     expect(errors).toEqual([]);
   });
 }

@@ -6,10 +6,10 @@ group('describe', () => {
   it('writes signals, handoffs, work and marks as one line each', () => {
     expect(
       describe(
-        { t: 'signal', signal: 'apply', from: 'orchestrator', to: 'executor', version: 'ds1' },
+        { t: 'signal', signal: 'checkDrift', from: 'orchestrator', to: 'intent', version: 'ds1' },
         'simple',
       ),
-    ).toBe('Orchestrator ⇢ Executor: apply desired state v1');
+    ).toBe('Orchestrator ⇢ Intent: check drift v1');
     expect(
       describe(
         {
@@ -44,7 +44,7 @@ group('beatTable', () => {
   const rows = md.split('\n').filter((l) => /^\| [PDR]\d+ \|/.test(l));
 
   it('has one row per beat under three chapter headings', () => {
-    expect(rows).toHaveLength(36);
+    expect(rows).toHaveLength(38);
     expect(md).toContain('### Provision');
     expect(md).toContain('### Detect');
     expect(md).toContain('### Remediate');
@@ -52,9 +52,9 @@ group('beatTable', () => {
 
   it('lists new artifacts and events in order', () => {
     expect(rows[0]).toBe('| P1 | Orientation | none | none |');
-    const p8 = rows.find((r) => r.startsWith('| P8 |'))!;
-    expect(p8).toContain('Collector: Observed device state (v1)');
-    expect(p8.indexOf('read back applied state')).toBeLessThan(p8.indexOf('read back done'));
+    const p9 = rows.find((r) => r.startsWith('| P9 |'))!;
+    expect(p9).toContain('Collector: Observed device state (v1)');
+    expect(p9.indexOf('read back applied state')).toBeLessThan(p9.indexOf('read back done'));
     expect(rows.find((r) => r.startsWith('| P2 |'))).toContain(
       'Portal → Orchestrator: Service request (submitted)',
     );

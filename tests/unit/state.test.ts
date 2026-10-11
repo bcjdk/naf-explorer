@@ -35,7 +35,7 @@ const fixture: Step[] = [
       { t: 'network', acmePath: 'A' },
       { t: 'network', link: { id: 'CPH01-ODE01', status: 'DEGRADED' } },
       { t: 'handoff', version: 'b', from: 'presentation', to: 'orchestrator', surface: 'portal' },
-      { t: 'signal', signal: 'apply', from: 'orchestrator', to: 'executor', version: 'a' },
+      { t: 'signal', signal: 'checkDrift', from: 'orchestrator', to: 'intent', version: 'a' },
       { t: 'appear', version: 'c' },
     ],
   },
@@ -47,12 +47,15 @@ describe('stateAt', () => {
     expect(stateAt(0, [{ ...fixture[0]!, events: [] }], versions)).toEqual({
       visible: [],
       newIds: [],
+      touched: [],
       markers: {},
       surfaces: {},
       slots: {},
       linkDegraded: false,
       acmePath: null,
       work: {},
+      waiting: null,
+      progress: {},
     });
   });
 
@@ -60,6 +63,16 @@ describe('stateAt', () => {
     expect(at(0).newIds).toEqual(['a']);
     expect(at(1).visible).toEqual(['a', 'b', 'c']);
     expect(at(1).newIds).toEqual(['b', 'c']);
+  });
+
+  it('lists the earlier versions this step marks or hands on', () => {
+    expect(at(0).touched).toEqual(['a']);
+    expect(at(1).touched).toEqual(['a', 'b']);
+  });
+
+  it('tracks the answer Orchestrator is still waiting for', () => {
+    expect(at(0).waiting).toBeNull();
+    expect(at(1).waiting).toEqual({ answer: 'inSync', from: 'intent' });
   });
 
   it('records what each surface received, ignoring what it sent', () => {
@@ -91,7 +104,7 @@ describe('linesOf', () => {
     expect(linesOf(0, fixture).map((e) => e.t)).toEqual(['handoff', 'work']);
     expect(linesOf(1, fixture)).toEqual([
       { t: 'handoff', version: 'b', from: 'presentation', to: 'orchestrator', surface: 'portal' },
-      { t: 'signal', signal: 'apply', from: 'orchestrator', to: 'executor', version: 'a' },
+      { t: 'signal', signal: 'checkDrift', from: 'orchestrator', to: 'intent', version: 'a' },
     ]);
   });
 });

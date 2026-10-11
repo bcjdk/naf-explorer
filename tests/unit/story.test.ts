@@ -32,11 +32,11 @@ const textOf = (id: string) => {
 };
 
 describe('story shape', () => {
-  it('has the 36 beats of spec §5 in order', () => {
+  it('has the 38 beats of spec §5 in order', () => {
     const ids = [
-      ...Array.from({ length: 14 }, (_, i) => `P${i + 1}`),
+      ...Array.from({ length: 15 }, (_, i) => `P${i + 1}`),
       ...Array.from({ length: 8 }, (_, i) => `D${i + 1}`),
-      ...Array.from({ length: 14 }, (_, i) => `R${i + 1}`),
+      ...Array.from({ length: 15 }, (_, i) => `R${i + 1}`),
     ];
     expect(STEPS.map((s) => s.id)).toEqual(ids);
     const chapter = { P: 'provision', D: 'detect', R: 'remediate' } as const;
@@ -188,6 +188,15 @@ describe('handoffs and signals (brief 02; checklist 07)', () => {
     expect(new Set(keys).size).toBe(keys.length);
   });
 
+  it('gives Orchestrator’s own artifacts no Intent content: no Intent parent, no configuration values', () => {
+    for (const v of VERSIONS.filter((x) => producerOf(x.id) === 'orchestrator')) {
+      for (const parent of v.lineage)
+        expect(producerOf(parent), `${v.id} ← ${parent}`).not.toBe('intent');
+      if (v.kind === 'applyRequest')
+        expect(textOf(v.id), v.id).not.toMatch(/sr-policy|vrf|colour|rd\/rt/i);
+    }
+  });
+
   it('never hands Intent content to Orchestrator', () => {
     for (const f of of('handoff')) {
       if (producerOf(f.e.version) === 'intent')
@@ -257,17 +266,26 @@ describe('pacing and causal order (brief 03)', () => {
   });
 });
 
-describe('workflow control (ADR 0001)', () => {
-  const applies = of('signal').filter((f) => f.e.signal === 'apply');
+describe('workflow control (ADR 0001, ADR 0002)', () => {
+  // An apply is answered by Executor's "applied" for the desired-state version it took from Intent.
+  const applies = of('signal').filter((f) => f.e.signal === 'applied');
+  const orders = of('handoff').filter((f) => version(f.e.version).kind === 'applyRequest');
   const isSignal = (e: Event | undefined, signal: string, from: string, to: string, v?: string) =>
     expect(e).toEqual(
       v ? { t: 'signal', signal, from, to, version: v } : { t: 'signal', signal, from, to },
     );
 
-  it('applies, reads back and checks drift for one and the same version', () => {
+  it('orders each apply in its own beat, then applies, reads back and checks drift for one version', () => {
     expect(applies).toHaveLength(2);
-    for (const { e, si } of applies) {
+    expect(orders).toHaveLength(2);
+    applies.forEach(({ e, si }, k) => {
       const d = e.version!;
+      // Orchestrator's own work order goes to Executor in the beat just before the apply (ADR 0002).
+      const order = orders[k]!;
+      expect(order.si, STEPS[si]!.id).toBe(si - 1);
+      expect([order.e.from, order.e.to]).toEqual(['orchestrator', 'executor']);
+      // The order names exactly the version Executor then takes from Intent and reports applied.
+      expect(version(order.e.version).names).toBe(d);
       expect(version(d).kind).toBe('desiredState');
       const [applyStep, readStep, driftStep] = [STEPS[si]!, STEPS[si + 1]!, STEPS[si + 2]!];
 
@@ -299,18 +317,18 @@ describe('workflow control (ADR 0001)', () => {
       isSignal(driftStep.events[0], 'checkDrift', 'orchestrator', 'intent', d);
       expect(driftStep.events).toContainEqual({ t: 'mark', version: d, marker: 'IN_SYNC' });
       isSignal(driftStep.events.at(-1), 'inSync', 'intent', 'orchestrator', d);
-    }
+    });
   });
 
   it('applies only after desired state ready for that version, and first after assurance is onboarded', () => {
-    for (const a of applies) {
+    applies.forEach((a, k) => {
       const ready = of('signal').find(
         (f) => f.e.signal === 'desiredStateReady' && f.e.version === a.e.version,
       );
-      expect(ready && before(ready, a), a.e.version).toBe(true);
-    }
+      expect(ready && before(ready, orders[k]!), a.e.version).toBe(true);
+    });
     const onboarded = of('signal').find((f) => f.e.signal === 'onboarded');
-    expect(onboarded && before(onboarded, applies[0]!)).toBe(true);
+    expect(onboarded && before(onboarded, orders[0]!)).toBe(true);
   });
 
   it('declares an answer for every Orchestrator request signal', () => {
@@ -394,7 +412,7 @@ describe('network ground truth (checklist 07)', () => {
   });
 
   it('puts ACME on path A from provisioning until the reroute, and on path B after it', () => {
-    const [apply1, reroute] = [stepIndex('P7'), stepIndex('R6')];
+    const [apply1, reroute] = [stepIndex('P8'), stepIndex('R7')];
     for (let n = 0; n <= last; n++) {
       const expected = n < apply1 ? null : n < reroute ? 'A' : 'B';
       expect(stateAt(n).acmePath, STEPS[n]!.id).toBe(expected);

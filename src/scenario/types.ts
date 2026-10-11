@@ -18,6 +18,7 @@ export type KindId =
   | 'sloRule'
   | 'workflow'
   | 'remediationDecision'
+  | 'applyRequest'
   | 'configChange'
   | 'rawSignals'
   | 'observedState'
@@ -34,7 +35,6 @@ export type SignalId =
   | 'desiredStateReady'
   | 'onboard'
   | 'onboarded'
-  | 'apply'
   | 'applied'
   | 'readBack'
   | 'readBackDone'
@@ -89,6 +89,8 @@ export interface ArtifactVersion {
   label: string;
   status?: Status;
   lineage: string[];
+  /** For an apply request: the desired-state version it names (a reference, not content; ADR 0002). */
+  names?: string;
   meaning: string;
   technical: string[];
 }

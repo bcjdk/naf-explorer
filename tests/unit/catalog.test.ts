@@ -5,9 +5,9 @@ const consumersOf = (p: string) => KINDS.filter((k) => k.consumers.includes(p as
 const producedBy = (p: string) => KINDS.filter((k) => k.producer === p);
 
 describe('artifact catalog (brief 02, 03; checklist 07)', () => {
-  it('has the 19 artifact kinds of brief 03, each once', () => {
-    expect(KINDS).toHaveLength(19);
-    expect(new Set(KINDS.map((k) => k.id)).size).toBe(19);
+  it('has the 20 artifact kinds of brief 03 (ADR 0002), each once', () => {
+    expect(KINDS).toHaveLength(20);
+    expect(new Set(KINDS.map((k) => k.id)).size).toBe(20);
   });
 
   it('has no artifact between Orchestrator and The Network', () => {
@@ -26,9 +26,10 @@ describe('artifact catalog (brief 02, 03; checklist 07)', () => {
     ]);
   });
 
-  it('gives Executor only desired state from Intent, and has it produce only configuration changes', () => {
+  it('gives Executor only desired state from Intent and apply requests from Orchestrator, and has it produce only configuration changes', () => {
     expect(consumersOf('executor').map((k) => [k.producer, k.id])).toEqual([
       ['intent', 'desiredState'],
+      ['orchestrator', 'applyRequest'],
     ]);
     expect(producedBy('executor').map((k) => [k.id, k.consumers])).toEqual([
       ['configChange', ['network']],
@@ -76,7 +77,7 @@ describe('artifact catalog (brief 02, 03; checklist 07)', () => {
 describe('signal catalog (ADR 0001)', () => {
   it('pairs every request signal with its answer', () => {
     expect(SIGNALS.onboard.answeredBy).toBe('onboarded');
-    expect(SIGNALS.apply.answeredBy).toBe('applied');
+    expect(kind('applyRequest').answeredBy).toBe('applied');
     expect(SIGNALS.readBack.answeredBy).toBe('readBackDone');
     expect(SIGNALS.checkDrift.answeredBy).toBe('inSync');
     expect(SIGNALS.queryAltPath.answeredBy).toBe('pathHealth');

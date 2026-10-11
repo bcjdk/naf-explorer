@@ -1,15 +1,9 @@
 # Deferred work
 
 - **Portal order status.** The Portal's service request stays "submitted", and no one tells the Portal that the order is complete. The Portal shows the service as ✓ HEALTHY, which is enough for the story. Adding an "order completed" handoff would mean a new artifact.
-- **Observability headroom.** At R14 in Technical view the Observability region fits with only about 0–1px to spare under the skeleton CSS. Plan 2's geometry should give it real headroom, so a different font stack can't clip it.
-- **Step tick contrast and size.** Unselected step ticks are about 1.7:1 against the background (below WCAG 1.4.11's 3:1 for non-text contrast) and only 8×14px. Plan 2 should restyle them.
-- **Plan 2: Card geometry decision (needs the user's ruling before plan 2 is written).** Spec rev 2 §3 shows a body only when the card is new. §6 says switching views never moves anything, and §8 says cards never move. Today, cards below an expanded card shift between views and between steps. The options are (a) reserve one expanded-body area per region (at most one per region, by the pacing rule), or (b) accept vertical reflow within a region and amend §6 and §8.
-- **Plan 2: Focus ring clipping.** `overflow: hidden` on regions and cards will clip a 2px focus ring with a 2px offset once cards become buttons. Use an inset ring or at least 4px padding.
-- **Plan 2: "Presentation" heading literal** in `Stage.svelte`: use `RESPONSIBILITIES.presentation.name`.
-- **Plan 2: No unit test for `describe`'s network branch** (link and path in each view).
-- **Plan 2: Spec wording.** §10 should say the card body shows "when new (see §3)". §3 should say the earlier line carries each version's label.
+- **No unit test for `describe`'s network branch** (link and path in each view).
 - **Plan 3: Exhaustiveness check.** Add `default: e satisfies never` to `stateAt`'s switch and to the timeline switch.
-- **Plan 4: Inspector and earlier versions.** Earlier versions are spans inside one card. Decide how selection, the ring and lineage links handle them, given that a button can't be nested in a button.
+- **Plan 4: Inspector and earlier versions.** Earlier versions are visually hidden spans inside one card, shown as stacked edges. Decide how selection, the ring and lineage links handle them, given that a button can't be nested in a button.
 - **Plan 4: Orchestrator's `does` text.** "Relays requests to Intent." conflicts with its doesNot. Reword to "Turns service requests into its own intent requests."
 - **Plan 4: Keyboard gate.** The window keydown handler must ignore story keys while About is open.
 - **Plan 5: Path-naming regex** (`tests/unit/story.test.ts`). It misses "path: B" and "via KOL01". Widen it first in the content pass.
@@ -19,3 +13,7 @@
 - **Plan 5: Live region.** The caption is announced, but the chapter, counter and title are not.
 - **Plan 5: Storage-blocking e2e test** should first assert that storage is actually blocked.
 - **Plan 5: Chapter buttons.** Add `aria-current` to the current chapter.
+- **Plan 5: Copy trimmed to fit (plan 2), for review.** Shortened to fit fixed card slots: ev-viol (meaning, Technical), evid (meaning, Technical), pathB (meaning, Technical), ev-repair (Technical), norm-deg (Technical), enr-base/enr-deg/enr-after (Technical, and enr-deg's meaning), obs1 (Technical). The test-required substrings are kept.
+- **Plan 3: Work-line labels.** Dotted work lines are labelled only by the region's work label, not by a label button of their own. Check that this still reads clearly once motion arrives.
+- **Plan 3: Replace the interim CSS line animation.** Lines fade in staggered by index, and a dot travels each one once (`Lines.svelte`, `app.css`). Plan 3's WAAPI timeline should take this over, ordered by causal slot, with finish() on navigation.
+- **Plan 4: Line labels are focusable buttons with no action yet.** The inspector gives them their handoff and signal views.

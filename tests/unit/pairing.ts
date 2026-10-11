@@ -19,7 +19,8 @@ function requestIn(e: Event): Exchange | undefined {
   }
   if (e.t === 'handoff' && e.from === 'orchestrator') {
     const answer = kind(version(e.version).kind).answeredBy;
-    return answer ? { answer, from: e.to } : undefined;
+    // An apply request names the desired-state version its answer must be for (ADR 0002).
+    return answer ? { answer, from: e.to, version: version(e.version).names } : undefined;
   }
   return undefined;
 }

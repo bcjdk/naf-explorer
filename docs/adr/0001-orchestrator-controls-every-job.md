@@ -1,6 +1,7 @@
 # ADR 0001: Orchestrator controls every job it starts
 
 - **Status:** accepted, 2026-10-10
+- **Amended by:** ADR 0002 (the apply becomes an Orchestrator apply request)
 - **Amends:** `docs/brief/02-domain-and-semantics.md`, `03-story-and-scenario.md`, `07-acceptance-checklist.md`
 
 ## Context

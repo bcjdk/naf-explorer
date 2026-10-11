@@ -67,10 +67,10 @@ export const RESPONSIBILITIES: Record<Party, ResponsibilityInfo> = {
   orchestrator: {
     id: 'orchestrator',
     name: 'Orchestrator',
-    role: 'sequences workflows with signals',
+    role: 'sequences workflows',
     does: [
       'Coordinates workflows across responsibilities using signals, and waits for each job it starts to be answered.',
-      'Relays requests to Intent.',
+      'Turns service requests into its own intent requests to Intent, and hands Executor its own apply requests.',
       'Its remediation workflow evaluates a pre-approved policy and produces the remediation decision.',
     ],
     doesNot: [
@@ -85,7 +85,7 @@ export const RESPONSIBILITIES: Record<Party, ResponsibilityInfo> = {
     role: 'renders and applies configuration',
     does: [
       'Renders and applies configuration changes.',
-      'Takes desired state directly from Intent (one common pattern, not a NAF requirement).',
+      'Takes the desired state named in Orchestrator’s apply request directly from Intent (one common pattern, not a NAF requirement).',
     ],
     doesNot: [
       'Decide what the network should be.',
@@ -129,6 +129,38 @@ export const SURFACES: Record<Surface, string> = {
   portal: 'Portal',
   perfMgmt: 'Performance Management',
   api: 'API',
+};
+
+/**
+ * Each workflow's steps, and the beat where each one begins. The workflow card shows them with the current
+ * step highlighted.
+ */
+export const WORKFLOW_STEPS: Record<string, { label: string; from: string }[]> = {
+  'wf-prov': [
+    { label: 'record', from: 'P3' },
+    { label: 'derive', from: 'P4' },
+    { label: 'onboard', from: 'P6' },
+    { label: 'apply', from: 'P7' },
+    { label: 'verify config', from: 'P9' },
+    { label: 'verify service', from: 'P11' },
+  ],
+  'wf-rem': [
+    { label: 'check alternate', from: 'R2' },
+    { label: 'decide', from: 'R3' },
+    { label: 'derive', from: 'R4' },
+    { label: 'apply', from: 'R6' },
+    { label: 'verify config', from: 'R8' },
+    { label: 'verify service', from: 'R10' },
+  ],
+};
+
+/** What each surface is for, shown beside its name. */
+export const SURFACE_ROLES: Record<Surface, string> = {
+  faultMgmt: 'NOC single pane of glass',
+  itsm: 'tickets',
+  portal: 'customers and operators',
+  perfMgmt: 'SLI dashboards',
+  api: 'other systems',
 };
 
 export const KINDS: ArtifactKind[] = [
@@ -189,6 +221,15 @@ export const KINDS: ArtifactKind[] = [
     producer: 'orchestrator',
     consumers: [],
     whatItIs: 'Orchestrator’s record of a running or completed workflow.',
+  },
+  {
+    id: 'applyRequest',
+    name: 'Apply request',
+    producer: 'orchestrator',
+    consumers: ['executor'],
+    answeredBy: 'applied',
+    whatItIs:
+      'Orchestrator’s own work order asking Executor to apply a named desired-state version. It names the version only; Executor takes the content directly from Intent (ADR 0002).',
   },
   {
     id: 'remediationDecision',
@@ -288,16 +329,10 @@ export const SIGNALS: Record<SignalId, SignalInfo> = {
     label: 'assurance onboarded',
     asks: 'Tells Orchestrator that assurance is ready.',
   },
-  apply: {
-    id: 'apply',
-    label: 'apply desired state',
-    asks: 'Asks Executor to apply a named desired-state version, taken directly from Intent.',
-    answeredBy: 'applied',
-  },
   applied: {
     id: 'applied',
     label: 'applied',
-    asks: 'Tells Orchestrator the commit succeeded. That is not verification.',
+    asks: 'Tells Orchestrator the commit succeeded, answering its apply request. That is not verification.',
   },
   readBack: {
     id: 'readBack',
@@ -363,7 +398,7 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'provision',
     lineage: ['sr'],
     meaning: 'Orchestrator’s record of the provisioning workflow for ACME.',
-    technical: ['workflow: provision ACME-L3VPN-001', 'trigger: service request (Portal)'],
+    technical: ['provision ACME-L3VPN-001', 'trigger: Portal service request'],
   },
   {
     id: 'ir',
@@ -391,7 +426,7 @@ export const VERSIONS: ArtifactVersion[] = [
     kind: 'networkIntent',
     label: 'v1',
     lineage: ['si'],
-    meaning: 'Steer ACME over path A via ODE01, with path B via KOL01 as the alternate.',
+    meaning: 'Configure ACME over path A via ODE01, with path B via KOL01 as the alternate.',
     technical: [
       'sr-policy colour 100, one per direction',
       'preferred: CPH01–ODE01–AAR01 (A)',
@@ -427,6 +462,15 @@ export const VERSIONS: ArtifactVersion[] = [
     technical: ['rule: acme-loss', 'expr: max(loss by direction) over 1m < 0.1%'],
   },
   {
+    id: 'ar1',
+    kind: 'applyRequest',
+    label: 'desired state v1',
+    names: 'ds1',
+    lineage: ['ir'],
+    meaning: 'Apply desired state v1. Executor takes it directly from Intent.',
+    technical: ['op: apply', 'desired-state: v1', 'workflow: provision'],
+  },
+  {
     id: 'cc1',
     kind: 'configChange',
     label: 'v1',
@@ -452,11 +496,7 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'v1',
     lineage: ['rb-a'],
     meaning: 'What CPH01 and AAR01 actually have applied, as read back.',
-    technical: [
-      'CPH01, AAR01: vrf ACME 65000:101',
-      'sr-policy colour 100 → path A',
-      'source: gNMI Get',
-    ],
+    technical: ['vrf ACME 65000:101', 'sr-policy colour 100 → path A', 'source: gNMI Get'],
   },
   {
     id: 'raw-base',
@@ -488,7 +528,7 @@ export const VERSIONS: ArtifactVersion[] = [
     technical: [
       'Hu0/0/0/1 → CPH01–ODE01 → path A → ACME',
       'probe → path A → ACME',
-      'source: cached intent (network intent v1)',
+      'cached intent (network intent v1)',
     ],
   },
   {
@@ -521,7 +561,7 @@ export const VERSIONS: ArtifactVersion[] = [
     meaning:
       'Light falling and errors rising at CPH01; ACME’s probe losing packets; links still UP.',
     technical: [
-      'CPH01 Hu0/0/0/1: Rx −10.9 dBm (warn −9.0), CRC/FCS ≈1,240/min',
+      'CPH01 Hu0/0/0/1 Rx −10.9 dBm, CRC 1,240/min',
       'other links: Rx −2.1 to −2.6 dBm, CRC 0',
       'all links: oper UP, IS-IS UP',
       'twamp-light AAR01→CPH01 loss 0.4%',
@@ -535,9 +575,10 @@ export const VERSIONS: ArtifactVersion[] = [
     meaning:
       'The same signals in one shape: light down, errors up, probe losing packets, everything UP.',
     technical: [
-      'CPH01 Hu0/0/0/1: rx_power −10.9 dBm, crc_errors 1,240/min',
-      'all 4 links: oper_status UP, isis_adjacency UP',
-      'probe_loss AAR01→CPH01 0.4%, 10:45–10:46',
+      'rx_power −10.9 dBm',
+      'crc_errors 1,240/min',
+      'oper, isis: UP',
+      'probe_loss 0.4% AAR01→CPH01',
     ],
   },
   {
@@ -546,11 +587,12 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'degraded',
     lineage: ['norm-deg'],
     meaning:
-      'The CPH01 interface facing ODE01 is tagged to link CPH01–ODE01 on path A, carrying ACME; path B is tagged as ACME’s alternate.',
+      'CPH01’s interface to ODE01 is tagged link CPH01–ODE01, path A, carrying ACME; path B as its alternate.',
     technical: [
-      'Hu0/0/0/1 → CPH01–ODE01 → path A → ACME',
-      'CPH01–KOL01, KOL01–AAR01 → path B (ACME alternate)',
-      'source: cached intent (network intent v1)',
+      'Hu0/0/0/1 → CPH01–ODE01',
+      '→ path A → ACME',
+      'KOL01 links → path B',
+      'cached intent (network intent v1)',
     ],
   },
   {
@@ -571,11 +613,11 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'path A, 10:46',
     lineage: ['sli2', 'enr-deg'],
     meaning:
-      'ACME’s loss lines up with low light and errors on CPH01–ODE01: consistent with optical degradation, a strong clue, not proof.',
+      'Loss lines up with low light and errors on CPH01–ODE01: it points to optics, a strong clue, not proof.',
     technical: [
-      'window 10:45–10:46, path A',
-      'sli 0.4% with Rx −10.9 dBm and CRC ≈1,240/min',
-      'suspect: CPH01–ODE01 (ODE01→CPH01), not proof',
+      '10:45–10:46 · path A',
+      'sli 0.4% · Rx −10.9 dBm · CRC ≈1,240/min',
+      'suspect ODE01→CPH01, not proof',
     ],
   },
   {
@@ -593,12 +635,11 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'loss violation',
     status: 'VIOLATED',
     lineage: ['ss2', 'evid'],
-    meaning:
-      'ACME’s loss objective is violated; suspected link CPH01–ODE01 on ACME’s current path A.',
+    meaning: 'Loss objective violated; suspect CPH01–ODE01 on the current path A.',
     technical: [
-      'event: acme-loss-violation',
-      'service: ACME-L3VPN-001, slo: loss < 0.1%',
-      'implicated: CPH01–ODE01; current path: A',
+      'acme-loss-violation',
+      'ACME-L3VPN-001 · loss < 0.1%',
+      'implicated CPH01–ODE01 · path A',
     ],
   },
   // Remediate
@@ -607,11 +648,8 @@ export const VERSIONS: ArtifactVersion[] = [
     kind: 'workflow',
     label: 'remediation',
     lineage: ['ev-viol'],
-    meaning: 'Orchestrator’s record of the remediation workflow for ACME’s loss violation.',
-    technical: [
-      'workflow: remediate acme-loss-violation',
-      'policy: pol-loss-reroute (pre-approved)',
-    ],
+    meaning: 'The remediation workflow for the loss violation.',
+    technical: ['remediate acme-loss-violation', 'policy pol-loss-reroute, pre-approved'],
   },
   {
     id: 'pathB',
@@ -620,11 +658,11 @@ export const VERSIONS: ArtifactVersion[] = [
     status: 'HEALTHY',
     lineage: ['enr-deg'],
     meaning:
-      'The links of ACME’s alternate, path B via KOL01, look healthy: normal light, no errors, UP. ACME itself is not yet measured there.',
+      'Path B’s links via KOL01 look healthy: normal light, no errors, UP. ACME is not yet measured there.',
     technical: [
-      'path B: CPH01–KOL01–AAR01 (from enrichment tags)',
-      'Rx −2.1 to −2.6 dBm, CRC 0, oper UP (10:45–10:46)',
-      'link telemetry only; no probe on path B yet',
+      'path B: CPH01–KOL01–AAR01',
+      'Rx −2.1 to −2.6 dBm, CRC 0, UP',
+      'link telemetry only, 10:45–10:46',
     ],
   },
   {
@@ -635,9 +673,9 @@ export const VERSIONS: ArtifactVersion[] = [
     meaning:
       'Exclude the implicated link from ACME’s network intent. Intent chooses what replaces it.',
     technical: [
-      'op: intent-change ACME-L3VPN-001',
-      'exclude-link: CPH01–ODE01',
-      'policy: pol-loss-reroute',
+      'intent-change ACME-L3VPN-001',
+      'exclude-link CPH01–ODE01',
+      'policy pol-loss-reroute',
     ],
   },
   {
@@ -645,7 +683,7 @@ export const VERSIONS: ArtifactVersion[] = [
     kind: 'networkIntent',
     label: 'v2',
     lineage: ['dec', 'si'],
-    meaning: 'Steer ACME away from CPH01–ODE01, which leaves path B via KOL01.',
+    meaning: 'Configure ACME to avoid CPH01–ODE01, which leaves path B via KOL01.',
     technical: ['exclude: CPH01–ODE01', 'selected: CPH01–KOL01–AAR01 (B)', 'sr-policy colour 100'],
   },
   {
@@ -659,6 +697,15 @@ export const VERSIONS: ArtifactVersion[] = [
       'exclude CPH01–ODE01',
       'vrf ACME and probe unchanged',
     ],
+  },
+  {
+    id: 'ar2',
+    kind: 'applyRequest',
+    label: 'desired state v2',
+    names: 'ds2',
+    lineage: ['dec'],
+    meaning: 'Apply desired state v2. Executor takes it directly from Intent.',
+    technical: ['op: apply', 'desired-state: v2', 'workflow: remediation'],
   },
   {
     id: 'cc2',
@@ -691,7 +738,7 @@ export const VERSIONS: ArtifactVersion[] = [
     lineage: [],
     meaning: 'Fresh telemetry: errors continue on the faulty fibre, and ACME’s probe is clean.',
     technical: [
-      'CPH01 Hu0/0/0/1: Rx −10.9 dBm, CRC/FCS ≈1,240/min',
+      'CPH01 Hu0/0/0/1 Rx −10.9 dBm, CRC 1,240/min',
       'other links: Rx −2.1 to −2.6 dBm, CRC 0',
       'all links: oper UP, IS-IS UP',
       'twamp-light loss 0.00% both directions',
@@ -713,8 +760,8 @@ export const VERSIONS: ArtifactVersion[] = [
     meaning: 'ACME’s probe is tagged to path B; link CPH01–ODE01 no longer carries ACME.',
     technical: [
       'probe → path B → ACME',
-      'Hu0/0/0/1 → CPH01–ODE01 → no ACME service',
-      'source: cached intent (network intent v2)',
+      'CPH01–ODE01 → no ACME service',
+      'cached intent (network intent v2)',
     ],
   },
   {
@@ -754,9 +801,9 @@ export const VERSIONS: ArtifactVersion[] = [
     lineage: ['evid', 'enr-after'],
     meaning: 'ACME was auto-remediated onto path B; link CPH01–ODE01 still needs repair.',
     technical: [
-      'event: link-repair-needed CPH01–ODE01',
-      'ODE01→CPH01: Rx −10.9 dBm, CRC ≈1,240/min',
-      'ACME-L3VPN-001 auto-remediated onto path B',
+      'repair CPH01–ODE01 (ODE01→CPH01)',
+      'Rx −10.9 dBm, CRC ≈1,240/min',
+      'ACME auto-remediated to path B',
     ],
   },
 ];
@@ -821,7 +868,7 @@ export const STEPS: Step[] = [
     chapter: 'provision',
     title: 'Derive network intent',
     caption: T(
-      'Intent derives network intent: steer ACME’s traffic over path A via ODE01, and keep path B via KOL01 as the alternate.',
+      'Intent derives network intent: configure ACME’s traffic over path A via ODE01, and keep path B via KOL01 as the alternate.',
       'Intent derives network intent v1: SR-MPLS policy colour 100 per direction; preferred path A CPH01–ODE01–AAR01; alternate path B CPH01–KOL01–AAR01.',
     ),
     events: [work('intent', 'derive', 'derive network intent'), appear('ni1')],
@@ -860,16 +907,25 @@ export const STEPS: Step[] = [
   {
     id: 'P7',
     chapter: 'provision',
+    title: 'Order apply',
+    caption: T(
+      'With desired state v1 ready and assurance onboarded, Orchestrator hands Executor its own work order: apply desired state v1. The order names the version; the configuration itself stays with Intent.',
+      'Orchestrator → Executor: apply request (desired state v1, workflow provision/ACME-L3VPN-001). It names the version only: Executor takes desired state v1 directly from Intent, never via Orchestrator (ADR 0002).',
+    ),
+    events: [appear('ar1'), hand('ar1', 'orchestrator', 'executor')],
+  },
+  {
+    id: 'P8',
+    chapter: 'provision',
     title: 'Apply',
     caption: T(
-      'Orchestrator asks Executor to apply desired state v1. Executor takes it directly from Intent, renders the configuration and applies it to CPH01 and AAR01. ACME’s traffic now uses path A. Executor reports the change applied; a successful commit is not yet verification.',
-      'Orchestrator ⇢ Executor: apply desired state v1. Intent → Executor: desired state v1. Executor renders and pushes configuration change v1 with gNMI Set (VRF, colour-100 policy, probe). ACME on path A. Executor ⇢ Orchestrator: applied v1 (commit ok, not verified).',
+      'Executor takes desired state v1 directly from Intent, renders the configuration and applies it to CPH01 and AAR01. ACME’s traffic now uses path A. Executor reports the change applied to Orchestrator; a successful commit is not yet verification.',
+      'Intent → Executor: desired state v1, direct. Executor renders and pushes configuration change v1 with gNMI Set (VRF, colour-100 policy, probe). ACME on path A. Executor ⇢ Orchestrator: applied v1 (commit ok, not verified).',
     ),
     events: [
-      sig('apply', 'orchestrator', 'executor', 'ds1'),
       hand('ds1', 'intent', 'executor'),
-      work('executor', 'render', 'render', 'render gNMI Set payloads'),
-      work('executor', 'apply', 'apply', 'gNMI Set CPH01, AAR01'),
+      work('executor', 'render', 'render'),
+      work('executor', 'apply', 'apply', 'gNMI Set'),
       appear('cc1'),
       hand('cc1', 'executor', 'network'),
       { t: 'network', acmePath: 'A' },
@@ -877,7 +933,7 @@ export const STEPS: Step[] = [
     ],
   },
   {
-    id: 'P8',
+    id: 'P9',
     chapter: 'provision',
     title: 'Read back',
     caption: T(
@@ -895,7 +951,7 @@ export const STEPS: Step[] = [
     ],
   },
   {
-    id: 'P9',
+    id: 'P10',
     chapter: 'provision',
     title: 'Check drift',
     caption: T(
@@ -910,7 +966,7 @@ export const STEPS: Step[] = [
     ],
   },
   {
-    id: 'P10',
+    id: 'P11',
     chapter: 'provision',
     title: 'Collect',
     caption: T(
@@ -926,7 +982,7 @@ export const STEPS: Step[] = [
     ],
   },
   {
-    id: 'P11',
+    id: 'P12',
     chapter: 'provision',
     title: 'Enrich',
     caption: T(
@@ -934,13 +990,13 @@ export const STEPS: Step[] = [
       'Collector enriches from cached intent: Hu0/0/0/1 → link CPH01–ODE01 → path A → ACME-L3VPN-001; probe → ACME. Collector → Observability: enriched observations (baseline, 09:12–09:13).',
     ),
     events: [
-      work('collector', 'enrich', 'enrich', 'tag from cached intent'),
+      work('collector', 'enrich', 'enrich', 'tag (cached intent)'),
       appear('enr-base'),
       hand('enr-base', 'collector', 'observability'),
     ],
   },
   {
-    id: 'P12',
+    id: 'P13',
     chapter: 'provision',
     title: 'Compute SLI',
     caption: T(
@@ -950,7 +1006,7 @@ export const STEPS: Step[] = [
     events: [work('observability', 'computeSli', 'compute SLI'), appear('sli1')],
   },
   {
-    id: 'P13',
+    id: 'P14',
     chapter: 'provision',
     title: 'Evaluate',
     caption: T(
@@ -960,7 +1016,7 @@ export const STEPS: Step[] = [
     events: [work('observability', 'evaluate', 'evaluate SLI against SLO'), appear('ss1')],
   },
   {
-    id: 'P14',
+    id: 'P15',
     chapter: 'provision',
     title: 'Report',
     caption: T(
@@ -1018,7 +1074,7 @@ export const STEPS: Step[] = [
       'Hu0/0/0/1 → CPH01–ODE01 → path A → ACME-L3VPN-001; CPH01–KOL01 and KOL01–AAR01 → path B (ACME alternate). Collector → Observability: enriched observations (degraded).',
     ),
     events: [
-      work('collector', 'enrich', 'enrich', 'tag from cached intent'),
+      work('collector', 'enrich', 'enrich', 'tag (cached intent)'),
       appear('enr-deg'),
       hand('enr-deg', 'collector', 'observability'),
     ],
@@ -1156,16 +1212,25 @@ export const STEPS: Step[] = [
   {
     id: 'R6',
     chapter: 'remediate',
+    title: 'Order apply',
+    caption: T(
+      'With desired state v2 ready, Orchestrator hands Executor a new work order: apply desired state v2.',
+      'Orchestrator → Executor: apply request (desired state v2, workflow remediation/acme-loss-violation). Executor takes desired state v2 directly from Intent (ADR 0002).',
+    ),
+    events: [appear('ar2'), hand('ar2', 'orchestrator', 'executor')],
+  },
+  {
+    id: 'R7',
+    chapter: 'remediate',
     title: 'Apply',
     caption: T(
-      'Orchestrator asks Executor to apply desired state v2. Executor takes it directly from Intent and applies the change. ACME’s traffic, and its probe, move to path B via KOL01. Executor reports the change applied.',
-      'Orchestrator ⇢ Executor: apply desired state v2. Intent → Executor: desired state v2. gNMI Set: configuration change v2 on CPH01 and AAR01. ACME (colour 100) and the probe now on path B. Executor ⇢ Orchestrator: applied v2.',
+      'Executor takes desired state v2 directly from Intent and applies the change. ACME’s traffic, and its probe, move to path B via KOL01. Executor reports the change applied.',
+      'Intent → Executor: desired state v2, direct. gNMI Set: configuration change v2 on CPH01 and AAR01. ACME (colour 100) and the probe now on path B. Executor ⇢ Orchestrator: applied v2.',
     ),
     events: [
-      sig('apply', 'orchestrator', 'executor', 'ds2'),
       hand('ds2', 'intent', 'executor'),
-      work('executor', 'render', 'render', 'render gNMI Set payloads'),
-      work('executor', 'apply', 'apply', 'gNMI Set CPH01, AAR01'),
+      work('executor', 'render', 'render'),
+      work('executor', 'apply', 'apply', 'gNMI Set'),
       appear('cc2'),
       hand('cc2', 'executor', 'network'),
       { t: 'network', acmePath: 'B' },
@@ -1173,7 +1238,7 @@ export const STEPS: Step[] = [
     ],
   },
   {
-    id: 'R7',
+    id: 'R8',
     chapter: 'remediate',
     title: 'Read back',
     caption: T(
@@ -1191,7 +1256,7 @@ export const STEPS: Step[] = [
     ],
   },
   {
-    id: 'R8',
+    id: 'R9',
     chapter: 'remediate',
     title: 'Check drift',
     caption: T(
@@ -1206,7 +1271,7 @@ export const STEPS: Step[] = [
     ],
   },
   {
-    id: 'R9',
+    id: 'R10',
     chapter: 'remediate',
     title: 'Collect',
     caption: T(
@@ -1222,7 +1287,7 @@ export const STEPS: Step[] = [
     ],
   },
   {
-    id: 'R10',
+    id: 'R11',
     chapter: 'remediate',
     title: 'Enrich',
     caption: T(
@@ -1230,13 +1295,13 @@ export const STEPS: Step[] = [
       'Probe → path B → ACME-L3VPN-001; Hu0/0/0/1 → CPH01–ODE01 → no ACME service, from cached network intent v2. Collector → Observability: enriched observations (after reroute). How the cache follows Intent is out of scope here.',
     ),
     events: [
-      work('collector', 'enrich', 'enrich', 'tag from updated cached intent'),
+      work('collector', 'enrich', 'enrich', 'tag (cached intent)'),
       appear('enr-after'),
       hand('enr-after', 'collector', 'observability'),
     ],
   },
   {
-    id: 'R11',
+    id: 'R12',
     chapter: 'remediate',
     title: 'Compute SLI',
     caption: T(
@@ -1246,7 +1311,7 @@ export const STEPS: Step[] = [
     events: [work('observability', 'computeSli', 'compute SLI'), appear('sli3')],
   },
   {
-    id: 'R12',
+    id: 'R13',
     chapter: 'remediate',
     title: 'Evaluate',
     caption: T(
@@ -1256,7 +1321,7 @@ export const STEPS: Step[] = [
     events: [work('observability', 'evaluate', 'evaluate SLI against SLO'), appear('ss3')],
   },
   {
-    id: 'R13',
+    id: 'R14',
     chapter: 'remediate',
     title: 'Report and clear',
     caption: T(
@@ -1274,7 +1339,7 @@ export const STEPS: Step[] = [
     ],
   },
   {
-    id: 'R14',
+    id: 'R15',
     chapter: 'remediate',
     title: 'Closing',
     caption: T(

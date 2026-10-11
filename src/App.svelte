@@ -1,7 +1,10 @@
 <script lang="ts">
+  import { tick } from 'svelte';
   import { STEPS } from './scenario/scenario.ts';
   import type { View } from './scenario/types.ts';
-  import { linesOf, stateAt } from './model/state.ts';
+  import { stateAt } from './model/state.ts';
+  import { routesOf } from './routes.ts';
+  import { tokenStyle } from './theme.ts';
   import { fitScale, STAGE } from './layout.ts';
   import { load, save } from './storage.ts';
   import Header from './ui/Header.svelte';
@@ -16,10 +19,17 @@
   let innerHeight = $state(900);
   const scale = $derived(fitScale(innerWidth, innerHeight));
   const stage = $derived(stateAt(step));
-  const lines = $derived(linesOf(step));
+  const routes = $derived(routesOf(step, view));
 
-  function go(n: number) {
+  async function go(n: number) {
+    // A focused line label belongs to the old beat and is about to unmount: keep focus on the story.
+    const onLabel = document.activeElement?.classList.contains('label');
     step = Math.max(0, Math.min(STEPS.length - 1, n));
+    if (!onLabel) return;
+    await tick();
+    (
+      document.querySelector<HTMLElement>('.label') ?? document.getElementById('caption-heading')
+    )?.focus();
   }
 
   function setView(v: View) {
@@ -42,7 +52,7 @@
 
 <svelte:window bind:innerWidth bind:innerHeight onkeydown={onKeydown} />
 
-<div class="viewport">
+<div class="viewport" style={tokenStyle}>
   <div
     class="stage"
     style:width="{STAGE.w}px"
@@ -50,7 +60,7 @@
     style:transform="translate(-50%, -50%) scale({scale})"
   >
     <Header {step} {view} onJump={go} onView={setView} />
-    <Stage {stage} {lines} {view} />
+    <Stage {stage} {routes} {view} {step} />
     <CaptionBar {step} {view} onBack={() => go(step - 1)} onNext={() => go(step + 1)} />
   </div>
 </div>
