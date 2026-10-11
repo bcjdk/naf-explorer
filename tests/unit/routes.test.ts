@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { REGIONS, cardRect, type Rect } from '../../src/layout.ts';
 import { linesOf, stateAt } from '../../src/model/state.ts';
+import { timeline } from '../../src/model/timeline.ts';
 import { labelBox, routesOf, type Pt } from '../../src/routes.ts';
 import { STEPS, kind } from '../../src/scenario/scenario.ts';
 
@@ -115,5 +116,21 @@ describe('routesOf (spec §9)', () => {
     expect(lane.length).toBeGreaterThan(0);
     for (const [, y] of lane)
       expect(y).toBeGreaterThan(REGIONS.presentation.y + REGIONS.presentation.h);
+  });
+
+  it('every drawn line has a motion slot with the same key, in order, in both views', () => {
+    STEPS.forEach((step, n) => {
+      for (const view of ['simple', 'technical'] as const)
+        expect(
+          routesOf(n, view)
+            .filter((r) => r.kind !== 'work')
+            .map((r) => r.key),
+          `${step.id} ${view}`,
+        ).toEqual(
+          timeline(n)
+            .filter((s) => s.kind === 'line')
+            .map((s) => s.target),
+        );
+    });
   });
 });

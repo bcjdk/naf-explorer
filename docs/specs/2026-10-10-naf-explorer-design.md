@@ -222,6 +222,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
   6. each status chip whose value changed pulses three times.
   
   The step's length is the end of its last slot. Cards never move across the canvas. All durations are in one constants table.
+- **As built (rev 9):** events play one after another in their causal order, so a work slot (region highlight and work label) comes where the step's work event is, not always first. A party's later work in the same beat takes time but doesn't animate again. A `mark` (IN SYNC, COMPLETED) and a `network` change fade in at their place in the order. A chip pulses when its value at that place (card slot, surface or link) differs from the previous beat, including when it first appears. Slots live in `src/model/timeline.ts`; `src/ui/motion.ts` applies them. Lines are keyed by `lineKey` in `src/model/state.ts`, shared with `routes.ts`. The app has no CSS transitions or animations, so the overlay is the only motion.
 - **Ordering guarantee (unit-tested):** an `appear` slot starts only after every signal and handoff addressed to its producer earlier in the step has finished. A Network-produced artifact appears just before its own handoff. Pulses finish within the step's length.
 - **Navigation:** every navigation first calls `finish()` on all running animations, then renders the target step. This means:
   - **Next** renders step n+1 and starts its timeline;
@@ -301,6 +302,7 @@ src/
   model/inspect.ts         inspector content
   layout.ts                geometry and line routes
   theme.css                colour tokens
+  ui/motion.ts             the WAAPI overlay: play, finishAll
   ui/*.svelte              App, Header, Stage, Region, Card, Surface, Network, Lines, CaptionBar, Inspector, About
 scripts/beat-table.ts      prints §5 from scenario.ts
 tests/unit/                semantics, story, timeline, contrast
@@ -368,3 +370,4 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
 - **rev 6 (plan 2, user review):** one spacing unit (12px) for every margin and gap; lanes are the only wider spaces (the top lane under Presentation, 30px; the side lanes, 72px). Orchestrator lines up with the rows beside it. The topology is centred in The Network band, between raw signals and a mirrored facts column. Line dots move 20% slower (1.2s, staggered 0.42s) and start with a larger blink and ring.
 - **rev 7 (plan 2, user review):** every canvas block has the same 30px above and below it, matching the space under Presentation. The header and caption bars hug the canvas at 16px. The stage grows to 1440×952 so no card loses room; it still scales to fit, about 95% on a 900px-tall window.
 - **rev 8 (user):** About opens on every load and refresh (brief 06 and 07 amended), in a larger window.
+- **rev 9 (plan 3):** motion as a WAAPI overlay over the end state, from `timeline(n)`, replacing rev 3a's interim CSS line animation and the card fade. Replay sits right of About. See §8 "As built".

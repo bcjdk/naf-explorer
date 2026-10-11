@@ -7,7 +7,7 @@ import {
   version,
 } from './scenario/scenario.ts';
 import type { Party, Step, Surface, View } from './scenario/types.ts';
-import { linesOf, stateAt } from './model/state.ts';
+import { lineKey, linesOf, stateAt } from './model/state.ts';
 import { artifactName, describe } from './model/describe.ts';
 import {
   LABEL_NUDGE,
@@ -207,8 +207,7 @@ export function routesOf(n: number, view: View, steps: readonly Step[] = STEPS):
       e.t === 'handoff'
         ? artifactName(e.version)
         : `${SIGNALS[e.signal].label}${e.version ? ` ${version(e.version).label}` : ''}`;
-    const k = e.t === 'handoff' ? version(e.version).kind : e.signal;
-    const key = `${e.from}>${e.to}:${k}${e.t === 'handoff' && e.surface ? `@${e.surface}` : ''}`;
+    const key = lineKey(e);
     const usedBy =
       e.t === 'handoff'
         ? appeared.find((id) => producerOf(id) === e.to && version(id).lineage.includes(e.version))
