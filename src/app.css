@@ -329,6 +329,10 @@ code {
   line-height: 1.3;
   white-space: nowrap;
 }
+.region[data-party='presentation'] h2 {
+  top: 0;
+  line-height: 18px;
+}
 .region h2 .role {
   font-size: 14.5px;
   font-weight: 500;
@@ -472,6 +476,7 @@ code {
 }
 /* The header bleeds to the card's edges so a new card's band spans it. */
 .head {
+  text-wrap: balance;
   display: block;
   margin: 0 -8px 3px -10px;
   padding: 2px 8px 2px 10px;
@@ -698,6 +703,7 @@ code {
 }
 .facts p {
   margin: 0;
+  text-wrap: pretty;
 }
 
 /* Lines and their labels (spec §9). */
@@ -870,6 +876,9 @@ code {
   gap: 8px;
 }
 .nav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 4px;
@@ -954,7 +963,7 @@ code {
 .inspector-close:active {
   background: var(--card-hover);
 }
-.inspector-kind {
+.inspector .inspector-kind {
   margin: 0 40px 0 0;
   display: flex;
   align-items: center;
@@ -975,7 +984,7 @@ code {
   font-weight: 700;
   line-height: 1.25;
 }
-.inspector-note {
+.inspector .inspector-note {
   margin: 4px 0 0;
   color: var(--muted);
 }
@@ -1041,7 +1050,7 @@ code {
   overflow-wrap: anywhere;
 }
 /* Who handed what to whom, drawn like the line itself. */
-.strip {
+.inspector .strip {
   display: flex;
   align-items: center;
   gap: 8px;

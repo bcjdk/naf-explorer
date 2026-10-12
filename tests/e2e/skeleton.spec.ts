@@ -335,20 +335,20 @@ test('modified arrows do not step the story', async ({ page }) => {
 test('Back on the first beat stays put; on the last beat Next becomes Start over', async ({
   page,
 }) => {
-  const back = page.getByRole('button', { name: '◄ Back' });
+  const back = page.getByRole('button', { name: 'Back', exact: true });
   await back.focus();
   await page.keyboard.press('Enter');
   await expect(counter(page)).toHaveText('1 / 38');
   await expect(back).toBeFocused();
 
   await page.getByRole('button', { name: 'Go to R14: Report and clear' }).click();
-  await page.getByRole('button', { name: 'Next ►' }).click();
+  await page.getByRole('button', { name: 'Next', exact: true }).click();
   // Pressed while R15 is still animating, by keyboard (Review Focus 3).
   const restart = page.getByRole('button', { name: 'Start over' });
   await restart.focus();
   await page.keyboard.press('Enter');
   await expect(counter(page)).toHaveText('1 / 38');
-  const next = page.getByRole('button', { name: 'Next ►' });
+  const next = page.getByRole('button', { name: 'Next', exact: true });
   await expect(next).toBeFocused();
   expect(
     await page.evaluate(

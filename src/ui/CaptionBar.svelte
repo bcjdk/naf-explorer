@@ -23,6 +23,12 @@
   const atEnd = $derived(step === STEPS.length - 1);
 </script>
 
+{#snippet tri(left: boolean)}
+  <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"
+    ><path d={left ? 'M9 0v10L1 5z' : 'M1 0v10l8-5z'} /></svg
+  >
+{/snippet}
+
 <footer class="caption">
   <h2 id="caption-heading" tabindex="-1">
     {CHAPTERS[s.chapter]} · <span data-testid="counter">{step + 1} / {STEPS.length}</span> · {s.title}
@@ -57,9 +63,11 @@
   <!-- aria-disabled, not disabled: a disabled button drops keyboard focus to <body>. One forward button, so focus
        stays on it when it turns into Start over and back. -->
   <div class="nav">
-    <button aria-disabled={atStart} onclick={() => !atStart && onBack()}>◄ Back</button>
+    <button aria-disabled={atStart} onclick={() => !atStart && onBack()}
+      >{@render tri(true)} Back</button
+    >
     <button class="primary" onclick={() => (atEnd ? onRestart() : onNext())}
-      >{atEnd ? 'Start over' : 'Next ►'}</button
+      >{#if atEnd}Start over{:else}Next {@render tri(false)}{/if}</button
     >
   </div>
 </footer>

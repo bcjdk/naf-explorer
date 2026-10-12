@@ -53,12 +53,12 @@ test('Enter on a region title, a surface and a line label selects them', async (
 
 test('selecting, or focusing a line label, finishes running motion', async ({ page }) => {
   await tick(page, at('P9') - 1).click();
-  await page.getByRole('button', { name: 'Next ►' }).click();
+  await page.getByRole('button', { name: 'Next', exact: true }).click();
   expect(await running(page)).toBeGreaterThan(0);
   await page.locator('.label').last().focus();
   expect(await running(page)).toBe(0);
   await tick(page, at('P9') - 1).click();
-  await page.getByRole('button', { name: 'Next ►' }).click();
+  await page.getByRole('button', { name: 'Next', exact: true }).click();
   expect(await running(page)).toBeGreaterThan(0);
   await card(page, 'rb-a').click();
   expect(await running(page)).toBe(0);
@@ -99,7 +99,7 @@ test('Esc and ✕ close it and return focus to what opened it', async ({ page })
 test('stepping keeps the panel and focus; content follows the beat', async ({ page }) => {
   await tick(page, at('P5')).click();
   await page.getByRole('button', { name: 'Intent', exact: true }).click();
-  const back = page.getByRole('button', { name: '◄ Back' });
+  const back = page.getByRole('button', { name: 'Back', exact: true });
   await back.focus();
   await back.click();
   await expect(panel(page)).toBeVisible();
@@ -262,4 +262,18 @@ test('the panel is as tall as its content', async ({ page }) => {
   await page.locator('.surface[data-surface="api"]').click();
   const h = (await panel(page).boundingBox())!.height;
   expect(h).toBeLessThan(400);
+});
+
+test('a handoff line shows a strip: who to whom, in the producer colour', async ({ page }) => {
+  await tick(page, at('P2')).click();
+  await page.locator('.label.handoff').first().click();
+  const strip = panel(page).locator('.strip');
+  await expect(strip).toContainText('Presentation (Portal)');
+  await expect(strip).toContainText('Orchestrator');
+  const line = strip.locator('.strip-line');
+  await expect(line).toHaveCSS('border-top-style', 'solid');
+  await expect(line).toHaveCSS('border-top-color', 'rgb(245, 197, 24)');
+  await page.screenshot({
+    path: '.superpowers/sdd/2026-10-12-plan-5-design-uplift/insp-handoff-sr.png',
+  });
 });

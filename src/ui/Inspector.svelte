@@ -50,7 +50,7 @@
   <div class="inspector-head" class:dashed={info.dashed} style:--accent={accent(info.party)}>
     <button class="inspector-close" aria-label="Close inspector" onclick={onClose}>✕</button>
     <p class="inspector-kind">
-      <span class="swatch"></span><span
+      {#if !info.by}<span class="swatch"></span>{/if}<span
         >{info.kind}{#if info.by}{` · ${info.kind === 'Surface' ? 'in' : 'by'}`}{/if}</span
       >{#if info.by}{@render partyLink(info.by, info.byLabel)}{/if}
     </p>

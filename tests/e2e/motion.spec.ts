@@ -6,7 +6,7 @@ const counter = (page: Page) => page.getByTestId('counter');
 const at = (id: string) => STEPS.findIndex((s) => s.id === id);
 const tick = (page: Page, n: number) =>
   page.getByRole('button', { name: `Go to ${STEPS[n]!.id}: ${STEPS[n]!.title}` });
-const next = (page: Page) => page.getByRole('button', { name: 'Next ►' });
+const next = (page: Page) => page.getByRole('button', { name: 'Next', exact: true });
 const running = (page: Page) =>
   page.evaluate(() => document.getAnimations().filter((a) => a.playState === 'running').length);
 const stageHtml = (page: Page) => page.evaluate(() => document.querySelector('.stage')!.innerHTML);

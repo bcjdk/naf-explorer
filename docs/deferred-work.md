@@ -36,3 +36,4 @@ Shortened so the cards fit at the plan 5 type scale. Multi-line Technical payloa
 - raw-base technical: "all links: oper UP, IS-IS UP / twamp-light loss 0.00% both directions" → "oper UP, IS-IS UP · twamp loss 0.00%"
 - raw-deg technical: "CPH01 Hu0/0/0/1 Rx −10.9 dBm, CRC 1,240/min / other links: Rx −2.1 to −2.6 dBm, CRC 0 / all links: oper UP, IS-IS UP / twamp-light AAR01→CPH01 loss 0.4%" → "CPH01 Hu0/0/0/1: Rx −10.9, CRC 1,240/min / other links: Rx −2.1 to −2.6 dBm, CRC 0 / oper UP, IS-IS UP · probe loss 0.4%"
 - raw-after technical: "CPH01 Hu0/0/0/1 Rx −10.9 dBm, CRC 1,240/min / other links: Rx −2.1 to −2.6 dBm, CRC 0 / all links: oper UP, IS-IS UP / twamp-light loss 0.00% both directions" → "CPH01 Hu0/0/0/1: Rx −10.9, CRC 1,240/min / oper UP, IS-IS UP · twamp loss 0.00%"
+- P14: the SLO rule → service state work line is about 14px long, so its arrowhead nearly fills it (plan 5).
