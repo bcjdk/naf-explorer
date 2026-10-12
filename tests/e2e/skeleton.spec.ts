@@ -441,6 +441,22 @@ test('colour shows who made it: bands on new cards, edges on used ones, coloured
   // A handoff line and its label carry the producer's colour; signals stay neutral.
   await tick(page, stepIndex('P6')).click();
   const sd = '[data-route="intent>observability:sloDefinition"]';
+  // Arrowheads take their line's colour; `context-stroke` fell back to black.
+  const markerFill = (sel: string) =>
+    page.evaluate((q) => {
+      const el = document.querySelector(q)!;
+      const id = getComputedStyle(el).markerEnd.match(/#([^")]+)/)![1];
+      return {
+        stroke: getComputedStyle(el).stroke,
+        fill: getComputedStyle(document.querySelector(`#${id} path`)!).fill,
+      };
+    }, sel);
+  const sameColour = async (sel: string) => {
+    const m = await markerFill(sel);
+    expect(m.fill).toBe(m.stroke);
+  };
+  await sameColour(`path.route${sd}`);
+  expect((await markerFill('path.route.signal')).fill).toBe('rgb(154, 165, 180)');
   const handoff = page.locator(`path.route${sd}`);
   await expect(handoff).toHaveCSS('stroke', 'rgb(255, 109, 46)');
   await expect(handoff).toHaveCSS('stroke-width', '2.5px');
@@ -456,6 +472,7 @@ test('colour shows who made it: bands on new cards, edges on used ones, coloured
   await expect(work).toHaveCSS('stroke-width', '1.5px');
   await expect(work).toHaveCSS('stroke-dasharray', 'none');
   await expect(work).toHaveAttribute('marker-end', /arrow-minor/);
+  await sameColour('path.route.work[data-party="observability"]');
   // Executor's band is a shade darker so white text meets AA (plan 5 D1).
   await tick(page, stepIndex('P8')).click();
   const cc = page.locator(`.card[data-version="${stateAt(stepIndex('P8')).newIds[0]}"] .head`);

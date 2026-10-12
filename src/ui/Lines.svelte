@@ -3,6 +3,8 @@
   import { STAGE } from '../layout.ts';
   import type { Target } from '../model/inspect.ts';
   import { finishAll } from './motion.ts';
+  import { RESPONSIBILITIES } from '../scenario/scenario.ts';
+  import type { Party } from '../scenario/types.ts';
 
   let {
     routes,
@@ -18,6 +20,9 @@
   const isSelected = (key: string) =>
     selected?.t === 'line' && selected.step === step && selected.key === key;
 
+  // One marker per colour: `context-stroke` is not honoured everywhere and falls back to black.
+  const colours = [...(Object.keys(RESPONSIBILITIES) as Party[]), 'line'];
+
   const drawn = $derived(routes.filter((r) => r.kind !== 'work'));
   const work = $derived(routes.filter((r) => r.kind === 'work'));
 </script>
@@ -27,17 +32,30 @@
 {#key step}
   <svg class="lines under" width={STAGE.w} height={STAGE.h} aria-hidden="true">
     <defs>
-      <marker
-        id="arrow-minor"
-        viewBox="0 0 10 10"
-        refX="9"
-        refY="5"
-        markerWidth="6"
-        markerHeight="6"
-        orient="auto-start-reverse"
-      >
-        <path d="M0,0 L10,5 L0,10 z" fill="context-stroke" />
-      </marker>
+      {#each colours as c (c)}
+        <marker
+          id="arrow-{c}"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="8"
+          markerHeight="8"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" style:fill="var(--{c})" />
+        </marker>
+        <marker
+          id="arrow-minor-{c}"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" style:fill="var(--{c})" />
+        </marker>
+      {/each}
     </defs>
     {#each work as r (r.key)}
       <path
@@ -45,29 +63,16 @@
         d={smoothPath(r.points)}
         data-party={r.ends[0]}
         style:--accent="var(--{r.ends[0]})"
-        marker-end="url(#arrow-minor)"
+        marker-end="url(#arrow-minor-{r.ends[0]})"
       />
     {/each}
   </svg>
   <svg class="lines" width={STAGE.w} height={STAGE.h} aria-hidden="true">
-    <defs>
-      <marker
-        id="arrow"
-        viewBox="0 0 10 10"
-        refX="9"
-        refY="5"
-        markerWidth="8"
-        markerHeight="8"
-        orient="auto-start-reverse"
-      >
-        <path d="M0,0 L10,5 L0,10 z" fill="context-stroke" />
-      </marker>
-    </defs>
     {#each drawn as r (r.key)}
       <path
         class="route {r.kind}"
         d={smoothPath(r.points)}
-        marker-end="url(#arrow)"
+        marker-end="url(#arrow-{r.kind === 'handoff' ? r.ends[0] : 'line'})"
         data-route={r.key}
         style:--accent={r.kind === 'handoff' ? `var(--${r.ends[0]})` : null}
       />
