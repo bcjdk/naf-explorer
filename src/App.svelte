@@ -41,11 +41,13 @@
   /** Opens or moves the inspector (spec §7): finishes motion, sides it opposite the ring, focuses its heading. */
   async function select(t: Target) {
     finishAll();
-    if (!selected) opener = document.activeElement as HTMLElement | null;
+    // Safari and Firefox don't focus a clicked button, so <body> is no opener; links inside the panel keep the first one.
+    const active = document.activeElement as HTMLElement | null;
+    if (active && active !== document.body && !active.closest('.inspector')) opener = active;
     selected = t;
     inspected = true;
     await tick();
-    const ring = document.querySelector('.selected');
+    const ring = document.querySelector('.stage .selected');
     const stageEl = document.querySelector('.stage');
     // Nothing is ringed when the target isn't drawn in this beat: keep the side.
     if (ring && stageEl) {
@@ -58,17 +60,19 @@
   }
 
   async function closeInspector() {
+    const ring = document.querySelector<HTMLElement>('.stage .selected');
     selected = null;
     await tick();
-    (opener?.isConnected ? opener : document.getElementById('caption-heading'))?.focus();
+    (opener?.isConnected ? opener : (ring ?? document.getElementById('caption-heading')))?.focus();
     opener = null;
   }
 
   /** Every navigation finishes running motion first; only a single step forward plays (spec §8). */
   async function go(n: number, animate = false) {
     finishAll();
-    // A focused line label belongs to the old beat and is about to unmount: keep focus on the story.
-    const onLabel = document.activeElement?.classList.contains('label');
+    // A focused line label or inspector link may unmount with the old beat: focus never drops to <body>.
+    const prev = document.activeElement as HTMLElement | null;
+    const inPanel = !!prev?.closest('.inspector');
     const target = Math.max(0, Math.min(STEPS.length - 1, n));
     const from = step;
     step = target;
@@ -76,9 +80,11 @@
     // Rapid presses: only the latest navigation plays, once its beat is rendered.
     if (animate && step === target && target === from + 1 && !prefersReducedMotion())
       play(timeline(target));
-    if (onLabel)
-      (
-        document.querySelector<HTMLElement>('.label') ?? document.getElementById('caption-heading')
+    if (prev && prev !== document.body && !prev.isConnected)
+      (inPanel
+        ? document.getElementById('inspector-title')
+        : (document.querySelector<HTMLElement>('.label') ??
+          document.getElementById('caption-heading'))
       )?.focus();
   }
 

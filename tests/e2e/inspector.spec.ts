@@ -183,3 +183,28 @@ test('inspectables respond to hover, and the caption hint goes after the first i
   await tick(page, at('P11')).click();
   await expect(page.locator('.caption .hint')).toHaveCount(0);
 });
+
+test('stepping from an inspector link that goes away keeps focus in the panel', async ({
+  page,
+}) => {
+  await tick(page, at('P5')).click();
+  await page.getByRole('button', { name: 'Intent', exact: true }).click();
+  const link = page.locator('.inspector .inspector-link').first();
+  await link.focus();
+  for (let i = 0; i < 3; i++) {
+    await page.keyboard.press('ArrowRight');
+    expect(await page.evaluate(() => document.activeElement !== document.body)).toBe(true);
+  }
+  await expect(page.locator('#inspector-title')).toBeFocused();
+});
+
+test('closing after a click that focused nothing returns focus to the ringed element', async ({
+  page,
+}) => {
+  await tick(page, at('P10')).click();
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+  // Safari and Firefox: a click selects without focusing the button.
+  await card(page, 'ds1').dispatchEvent('click');
+  await page.keyboard.press('Escape');
+  await expect(card(page, 'ds1')).toBeFocused();
+});
