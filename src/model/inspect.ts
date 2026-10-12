@@ -58,7 +58,9 @@ export interface Inspection {
   dashed?: boolean;
   /** The kind line's "by <party>" for an artifact, or "in Presentation" for a surface. */
   by?: Party;
-  /** Lines: sender → receiver, drawn as a strip; `surface` names the receiving Presentation surface. */
+  /** Replaces the name in "by <party>" when the producer is a Presentation surface. */
+  byLabel?: string;
+  /** Lines: sender → receiver, drawn as a strip; `surface` names the Presentation surface at whichever end is Presentation. */
   strip?: { from: Party; to: Party; surface?: Surface };
   sections: Section[];
 }
@@ -115,6 +117,9 @@ export function inspect(target: Target, n: number, view: View): Inspection {
         title: artifactName(v.id),
         party: k.producer,
         by: k.producer,
+        ...(k.producerSurface
+          ? { byLabel: `${RESPONSIBILITIES.presentation.name} (${SURFACES[k.producerSurface]})` }
+          : {}),
         note: state.visible.includes(v.id)
           ? undefined
           : `Appears in ${stepId((e) => e.t === 'appear' && e.version === v.id)}`,

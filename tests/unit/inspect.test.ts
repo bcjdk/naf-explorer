@@ -222,3 +222,12 @@ describe('inspect: identity colour and party links (design uplift §4.1, §4.3)'
     });
   });
 });
+
+describe('inspect: producer surface label', () => {
+  it('names the Portal as the service request’s producer surface', () => {
+    expect(inspect({ t: 'artifact', version: 'sr' }, at('P15'), 'simple').byLabel).toBe(
+      'Presentation (Portal)',
+    );
+    expect(inspect({ t: 'artifact', version: 'ds1' }, at('P15'), 'simple').byLabel).toBeUndefined();
+  });
+});

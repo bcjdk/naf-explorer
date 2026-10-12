@@ -224,3 +224,42 @@ test('closing a region selected by a click that focused nothing returns to its t
   await page.keyboard.press('Escape');
   await expect(intent).toBeFocused();
 });
+
+test('the header carries the identity colour; a signal’s edge is dashed', async ({ page }) => {
+  await tick(page, at('P10')).click();
+  await card(page, 'ds1').click();
+  const head = page.locator('.inspector-head');
+  await expect(head).toHaveCSS('border-top-color', 'rgb(255, 109, 46)');
+  await expect(head).toHaveCSS('border-top-width', '6px');
+  await expect(head).toHaveCSS('border-top-style', 'solid');
+  await expect(page.getByRole('button', { name: 'Close inspector' })).toHaveCSS(
+    'width',
+    /^(3[2-9]|[4-9]\d)px$/,
+  );
+  await page.locator('.label', { hasText: 'check drift' }).click();
+  await expect(head).toHaveCSS('border-top-color', 'rgb(0, 212, 255)');
+  await expect(head).toHaveCSS('border-top-style', 'dashed');
+});
+
+test('a party link opens that responsibility, and the panel follows the ring', async ({ page }) => {
+  await tick(page, at('P10')).click();
+  await card(page, 'ds1').click();
+  await expect(panel(page)).toHaveClass(/\bleft\b/);
+  await page.locator('.inspector-link', { hasText: 'Executor' }).first().click();
+  await expect(heading(page)).toHaveText('Executor');
+  await expect(heading(page)).toBeFocused();
+  await expect(page.locator('[data-party="executor"]')).toHaveClass(/\bselected\b/);
+  await card(page, 'slodef').click();
+  await expect(panel(page)).toHaveClass(/\bleft\b/);
+  await page.locator('.look-blocks .inspector-link', { hasText: 'Observability' }).click();
+  await expect(heading(page)).toHaveText('Observability');
+  await expect(heading(page)).toBeFocused();
+  await expect(panel(page)).toHaveClass(/\bright\b/);
+});
+
+test('the panel is as tall as its content', async ({ page }) => {
+  await tick(page, at('P10')).click();
+  await page.locator('.surface[data-surface="api"]').click();
+  const h = (await panel(page).boundingBox())!.height;
+  expect(h).toBeLessThan(400);
+});
