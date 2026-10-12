@@ -167,3 +167,19 @@ test('the panel never covers the selected card or the caption bar', async ({ pag
     expect(overlap(a, c), v).toBe(false);
   }
 });
+
+test('inspectables respond to hover, and the caption hint goes after the first inspection', async ({
+  page,
+}) => {
+  await tick(page, at('P10')).click();
+  await expect(page.locator('.caption .hint')).toBeVisible();
+  const portal = page.getByRole('button', { name: /^Portal$/ });
+  await expect(portal).toHaveCSS('border-top-color', 'rgb(44, 52, 63)');
+  await portal.hover();
+  await expect(portal).toHaveCSS('border-top-color', 'rgb(139, 151, 168)');
+  await card(page, 'ds1').click();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.caption .hint')).toHaveCount(0);
+  await tick(page, at('P11')).click();
+  await expect(page.locator('.caption .hint')).toHaveCount(0);
+});

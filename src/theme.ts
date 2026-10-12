@@ -9,6 +9,8 @@ export const TOKENS = {
   'panel-active': '#1a2129',
   card: '#1b2129',
   'card-earlier': '#161b22',
+  /** Hover on anything inspectable (cards, surfaces, labels): one step up from card. */
+  'card-hover': '#232a34',
   /** Earlier beats' cards: the dimmest text that still meets AA on their background. */
   faded: '#7d8796',
   'border-faint': '#222932',

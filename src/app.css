@@ -301,6 +301,14 @@ code {
 .region-name {
   all: unset;
   cursor: pointer;
+  /* The one inspectable thing that otherwise reads as a plain heading. */
+  text-decoration: underline dotted;
+  text-decoration-color: var(--muted);
+  text-underline-offset: 3px;
+}
+.region-name:hover {
+  text-decoration-style: solid;
+  text-decoration-color: currentColor;
 }
 .region-name:focus-visible {
   outline: 2px solid #ffffff;
@@ -360,6 +368,25 @@ code {
   color: var(--text);
   border-color: var(--border-new);
   border-left-color: var(--accent);
+}
+/* Hover and press: neutral and instant (no transitions; motion belongs to ui/motion.ts). They leave the
+   provenance edge alone, and the dimmest text steps up to muted to keep AA on the lighter fill. */
+.card:hover {
+  background: var(--card-hover);
+  border-top-color: var(--border-new);
+  border-right-color: var(--border-new);
+  border-bottom-color: var(--border-new);
+}
+.surface:hover {
+  background: var(--card-hover);
+  border-color: var(--border-new);
+}
+.card:not(.new):not(.touched):hover {
+  color: var(--muted);
+}
+.card:active,
+.surface:active {
+  background: var(--card);
 }
 .card.stack-1 {
   box-shadow:
@@ -637,6 +664,12 @@ code {
   line-height: 1.3;
   white-space: nowrap;
 }
+.label:hover {
+  border-color: var(--border-new);
+}
+.label:active {
+  background: var(--card-hover);
+}
 .label:focus-visible {
   outline-offset: 1px;
 }
@@ -673,6 +706,14 @@ code {
   margin: 0;
   font-size: 13.5px;
   line-height: 1.35;
+}
+.caption .hint {
+  position: absolute;
+  right: 214px;
+  top: 4px;
+  font-size: 11px;
+  line-height: inherit;
+  color: var(--muted);
 }
 .caption .scope {
   position: absolute;

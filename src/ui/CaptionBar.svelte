@@ -5,9 +5,10 @@
   let {
     step,
     view,
+    hint,
     onBack,
     onNext,
-  }: { step: number; view: View; onBack: () => void; onNext: () => void } = $props();
+  }: { step: number; view: View; hint: boolean; onBack: () => void; onNext: () => void } = $props();
 
   const s = $derived(STEPS[step]!);
   const atStart = $derived(step === 0);
@@ -19,6 +20,9 @@
     {CHAPTERS[s.chapter]} · <span data-testid="counter">{step + 1} / {STEPS.length}</span> · {s.title}
   </h2>
   <p aria-live="polite">{s.caption[view]}</p>
+  {#if hint}
+    <p class="hint">Click any card, line label or responsibility name to inspect it.</p>
+  {/if}
   {#if view === 'technical'}
     <p class="scope">{SCOPE_NOTE}</p>
   {/if}

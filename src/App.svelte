@@ -35,12 +35,15 @@
 
   let side = $state<'left' | 'right'>('right');
   let opener: HTMLElement | null = null;
+  /** Until the first inspection, the caption says inspection exists. */
+  let inspected = $state(false);
 
   /** Opens or moves the inspector (spec §7): finishes motion, sides it opposite the ring, focuses its heading. */
   async function select(t: Target) {
     finishAll();
     if (!selected) opener = document.activeElement as HTMLElement | null;
     selected = t;
+    inspected = true;
     await tick();
     const ring = document.querySelector('.selected');
     const stageEl = document.querySelector('.stage');
@@ -135,7 +138,13 @@
         onClose={closeInspector}
       />
     {/if}
-    <CaptionBar {step} {view} onBack={() => go(step - 1)} onNext={() => go(step + 1, true)} />
+    <CaptionBar
+      {step}
+      {view}
+      hint={!inspected}
+      onBack={() => go(step - 1)}
+      onNext={() => go(step + 1, true)}
+    />
   </div>
   <!-- Inside .viewport so the dialog inherits the colour tokens; showModal() lifts it to the top layer. -->
   <About bind:dialog={about} />

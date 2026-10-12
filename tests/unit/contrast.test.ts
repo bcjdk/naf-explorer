@@ -17,7 +17,7 @@ const contrast = (a: string, b: string) => {
 describe('colour tokens meet WCAG AA (spec §10)', () => {
   it('text and muted text on every surface', () => {
     for (const fg of ['text', 'muted']) {
-      for (const bg of ['bg', 'panel', 'panel-active', 'card', 'card-earlier']) {
+      for (const bg of ['bg', 'panel', 'panel-active', 'card', 'card-earlier', 'card-hover']) {
         expect(contrast(fg, bg), `${fg} on ${bg}`).toBeGreaterThanOrEqual(4.5);
       }
     }
@@ -29,7 +29,7 @@ describe('colour tokens meet WCAG AA (spec §10)', () => {
   });
 
   it('status chips', () => {
-    for (const bg of ['card', 'panel'])
+    for (const bg of ['card', 'card-hover', 'panel'])
       expect(contrast('chip-text', bg)).toBeGreaterThanOrEqual(4.5);
     expect(contrast('hatch-text', 'hatch-a')).toBeGreaterThanOrEqual(4.5);
     expect(contrast('hatch-text', 'hatch-b')).toBeGreaterThanOrEqual(4.5);

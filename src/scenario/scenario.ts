@@ -38,7 +38,7 @@ export const ABOUT = {
   howTo: [
     { keys: ['→', '←'], text: 'step through the story' },
     { keys: ['Simple', 'Technical'], text: 'choose the depth' },
-    { keys: ['click'], text: 'anything to inspect it' },
+    { keys: ['click', 'Enter'], text: 'any card, line label or responsibility name to inspect it' },
   ],
   naf: {
     label: 'Network Automation Forum Automation Framework',
