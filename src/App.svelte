@@ -155,6 +155,7 @@
       hint={!inspected}
       onBack={() => go(step - 1)}
       onNext={() => go(step + 1, true)}
+      onRestart={() => go(0)}
     />
   </div>
   <!-- Inside .viewport so the dialog inherits the colour tokens; showModal() lifts it to the top layer. -->

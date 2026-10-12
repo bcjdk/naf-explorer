@@ -180,6 +180,11 @@ test('inspectables respond to hover, and the caption hint goes after the first i
   await card(page, 'ds1').click();
   await page.keyboard.press('Escape');
   await expect(page.locator('.caption .hint')).toHaveCount(0);
+  // The line legend takes the hint's place.
+  const legend = page.locator('.caption .legend');
+  await expect(legend).toContainText('artifact handoff');
+  await expect(legend).toContainText('coordination signal');
+  await expect(legend).toContainText('work inside a responsibility');
   await tick(page, at('P11')).click();
   await expect(page.locator('.caption .hint')).toHaveCount(0);
 });

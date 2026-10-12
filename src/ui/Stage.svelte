@@ -113,6 +113,13 @@
     style="{box(REGIONS[p])};--accent:var(--{p})"
   >
     {@render header(p)}
+    <!-- Until its first card, a region introduces itself from the inspector's data (spec §3.3); no motion. -->
+    {#if !(stage.slots[p] ?? []).length}
+      <div class="intro">
+        <p><span class="intro-label">Does</span> {RESPONSIBILITIES[p].does[0]}</p>
+        <p><span class="intro-label">Does not</span> {RESPONSIBILITIES[p].doesNot[0]}</p>
+      </div>
+    {/if}
     {#each stage.slots[p] ?? [] as slot (slot.kind)}
       <Card {slot} {stage} {view} rect={SLOTS[slot.kind]!} {selected} {onSelect} />
     {/each}

@@ -35,6 +35,7 @@
         {#each indexed.filter(({ s }) => s.chapter === ch) as { s, i } (s.id)}
           <button
             class="tick"
+            class:done={i < step}
             aria-label="Go to {s.id}: {s.title}"
             aria-current={i === step ? 'step' : undefined}
             onclick={() => onJump(i)}

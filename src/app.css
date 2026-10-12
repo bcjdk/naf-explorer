@@ -71,8 +71,8 @@ code {
   border-bottom: 1px solid var(--border);
 }
 .header h1 {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
   margin: 0;
   white-space: nowrap;
 }
@@ -90,21 +90,38 @@ code {
   border: 0;
   padding: 2px 8px 2px 0;
   color: var(--muted);
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chapter-name:hover {
+  color: var(--text);
 }
 .chapter-name.current {
   color: var(--text);
 }
-/* Each tick is a short dash with a 16×20 hit area. */
+/* Each tick is a short dash with a 16×20 hit area: done, current (wider, brightest) or still to come. */
 .tick {
   width: 16px;
   height: 20px;
   padding: 0;
   border: 0;
   background: linear-gradient(var(--tick), var(--tick)) center / 12px 3px no-repeat;
+  cursor: pointer;
+}
+.tick.done {
+  background-image: linear-gradient(var(--line), var(--line));
 }
 .tick[aria-current='step'] {
+  width: 24px;
   background-image: linear-gradient(var(--text), var(--text));
-  background-size: 12px 4px;
+  background-size: 20px 4px;
+}
+.tick:hover {
+  background-size: 12px 5px;
+}
+.tick[aria-current='step']:hover {
+  background-size: 20px 5px;
 }
 .view {
   margin-left: auto;
@@ -119,6 +136,8 @@ code {
   border: 0;
   padding: 4px 12px;
   color: var(--muted);
+  font-weight: 600;
+  cursor: pointer;
 }
 .view button[aria-pressed='true'] {
   background: var(--card);
@@ -761,6 +780,27 @@ code {
   line-height: 1.15;
 }
 
+.intro {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 44px;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.intro p {
+  margin: 0 0 6px;
+}
+.intro-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
 /* Caption bar */
 .caption {
   position: absolute;
@@ -769,39 +809,65 @@ code {
   width: 1416px;
   height: 84px;
   box-sizing: border-box;
-  padding: 4px 200px 4px 14px;
+  padding: 6px 214px 4px 14px;
   border-top: 1px solid var(--border);
   overflow: hidden;
 }
 .caption h2 {
   margin: 0 0 2px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--muted);
 }
 .caption p {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 18px;
+  font-weight: 500;
   line-height: 1.35;
 }
-.caption .hint {
+/* The top-right slot: hint, legend or ending, one line, never under the caption text. */
+.caption :is(.hint, .legend, .ending) {
   position: absolute;
   right: 214px;
-  top: 4px;
-  font-size: 11px;
-  line-height: inherit;
+  top: 6px;
+  font-size: 12.5px;
+  line-height: 1.3;
   color: var(--muted);
 }
+.caption .ending {
+  color: var(--text);
+  font-weight: 600;
+}
+.legend {
+  display: flex;
+  gap: 18px;
+}
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend line {
+  stroke: var(--line);
+  stroke-width: 2;
+}
+.legend line.signal {
+  stroke-dasharray: 6 4;
+}
+.legend line.work {
+  stroke-dasharray: 1.5 3;
+}
+/* Technical scope note: one line at the bottom right, under the buttons. */
 .caption .scope {
   position: absolute;
   right: 14px;
-  top: 38px;
-  width: 186px;
-  line-height: 1.25;
-  font-size: 11px;
+  bottom: 6px;
+  font-size: 12.5px;
+  line-height: 1.3;
   color: var(--muted);
+  white-space: nowrap;
 }
 .nav {
   position: absolute;
@@ -814,10 +880,32 @@ code {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 4px;
-  padding: 4px 12px;
+  padding: 5px 14px;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.nav button:hover {
+  border-color: var(--border-new);
 }
 .nav button[aria-disabled='true'] {
   color: var(--muted);
+  cursor: default;
+}
+.nav button[aria-disabled='true']:hover {
+  border-color: var(--border);
+}
+/* Next (and Start over) is the primary action. */
+.nav .primary {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+.nav .primary:hover {
+  background: #ffffff;
+}
+.nav .primary:focus-visible {
+  outline-offset: 2px;
 }
 
 /* Inspector (spec §3, §7): 400px over the responsibilities zone, opposite the selection. */

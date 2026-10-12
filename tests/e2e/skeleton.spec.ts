@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { stateAt } from '../../src/model/state.ts';
 import { routesOf } from '../../src/routes.ts';
 import { MARKER_TEXT, statusText } from '../../src/model/describe.ts';
-import { STEPS, version } from '../../src/scenario/scenario.ts';
+import { ENDING, RESPONSIBILITIES, STEPS, version } from '../../src/scenario/scenario.ts';
 
 const counter = (page: Page) => page.getByTestId('counter');
 const stepIndex = (id: string) => STEPS.findIndex((s) => s.id === id);
@@ -306,20 +306,52 @@ test('modified arrows do not step the story', async ({ page }) => {
 });
 
 // Review Focus 3
-test('Next on the last beat and Back on the first keep focus and stay put', async ({ page }) => {
+test('Back on the first beat stays put; on the last beat Next becomes Start over', async ({
+  page,
+}) => {
   const back = page.getByRole('button', { name: '◄ Back' });
   await back.focus();
   await page.keyboard.press('Enter');
   await expect(counter(page)).toHaveText('1 / 38');
   await expect(back).toBeFocused();
 
-  await page.getByRole('button', { name: 'Go to R15: Closing' }).click();
-  const next = page.getByRole('button', { name: 'Next ►' });
-  await next.focus();
+  await page.getByRole('button', { name: 'Go to R14: Report and clear' }).click();
+  await page.getByRole('button', { name: 'Next ►' }).click();
+  // Pressed while R15 is still animating, by keyboard (Review Focus 3).
+  const restart = page.getByRole('button', { name: 'Start over' });
+  await restart.focus();
   await page.keyboard.press('Enter');
-  await expect(counter(page)).toHaveText('38 / 38');
+  await expect(counter(page)).toHaveText('1 / 38');
+  const next = page.getByRole('button', { name: 'Next ►' });
   await expect(next).toBeFocused();
-  await expect(next).toHaveAttribute('aria-disabled', 'true');
+  expect(
+    await page.evaluate(
+      () => document.getAnimations().filter((a) => a.playState === 'running').length,
+    ),
+  ).toBe(0);
+});
+
+test('the last beat completes the story: every tick done, a completion line', async ({ page }) => {
+  await page.getByRole('button', { name: 'Go to R15: Closing' }).click();
+  await expect(page.locator('.caption .ending')).toHaveText(ENDING);
+  await expect(page.locator('.tick:not([aria-current])')).toHaveCount(STEPS.length - 1);
+  await expect(page.locator('.tick.done')).toHaveCount(STEPS.length - 1);
+});
+
+test('responsibilities introduce themselves until their first card appears', async ({ page }) => {
+  const intro = (p: string) => page.locator(`.region[data-party="${p}"] .intro`);
+  await expect(intro('intent')).toContainText(RESPONSIBILITIES.intent.does[0]!);
+  await expect(intro('intent')).toContainText(RESPONSIBILITIES.intent.doesNot[0]!);
+  await expect(page.locator('.intro')).toHaveCount(5);
+  await page.getByRole('button', { name: 'Simple' }).click();
+  const simple = await intro('observability').textContent();
+  await page.getByRole('button', { name: 'Technical' }).click();
+  expect(await intro('observability').textContent()).toBe(simple);
+  // Intent's first card appears in P3; the intro is gone at time 0 of that beat (Review Focus 4).
+  await tick(page, stepIndex('P3') - 1).click();
+  await page.getByRole('button', { name: 'Next ►' }).click();
+  await expect(intro('intent')).toHaveCount(0);
+  await expect(intro('observability')).toHaveCount(1);
 });
 
 // Review Focus 4: blocked storage, either at access or in its methods
