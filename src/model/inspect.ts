@@ -193,7 +193,7 @@ export function inspect(target: Target, n: number, view: View): Inspection {
         kind: 'Surface',
         title: SURFACES[s],
         sections: [
-          ...sec('Role', [text(SURFACE_ROLES[s])]),
+          ...sec('What it is', [text(SURFACE_ROLES[s])]),
           ...sec('Showing', [shown ? link(shown) : text('Nothing received yet.')]),
           ...sec('From', shown ? [text(RESPONSIBILITIES[producerOf(shown)].name)] : []),
           ...sec(

@@ -5,6 +5,7 @@ import {
   SIGNALS,
   STEPS,
   SURFACES,
+  SURFACE_ROLES,
   kind,
   producerOf,
   version,
@@ -137,6 +138,12 @@ describe('inspect: lines', () => {
 });
 
 describe('inspect: surfaces', () => {
+  it('explains each surface under "What it is"', () => {
+    for (const s of Object.keys(SURFACES) as (keyof typeof SURFACES)[])
+      expect(
+        texts(inspect({ t: 'surface', surface: s }, at('P15'), 'simple'), 'What it is'),
+      ).toEqual([SURFACE_ROLES[s]]);
+  });
   it('shows the latest received artifact and its sender, and the Portal its own request', () => {
     const i = inspect({ t: 'surface', surface: 'portal' }, at('P15'), 'simple');
     expect(section(i, 'Showing')[0]?.target).toEqual({ t: 'artifact', version: 'ss1' });

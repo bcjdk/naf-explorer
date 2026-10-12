@@ -26,8 +26,27 @@
      Lines are part of the beat's end state; `ui/motion.ts` animates them in (spec §8). Keyed by step. -->
 {#key step}
   <svg class="lines under" width={STAGE.w} height={STAGE.h} aria-hidden="true">
+    <defs>
+      <marker
+        id="arrow-minor"
+        viewBox="0 0 10 10"
+        refX="9"
+        refY="5"
+        markerWidth="6"
+        markerHeight="6"
+        orient="auto-start-reverse"
+      >
+        <path d="M0,0 L10,5 L0,10 z" fill="context-stroke" />
+      </marker>
+    </defs>
     {#each work as r (r.key)}
-      <path class="route work" d={smoothPath(r.points)} data-party={r.ends[0]} />
+      <path
+        class="route work"
+        d={smoothPath(r.points)}
+        data-party={r.ends[0]}
+        style:--accent="var(--{r.ends[0]})"
+        marker-end="url(#arrow-minor)"
+      />
     {/each}
   </svg>
   <svg class="lines" width={STAGE.w} height={STAGE.h} aria-hidden="true">

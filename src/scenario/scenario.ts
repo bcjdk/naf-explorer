@@ -195,13 +195,16 @@ export const WORKFLOW_STEPS: Record<string, { label: string; from: string }[]> =
   ],
 };
 
-/** What each surface is for, shown beside its name. */
+/** What each surface is, shown in its inspector. */
 export const SURFACE_ROLES: Record<Surface, string> = {
-  faultMgmt: 'NOC single pane of glass',
-  itsm: 'tickets',
-  portal: 'customers and operators',
-  perfMgmt: 'SLI dashboards',
-  api: 'other systems',
+  faultMgmt:
+    'The NOC’s single pane of glass for faults. Here it shows Observability’s service-impact events as they are raised and cleared, so operators see which services are affected. It displays them; it does not decide what to do.',
+  itsm: 'The IT service management system, where incidents and changes are tracked as tickets. Here it receives Observability’s repair-needed event, so the faulty link’s repair can be ticketed and followed up by people.',
+  portal:
+    'Where customers and operators request services and follow their state. Here ACME’s service request starts from it, and it shows the service state Observability sends.',
+  perfMgmt:
+    'Performance dashboards that chart SLIs and other measurements over time. Nothing is sent to it in this story.',
+  api: 'How other systems, such as a customer’s own tools or an OSS/BSS, request services and read their state programmatically. Nothing is sent to it in this story.',
 };
 
 export const KINDS: ArtifactKind[] = [

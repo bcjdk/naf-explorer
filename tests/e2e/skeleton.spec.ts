@@ -3,7 +3,7 @@ import { stateAt } from '../../src/model/state.ts';
 import { routesOf } from '../../src/routes.ts';
 import { SLOTS } from '../../src/layout.ts';
 import { MARKER_TEXT, statusText } from '../../src/model/describe.ts';
-import { ENDING, RESPONSIBILITIES, STEPS, version } from '../../src/scenario/scenario.ts';
+import { ENDING, STEPS, version } from '../../src/scenario/scenario.ts';
 
 const counter = (page: Page) => page.getByTestId('counter');
 const stepIndex = (id: string) => STEPS.findIndex((s) => s.id === id);
@@ -364,22 +364,6 @@ test('the last beat completes the story: every tick done, a completion line', as
   await expect(page.locator('.tick.done')).toHaveCount(STEPS.length - 1);
 });
 
-test('responsibilities introduce themselves until their first card appears', async ({ page }) => {
-  const intro = (p: string) => page.locator(`.region[data-party="${p}"] .intro`);
-  await expect(intro('intent')).toContainText(RESPONSIBILITIES.intent.does[0]!);
-  await expect(intro('intent')).toContainText(RESPONSIBILITIES.intent.doesNot[0]!);
-  await expect(page.locator('.intro')).toHaveCount(5);
-  await page.getByRole('button', { name: 'Simple' }).click();
-  const simple = await intro('observability').textContent();
-  await page.getByRole('button', { name: 'Technical' }).click();
-  expect(await intro('observability').textContent()).toBe(simple);
-  // Intent's first card appears in P3; the intro is gone at time 0 of that beat (Review Focus 4).
-  await tick(page, stepIndex('P3') - 1).click();
-  await page.getByRole('button', { name: 'Next ►' }).click();
-  await expect(intro('intent')).toHaveCount(0);
-  await expect(intro('observability')).toHaveCount(1);
-});
-
 // Review Focus 4: blocked storage, either at access or in its methods
 const blockers: Record<string, () => void> = {
   'access to storage throws': () => {
@@ -465,6 +449,13 @@ test('colour shows who made it: bands on new cards, edges on used ones, coloured
     'rgb(255, 109, 46)',
   );
   await expect(page.locator('path.route.signal').first()).toHaveCSS('stroke', 'rgb(154, 165, 180)');
+  // Work inside a responsibility is a minor handoff: same producer colour, thinner, solid, smaller arrow.
+  await tick(page, stepIndex('P14')).click();
+  const work = page.locator('path.route.work[data-party="observability"]').first();
+  await expect(work).toHaveCSS('stroke', 'rgb(0, 230, 118)');
+  await expect(work).toHaveCSS('stroke-width', '1.5px');
+  await expect(work).toHaveCSS('stroke-dasharray', 'none');
+  await expect(work).toHaveAttribute('marker-end', /arrow-minor/);
   // Executor's band is a shade darker so white text meets AA (plan 5 D1).
   await tick(page, stepIndex('P8')).click();
   const cc = page.locator(`.card[data-version="${stateAt(stepIndex('P8')).newIds[0]}"] .head`);
