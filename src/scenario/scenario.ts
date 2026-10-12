@@ -599,8 +599,7 @@ export const VERSIONS: ArtifactVersion[] = [
     technical: [
       'CPH01 Hu0/0/0/1: Rx −2.4 dBm, CRC 0',
       'other links: Rx −2.1 to −2.6 dBm, CRC 0',
-      'all links: oper UP, IS-IS UP',
-      'twamp-light loss 0.00% both directions',
+      'oper UP, IS-IS UP · twamp loss 0.00%',
     ],
   },
   {
@@ -653,10 +652,9 @@ export const VERSIONS: ArtifactVersion[] = [
     meaning:
       'Light falling and errors rising at CPH01; ACME’s probe losing packets; links still UP.',
     technical: [
-      'CPH01 Hu0/0/0/1 Rx −10.9 dBm, CRC 1,240/min',
+      'CPH01 Hu0/0/0/1: Rx −10.9, CRC 1,240/min',
       'other links: Rx −2.1 to −2.6 dBm, CRC 0',
-      'all links: oper UP, IS-IS UP',
-      'twamp-light AAR01→CPH01 loss 0.4%',
+      'oper UP, IS-IS UP · probe loss 0.4%',
     ],
   },
   {
@@ -666,12 +664,7 @@ export const VERSIONS: ArtifactVersion[] = [
     lineage: ['raw-deg'],
     meaning:
       'The same signals in one shape: light down, errors up, probe losing packets, everything UP.',
-    technical: [
-      'rx_power −10.9 dBm',
-      'crc_errors 1,240/min',
-      'oper, isis: UP',
-      'probe_loss 0.4% AAR01→CPH01',
-    ],
+    technical: ['rx_power −10.9 dBm', 'crc_errors 1,240/min', 'oper, isis: UP', 'probe_loss 0.4%'],
   },
   {
     id: 'enr-deg',
@@ -707,8 +700,8 @@ export const VERSIONS: ArtifactVersion[] = [
     meaning:
       'Loss lines up with low light and errors on CPH01–ODE01: it points to optics, a strong clue, not proof.',
     technical: [
-      '10:45–10:46 · path A',
-      'sli 0.4% · Rx −10.9 dBm · CRC ≈1,240/min',
+      'path A · sli 0.4%',
+      'Rx −10.9 dBm, CRC ≈1,240/min',
       'suspect ODE01→CPH01, not proof',
     ],
   },
@@ -727,12 +720,8 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'loss violation',
     status: 'VIOLATED',
     lineage: ['ss2', 'evid'],
-    meaning: 'Loss objective violated; suspect CPH01–ODE01 on the current path A.',
-    technical: [
-      'acme-loss-violation',
-      'ACME-L3VPN-001 · loss < 0.1%',
-      'implicated CPH01–ODE01 · path A',
-    ],
+    meaning: 'Loss objective violated; suspect CPH01–ODE01 on path A.',
+    technical: ['acme-loss-violation', 'suspect CPH01–ODE01 · path A'],
   },
   // Remediate
   {
@@ -749,13 +738,8 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'path B',
     status: 'HEALTHY',
     lineage: ['enr-deg'],
-    meaning:
-      'Path B’s links via KOL01 look healthy: normal light, no errors, UP. ACME is not yet measured there.',
-    technical: [
-      'path B: CPH01–KOL01–AAR01',
-      'Rx −2.1 to −2.6 dBm, CRC 0, UP',
-      'link telemetry only, 10:45–10:46',
-    ],
+    meaning: 'Path B’s links look healthy; ACME is not yet measured there.',
+    technical: ['Rx −2.1 to −2.6 dBm', 'CRC 0, UP, 10:45–10:46', 'link telemetry only'],
   },
   {
     id: 'dec',
@@ -829,12 +813,7 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'after reroute',
     lineage: [],
     meaning: 'Fresh telemetry: errors continue on the faulty fibre, and ACME’s probe is clean.',
-    technical: [
-      'CPH01 Hu0/0/0/1 Rx −10.9 dBm, CRC 1,240/min',
-      'other links: Rx −2.1 to −2.6 dBm, CRC 0',
-      'all links: oper UP, IS-IS UP',
-      'twamp-light loss 0.00% both directions',
-    ],
+    technical: ['CPH01 Hu0/0/0/1: Rx −10.9, CRC 1,240/min', 'oper UP, IS-IS UP · twamp loss 0.00%'],
   },
   {
     id: 'norm-after',
@@ -893,9 +872,9 @@ export const VERSIONS: ArtifactVersion[] = [
     lineage: ['evid', 'enr-after'],
     meaning: 'ACME was auto-remediated onto path B; link CPH01–ODE01 still needs repair.',
     technical: [
-      'repair CPH01–ODE01 (ODE01→CPH01)',
+      'repair CPH01–ODE01',
       'Rx −10.9 dBm, CRC ≈1,240/min',
-      'ACME auto-remediated to path B',
+      'ACME auto-remediated: path B',
     ],
   },
 ];
@@ -936,7 +915,7 @@ export const STEPS: Step[] = [
     events: [
       appear('sr'),
       hand('sr', 'presentation', 'orchestrator', 'portal'),
-      work('orchestrator', 'startWorkflow', 'start workflow', 'start provision/ACME-L3VPN-001'),
+      work('orchestrator', 'startWorkflow', 'start workflow', 'start provision'),
       appear('wf-prov'),
     ],
   },
@@ -1230,12 +1209,7 @@ export const STEPS: Step[] = [
       'Workflow remediation/acme-loss-violation starts under pol-loss-reroute (pre-approved): if an SLO is violated, the evidence implicates a link on the current path, and a healthy alternate exists, request that the link be excluded.',
     ),
     events: [
-      work(
-        'orchestrator',
-        'startWorkflow',
-        'start workflow',
-        'start remediation under pol-loss-reroute',
-      ),
+      work('orchestrator', 'startWorkflow', 'start workflow', 'start pol-loss-reroute'),
       appear('wf-rem'),
     ],
   },
@@ -1268,7 +1242,7 @@ export const STEPS: Step[] = [
       'pol-loss-reroute conditions met. Orchestrator → Intent: remediation decision intent-change ACME-L3VPN-001, exclude-link CPH01–ODE01. The decision names no path. Where policy is evaluated is a design choice.',
     ),
     events: [
-      work('orchestrator', 'evaluatePolicy', 'evaluate policy', 'evaluate pol-loss-reroute'),
+      work('orchestrator', 'evaluatePolicy', 'evaluate policy'),
       appear('dec'),
       hand('dec', 'orchestrator', 'intent'),
     ],

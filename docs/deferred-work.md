@@ -18,3 +18,21 @@
 - **Plan 6: Selection ring at region bottoms.** `.region { overflow: hidden }` may clip the ring on bottom-row cards, and the full-width Presentation and Network rings are partly covered by design. Check once plan 5 has re-tuned the geometry.
 - **Plan 6: Inspector side after a target appears.** The panel side isn't recomputed when a target that wasn't drawn later appears in a beat.
 - **Plan 6: Test gaps from plan 4.** The Task 2 focus test's Enter is a no-op and doesn't re-assert `.selected`. The responsibility/answeredBy tests mirror the implementation's predicate, and there's no test for the "Nothing: it answers…" text.
+
+## Plan 6: shortened for fit (plan 5)
+
+Shortened so the cards fit at the plan 5 type scale. Multi-line Technical payloads are shown with " / " between lines. Invariant-carrying clauses are kept: "even though the interface is UP" and "device state ≠ service state" (ss2), "not yet measured there" and "link telemetry only" (pathB), "not proof" (evid), the "other links" baseline (raw-deg), and "oper UP, IS-IS UP" (every raw sample).
+
+- P2 work (Technical): "start provision/ACME-L3VPN-001" → "start provision"
+- R1 work (Technical): "start remediation under pol-loss-reroute" → "start pol-loss-reroute"
+- R3 work (Technical): "evaluate pol-loss-reroute" → "evaluate policy"
+- ev-viol meaning: "Loss objective violated; suspect CPH01–ODE01 on the current path A." → "Loss objective violated; suspect CPH01–ODE01 on path A."
+- ev-viol technical: "acme-loss-violation / ACME-L3VPN-001 · loss < 0.1% / implicated CPH01–ODE01 · path A" → "acme-loss-violation / suspect CPH01–ODE01 · path A"
+- pathB meaning: "Path B’s links via KOL01 look healthy: normal light, no errors, UP. ACME is not yet measured there." → "Path B’s links look healthy; ACME is not yet measured there."
+- pathB technical: "path B: CPH01–KOL01–AAR01 / Rx −2.1 to −2.6 dBm, CRC 0, UP / link telemetry only, 10:45–10:46" → "Rx −2.1 to −2.6 dBm / CRC 0, UP, 10:45–10:46 / link telemetry only"
+- evid technical: "10:45–10:46 · path A / sli 0.4% · Rx −10.9 dBm · CRC ≈1,240/min / suspect ODE01→CPH01, not proof" → "path A · sli 0.4% / Rx −10.9 dBm, CRC ≈1,240/min / suspect ODE01→CPH01, not proof"
+- ev-repair technical: "repair CPH01–ODE01 (ODE01→CPH01) / Rx −10.9 dBm, CRC ≈1,240/min / ACME auto-remediated to path B" → "repair CPH01–ODE01 / Rx −10.9 dBm, CRC ≈1,240/min / ACME auto-remediated: path B"
+- norm-deg technical: "probe_loss 0.4% AAR01→CPH01" → "probe_loss 0.4%"
+- raw-base technical: "all links: oper UP, IS-IS UP / twamp-light loss 0.00% both directions" → "oper UP, IS-IS UP · twamp loss 0.00%"
+- raw-deg technical: "CPH01 Hu0/0/0/1 Rx −10.9 dBm, CRC 1,240/min / other links: Rx −2.1 to −2.6 dBm, CRC 0 / all links: oper UP, IS-IS UP / twamp-light AAR01→CPH01 loss 0.4%" → "CPH01 Hu0/0/0/1: Rx −10.9, CRC 1,240/min / other links: Rx −2.1 to −2.6 dBm, CRC 0 / oper UP, IS-IS UP · probe loss 0.4%"
+- raw-after technical: "CPH01 Hu0/0/0/1 Rx −10.9 dBm, CRC 1,240/min / other links: Rx −2.1 to −2.6 dBm, CRC 0 / all links: oper UP, IS-IS UP / twamp-light loss 0.00% both directions" → "CPH01 Hu0/0/0/1: Rx −10.9, CRC 1,240/min / oper UP, IS-IS UP · twamp loss 0.00%"

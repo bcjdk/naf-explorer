@@ -14,21 +14,22 @@ export interface Rect {
 }
 
 /**
- * Spec §3 bands (rev 7), absolute stage coordinates. Every canvas block has the same 30px above and below it;
- * the header and caption bars hug the canvas at 16px, and the side margins are 12px. The lanes beside
+ * Spec §3 bands (rev 7, plan 5 D2), absolute stage coordinates. The blocks are 30px apart under Presentation
+ * and 24px elsewhere; the header bar hugs the canvas at 16px, the caption bar at 12px, and the side margins
+ * are 12px. The lanes beside
  * Orchestrator (72px) carry its exchanges; Orchestrator lines up with the rows beside it.
  */
 export const REGIONS: Record<Party, Rect> = {
   presentation: { x: 12, y: 52, w: 1416, h: 84 },
   observability: { x: 12, y: 166, w: 488, h: 348 },
-  orchestrator: { x: 572, y: 166, w: 296, h: 542 },
+  orchestrator: { x: 572, y: 166, w: 296, h: 536 },
   intent: { x: 940, y: 166, w: 488, h: 348 },
-  collector: { x: 12, y: 544, w: 488, h: 164 },
-  executor: { x: 940, y: 544, w: 488, h: 164 },
-  network: { x: 12, y: 738, w: 1416, h: 106 },
+  collector: { x: 12, y: 538, w: 488, h: 164 },
+  executor: { x: 940, y: 538, w: 488, h: 164 },
+  network: { x: 12, y: 726, w: 1416, h: 106 },
 };
 
-export const CAPTION: Rect = { x: 12, y: 860, w: 1416, h: 84 };
+export const CAPTION: Rect = { x: 12, y: 844, w: 1416, h: 100 };
 
 /**
  * Where exchange labels sit: the centre of each side lane. Orchestrator runs the full height, so the left lane
@@ -39,38 +40,39 @@ export const LANES = {
   right: 904,
   /** The top lane under Presentation: Observability → Portal on the upper track, the rest on the lower one. */
   top: 156,
-  topHigh: 145,
+  topHigh: 147,
   /** Widest a lane label may be before it wraps. */
   labelWidth: 68,
 } as const;
 
 /** One fixed slot per artifact kind, relative to its producer's region. */
 export const SLOTS: Partial<Record<KindId, Rect>> = {
+  // Cards start at y 28, under the 17px header and the work pill.
   // Observability: the column facing Orchestrator holds everything it exchanges with Orchestrator.
-  sloRule: { x: 8, y: 22, w: 232, h: 109 },
-  evidence: { x: 8, y: 131, w: 232, h: 109 },
-  sli: { x: 8, y: 240, w: 232, h: 109 },
-  serviceState: { x: 248, y: 22, w: 232, h: 109 },
-  serviceEvent: { x: 248, y: 131, w: 232, h: 109 },
+  sloRule: { x: 8, y: 28, w: 232, h: 100 },
+  evidence: { x: 8, y: 128, w: 232, h: 114 },
+  sli: { x: 8, y: 242, w: 232, h: 107 },
+  serviceState: { x: 248, y: 28, w: 232, h: 109 },
+  serviceEvent: { x: 248, y: 137, w: 232, h: 103 },
   pathHealth: { x: 248, y: 240, w: 232, h: 109 },
   // Intent: derivation descends; every card's left edge faces Orchestrator.
-  serviceIntent: { x: 8, y: 22, w: 232, h: 109 },
-  sloDefinition: { x: 248, y: 22, w: 232, h: 109 },
-  networkIntent: { x: 8, y: 131, w: 472, h: 109 },
-  desiredState: { x: 8, y: 240, w: 472, h: 109 },
+  serviceIntent: { x: 8, y: 28, w: 232, h: 114 },
+  sloDefinition: { x: 248, y: 28, w: 232, h: 114 },
+  networkIntent: { x: 8, y: 142, w: 472, h: 96 },
+  desiredState: { x: 8, y: 238, w: 472, h: 111 },
   // Orchestrator: the workflow (with its steps), then its own requests in the order they are made.
-  workflow: { x: 8, y: 26, w: 280, h: 136 },
-  intentRequest: { x: 8, y: 166, w: 280, h: 78 },
-  remediationDecision: { x: 8, y: 248, w: 280, h: 96 },
-  applyRequest: { x: 8, y: 348, w: 280, h: 88 },
+  workflow: { x: 8, y: 28, w: 280, h: 136 },
+  intentRequest: { x: 8, y: 168, w: 280, h: 86 },
+  remediationDecision: { x: 8, y: 258, w: 280, h: 102 },
+  applyRequest: { x: 8, y: 364, w: 280, h: 96 },
   // Collector: the telemetry pipeline, then the read-back facing Orchestrator's lane.
-  normalized: { x: 8, y: 22, w: 152, h: 136 },
-  enriched: { x: 164, y: 22, w: 168, h: 136 },
-  observedState: { x: 336, y: 22, w: 144, h: 136 },
+  normalized: { x: 8, y: 28, w: 152, h: 137 },
+  enriched: { x: 164, y: 28, w: 168, h: 137 },
+  observedState: { x: 336, y: 28, w: 144, h: 137 },
   // Executor: under desired state, right of its header so the desired-state line clears the header text.
-  configChange: { x: 180, y: 22, w: 300, h: 136 },
+  configChange: { x: 180, y: 28, w: 300, h: 122 },
   // The Network
-  rawSignals: { x: 8, y: 20, w: 300, h: 84 },
+  rawSignals: { x: 8, y: 20, w: 320, h: 87 },
 };
 
 const SURFACE_ORDER: Surface[] = ['faultMgmt', 'itsm', 'portal', 'perfMgmt', 'api'];
@@ -135,8 +137,8 @@ export const WAYPOINTS: Record<string, [number, number][]> = {
   'presentation>orchestrator:serviceRequest@portal': [[812, 151]],
   // Read-back goes from Collector along the gutter above The Network and up the right lane to Intent.
   'collector>intent:observedState': [
-    [420, 723],
-    [LANES.right, 723],
+    [420, 714],
+    [LANES.right, 714],
     [LANES.right, 460],
   ],
 };

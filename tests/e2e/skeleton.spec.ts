@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { stateAt } from '../../src/model/state.ts';
 import { routesOf } from '../../src/routes.ts';
+import { SLOTS } from '../../src/layout.ts';
 import { MARKER_TEXT, statusText } from '../../src/model/describe.ts';
 import { ENDING, RESPONSIBILITIES, STEPS, version } from '../../src/scenario/scenario.ts';
 
@@ -258,6 +259,31 @@ test('nothing overflows, cards stay in their region without overlapping, and lab
   }
 });
 
+test('the caption never runs under the buttons, the scope note or the top-right slot', async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  await page.evaluate(() => document.fonts.ready);
+  for (const view of ['Technical', 'Simple'] as const) {
+    await page.getByRole('button', { name: view }).click();
+    for (let n = 0; n < STEPS.length; n++) {
+      await tick(page, n).click();
+      const clash = await page.evaluate(() => {
+        const range = document.createRange();
+        range.selectNodeContents(document.querySelector('.caption p[aria-live]')!);
+        const lines = [...range.getClientRects()];
+        const others = [
+          ...document.querySelectorAll('.caption :is(.scope, .nav, .hint, .legend, .ending)'),
+        ].map((e) => ({ name: e.className, r: e.getBoundingClientRect() }));
+        const hit = (a: DOMRect, b: DOMRect) =>
+          a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+        return others.filter((o) => lines.some((l) => hit(l, o.r))).map((o) => o.name);
+      });
+      expect(clash, `${STEPS[n]!.id} ${view}`).toEqual([]);
+    }
+  }
+});
+
 test('the explainer uses its own faces, not the fallbacks', async ({ page }) => {
   await page.getByRole('button', { name: 'Technical' }).click();
   await tick(page, stepIndex('P5')).click();
@@ -439,4 +465,19 @@ test('colour shows who made it: bands on new cards, edges on used ones, coloured
     'rgb(255, 109, 46)',
   );
   await expect(page.locator('path.route.signal').first()).toHaveCSS('stroke', 'rgb(154, 165, 180)');
+  // Executor's band is a shade darker so white text meets AA (plan 5 D1).
+  await tick(page, stepIndex('P8')).click();
+  const cc = page.locator(`.card[data-version="${stateAt(stepIndex('P8')).newIds[0]}"] .head`);
+  await expect(cc).toHaveCSS('background-color', 'rgb(91, 94, 222)');
+  await expect(cc).toHaveCSS('color', 'rgb(255, 255, 255)');
+  // A card used this beat keeps its full-strength 4px provenance edge.
+  // A card both made and used this beat shows as new; the service request sits in Portal, not on a card.
+  const onCard = (n: number) =>
+    stateAt(n).touched.filter((id) => SLOTS[version(id).kind] && !stateAt(n).newIds.includes(id));
+  const used = STEPS.findIndex((_, n) => onCard(n).length > 0);
+  await tick(page, used).click();
+  await expect(page.locator(`.card[data-version="${onCard(used)[0]}"]`)).toHaveCSS(
+    'border-left-width',
+    '4px',
+  );
 });
