@@ -191,6 +191,7 @@ test('nothing overflows, cards stay in their region without overlapping, and lab
   page,
 }) => {
   test.setTimeout(120_000);
+  await page.evaluate(() => document.fonts.ready);
   for (const view of ['Simple', 'Technical'] as const) {
     await page.getByRole('button', { name: view }).click();
     for (let n = 0; n < STEPS.length; n++) {
@@ -255,6 +256,22 @@ test('nothing overflows, cards stay in their region without overlapping, and lab
       expect(clash, `${STEPS[n]!.id} ${view}`).toEqual([]);
     }
   }
+});
+
+test('the explainer uses its own faces, not the fallbacks', async ({ page }) => {
+  await page.getByRole('button', { name: 'Technical' }).click();
+  await tick(page, stepIndex('P5')).click();
+  await page.evaluate(() => document.fonts.ready);
+  const used = await page.evaluate(() => ({
+    sans: document.fonts.check('500 15px "Source Sans 3"'),
+    mono: document.fonts.check('500 13px "Source Code Pro"'),
+    caption: getComputedStyle(document.querySelector('.caption p')!).fontFamily,
+    code: getComputedStyle(document.querySelector('.card code')!).fontFamily,
+  }));
+  expect(used.sans).toBe(true);
+  expect(used.mono).toBe(true);
+  expect(used.caption).toMatch(/^"?Source Sans 3/);
+  expect(used.code).toMatch(/^"?Source Code Pro/);
 });
 
 // Review Focus 1

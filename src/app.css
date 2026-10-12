@@ -1,3 +1,16 @@
+/* Self-hosted, OFL (src/assets/fonts/OFL.txt; ADR 0003). Variable fonts: one file covers each weight range. */
+@font-face {
+  font-family: 'Source Sans 3';
+  src: url('./assets/fonts/source-sans-3-latin.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  src: url('./assets/fonts/source-code-pro-latin.woff2') format('woff2');
+  font-weight: 400 500;
+  font-display: swap;
+}
 html,
 body {
   color-scheme: dark;
@@ -6,7 +19,8 @@ body {
   height: 100%;
   overflow: hidden;
   font:
-    13px/1.4 system-ui,
+    13px/1.4 'Source Sans 3',
+    system-ui,
     sans-serif;
 }
 button {
@@ -14,7 +28,7 @@ button {
   color: inherit;
 }
 code {
-  font-family: ui-monospace, monospace;
+  font-family: 'Source Code Pro', ui-monospace, monospace;
 }
 :focus-visible {
   outline: 2px solid #ffffff;
@@ -137,7 +151,8 @@ code {
   color: var(--text);
   box-shadow: 0 24px 64px rgb(0 0 0 / 0.5);
   font:
-    15px/1.6 system-ui,
+    15px/1.6 'Source Sans 3',
+    system-ui,
     sans-serif;
 }
 .about::backdrop {
@@ -216,7 +231,8 @@ code {
   border-radius: 5px;
   background: var(--card);
   font:
-    600 13px/1.5 system-ui,
+    600 13px/1.5 'Source Sans 3',
+    system-ui,
     sans-serif;
 }
 .about-or {
@@ -586,7 +602,8 @@ code {
 .node-name {
   fill: var(--text);
   font:
-    11px ui-monospace,
+    500 11px 'Source Code Pro',
+    ui-monospace,
     monospace;
   text-anchor: middle;
 }
