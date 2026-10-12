@@ -52,7 +52,7 @@
       onclick={() => onSelect({ t: 'responsibility', party: p })}
       ><span class="swatch"></span>{RESPONSIBILITIES[p].name}</button
     >
-    {#if work(p)}<span class="work">● {work(p)}</span>{:else}<span class="role"
+    {#if work(p)}<span class="work">{work(p)}</span>{:else}<span class="role"
         >· {RESPONSIBILITIES[p].role}</span
       >{/if}
   </h2>

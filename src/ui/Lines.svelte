@@ -41,7 +41,7 @@
         markerHeight="8"
         orient="auto-start-reverse"
       >
-        <path d="M0,0 L10,5 L0,10 z" fill="var(--line)" />
+        <path d="M0,0 L10,5 L0,10 z" fill="context-stroke" />
       </marker>
     </defs>
     {#each drawn as r (r.key)}
@@ -50,6 +50,7 @@
         d={smoothPath(r.points)}
         marker-end="url(#arrow)"
         data-route={r.key}
+        style:--accent={r.kind === 'handoff' ? `var(--${r.ends[0]})` : null}
       />
     {/each}
   </svg>
@@ -60,7 +61,7 @@
       data-route={r.key}
       style:offset-path="path('{smoothPath(r.points)}')"
     ></span>
-    <!-- Work lines are labelled by the region's work label (● …), not by a button of their own. -->
+    <!-- Work lines are labelled by the region's work pill, not by a button of their own. -->
     <button
       class="label {r.kind}"
       class:lane={r.lane !== undefined}
@@ -72,7 +73,10 @@
       data-route={r.key}
       aria-label={r.spoken}
       style:left="{r.at[0]}px"
-      style:top="{r.at[1]}px">{r.label}</button
+      style:--accent={r.kind === 'handoff' ? `var(--${r.ends[0]})` : null}
+      style:top="{r.at[1]}px"
+      >{#if r.kind === 'handoff'}<span class="swatch" aria-hidden="true"
+        ></span>{/if}{r.label}</button
     >
   {/each}
 {/key}

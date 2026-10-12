@@ -61,18 +61,24 @@
   class:new={isNew}
   class:touched={!isNew && (stage.touched.includes(v.id) || running)}
   data-version={v.id}
+  data-producer={k.producer}
   style:--accent="var(--{k.producer})"
   style:left="{rect.x}px"
   style:top="{rect.y}px"
   style:width="{rect.w - 6}px"
   style:height="{rect.h - 6}px"
 >
+  <!-- The header is the producer's band when the card is new; status never sits on a provenance colour (plan 5 D6). -->
   <span class="head">
     <span class="by">by {RESPONSIBILITIES[k.producer].name}</span>
     <span class="type">{k.name} · {v.label}</span>
-    {#if v.status}<span class="chip {v.status.toLowerCase()}">{statusText(v.status)}</span>{/if}
-    {#if marker(v.id)}<span class="marker">{MARKER_TEXT[marker(v.id)!]}</span>{/if}
   </span>
+  {#if v.status || marker(v.id)}
+    <span class="status">
+      {#if v.status}<span class="chip {v.status.toLowerCase()}">{statusText(v.status)}</span>{/if}
+      {#if marker(v.id)}<span class="marker">{MARKER_TEXT[marker(v.id)!]}</span>{/if}
+    </span>
+  {/if}
   <span class="body">
     {#if view === 'simple'}
       {v.meaning}

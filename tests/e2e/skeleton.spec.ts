@@ -378,3 +378,33 @@ for (const [w, h] of [
     expect(scroll).toEqual({ x: 0, y: 0 });
   });
 }
+
+test('colour shows who made it: bands on new cards, edges on used ones, coloured handoffs', async ({
+  page,
+}) => {
+  await tick(page, stepIndex('P5')).click();
+  const s = stateAt(stepIndex('P5'));
+  const fresh = s.newIds[0]!;
+  const band = page.locator(`.card[data-version="${fresh}"] .head`);
+  // Intent's band: the producer colour behind dark text.
+  await expect(band).toHaveCSS('background-color', 'rgb(255, 109, 46)');
+  await expect(band).toHaveCSS('color', 'rgb(15, 18, 22)');
+  await expect(band).toHaveCSS('text-transform', 'uppercase');
+  // Region names are sentence case at 17px bold, with no "●" before the work.
+  const h = page.locator('#h-intent');
+  await expect(h.locator('.region-name')).toHaveCSS('font-size', '17px');
+  await expect(h.locator('.region-name')).toHaveCSS('text-transform', 'none');
+  await expect(h.locator('.work')).not.toContainText('●');
+  await expect(page.locator('.region[data-party="intent"]')).toHaveCSS('border-top-width', '4px');
+  // A handoff line and its label carry the producer's colour; signals stay neutral.
+  await tick(page, stepIndex('P6')).click();
+  const sd = '[data-route="intent>observability:sloDefinition"]';
+  const handoff = page.locator(`path.route${sd}`);
+  await expect(handoff).toHaveCSS('stroke', 'rgb(255, 109, 46)');
+  await expect(handoff).toHaveCSS('stroke-width', '2.5px');
+  await expect(page.locator(`.label${sd} .swatch`)).toHaveCSS(
+    'background-color',
+    'rgb(255, 109, 46)',
+  );
+  await expect(page.locator('path.route.signal').first()).toHaveCSS('stroke', 'rgb(154, 165, 180)');
+});

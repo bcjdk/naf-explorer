@@ -93,8 +93,8 @@ export const abs = (base: Rect, r: Rect): Rect => ({
   h: r.h,
 });
 
-/** Children of a region sit inside its border: 1px at the left, 2px (the provenance edge) at the top. */
-const inside = (base: Rect, r: Rect): Rect => abs({ ...base, x: base.x + 1, y: base.y + 2 }, r);
+/** Children of a region sit inside its border: 1px at the left, 4px (the provenance edge) at the top. */
+const inside = (base: Rect, r: Rect): Rect => abs({ ...base, x: base.x + 1, y: base.y + 4 }, r);
 
 /** The card as drawn: its slot minus the 6px kept for the stacked edges of earlier versions. */
 export const cardRect = (k: KindId, producer: Party): Rect => {
