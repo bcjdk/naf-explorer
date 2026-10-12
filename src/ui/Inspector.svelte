@@ -29,7 +29,7 @@
   {#if info.note}<p class="inspector-note">{info.note}</p>{/if}
   {#each info.sections as s (s.heading)}
     <h3>{s.heading}</h3>
-    <ul class:mono={s.mono}>
+    <ul class:mono={s.look === 'code'}>
       {#each s.items as it, i (i)}
         <li>
           {#if it.target}

@@ -73,7 +73,7 @@ test('a card opens the inspector opposite it, with focus on its heading', async 
   await expect(panel(page)).toHaveClass(/\bleft\b/);
   await expect(heading(page)).toBeFocused();
   await expect(heading(page)).toContainText('v1');
-  await expect(panel(page)).toContainText('Produced by');
+  await expect(panel(page)).toContainText('Handed to');
   await expect(panel(page)).toContainText('Executor');
   // The open panel now covers Observability, so use the keyboard, as a reader would.
   await page.locator('.region[data-party="observability"] .region-name').focus();

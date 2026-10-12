@@ -28,16 +28,21 @@ describe('inspect: artifacts (spec §7)', () => {
         const i = inspect({ t: 'artifact', version: id }, n, 'simple');
         expect(i.kind).toBe('Artifact');
         expect(i.note, `${step.id} ${id}`).toBeUndefined();
-        expect(texts(i, 'Produced by')[0], id).toContain(RESPONSIBILITIES[k.producer].name);
-        const used = texts(i, 'Used by').join(' ');
-        for (const c of k.consumers)
-          expect(used, `${id} used by ${c}`).toContain(RESPONSIBILITIES[c].name);
+        expect(i.party, id).toBe(k.producer);
+        expect(i.by, id).toBe(k.producer);
+        const handed = section(i, 'Handed to');
+        for (const c of k.consumers) {
+          const item = handed.find((x) => x.party === c);
+          expect(item?.text, `${id} handed to ${c}`).toContain(RESPONSIBILITIES[c].name);
+          expect(item?.target, `${id} ${c} link`).toEqual({ t: 'responsibility', party: c });
+          expect(item?.note, `${id} ${c} uses`).toBe(k.uses?.[c]);
+        }
       }
     });
     const ss = inspect({ t: 'artifact', version: 'ss1' }, at('P15'), 'simple');
-    expect(texts(ss, 'Used by').join(' ')).toContain(SURFACES.portal);
+    expect(texts(ss, 'Handed to').join(' ')).toContain(SURFACES.portal);
     const ev = inspect({ t: 'artifact', version: 'ev-viol' }, at('D8'), 'simple');
-    expect(texts(ev, 'Used by').join(' ')).toContain(SURFACES.faultMgmt);
+    expect(texts(ev, 'Handed to').join(' ')).toContain(SURFACES.faultMgmt);
   });
 
   it('links each lineage entry to that version', () => {
@@ -64,10 +69,24 @@ describe('inspect: artifacts (spec §7)', () => {
     );
   });
 
-  it('shows the marker the version has at that beat', () => {
-    expect(
-      texts(inspect({ t: 'artifact', version: 'ds1' }, at('P10'), 'simple'), 'Status'),
-    ).toEqual(['= IN SYNC']);
+  it('shows the status as a chip and the marker as text', () => {
+    const ds = inspect({ t: 'artifact', version: 'ds1' }, at('P10'), 'simple');
+    expect(texts(ds, 'Status')).toEqual(['= IN SYNC']);
+    const ss = inspect({ t: 'artifact', version: 'ss1' }, at('P15'), 'simple');
+    expect(section(ss, 'Status')[0]?.status).toBe(version('ss1').status);
+  });
+
+  it('draws each section in its look, and the payload as code', () => {
+    const i = inspect({ t: 'artifact', version: 'ds1' }, at('P5'), 'technical');
+    const look = Object.fromEntries(i.sections.map((s) => [s.heading, s.look]));
+    expect(look).toMatchObject({
+      'What it is': 'text',
+      Meaning: 'text',
+      'Handed to': 'blocks',
+      'Payload (illustrative)': 'code',
+    });
+    for (const l of section(i, 'Lineage'))
+      expect(l.party).toBe(producerOf((l.target as { version: string }).version));
   });
 });
 
@@ -167,5 +186,39 @@ describe('accessible names (spec §11)', () => {
       'Portal, showing Service state 09:13, by Observability, healthy',
     );
     expect(surfaceName('api')).toBe('API');
+  });
+});
+
+describe('inspect: identity colour and party links (design uplift §4.1, §4.3)', () => {
+  it('colours each view by its identity, dashed for signals', () => {
+    const n = at('P10');
+    expect(inspect({ t: 'responsibility', party: 'collector' }, n, 'simple').party).toBe(
+      'collector',
+    );
+    expect(inspect({ t: 'surface', surface: 'portal' }, n, 'simple').party).toBe('presentation');
+    STEPS.forEach((step, k) => {
+      for (const e of step.events) {
+        if (e.t !== 'signal' && e.t !== 'handoff') continue;
+        const i = inspect({ t: 'line', step: k, key: lineKey(e) }, k, 'simple');
+        expect(i.strip).toMatchObject({ from: e.from, to: e.to });
+        if (e.t === 'signal') {
+          expect(i.party).toBe('orchestrator');
+          expect(i.dashed).toBe(true);
+        } else {
+          expect(i.party).toBe(producerOf(e.version));
+          expect(i.dashed).toBeFalsy();
+        }
+      }
+    });
+  });
+
+  it('every party item links to that responsibility', () => {
+    STEPS.forEach((_, n) => {
+      for (const id of stateAt(n).visible) {
+        const i = inspect({ t: 'artifact', version: id }, n, 'simple');
+        for (const it of section(i, 'Handed to').filter((x) => x.party))
+          expect(it.target).toEqual({ t: 'responsibility', party: it.party });
+      }
+    });
   });
 });
