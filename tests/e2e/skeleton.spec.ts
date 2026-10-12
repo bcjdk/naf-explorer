@@ -1,8 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
 import { stateAt } from '../../src/model/state.ts';
 import { routesOf } from '../../src/routes.ts';
+import { SLOTS } from '../../src/layout.ts';
 import { MARKER_TEXT, statusText } from '../../src/model/describe.ts';
-import { STEPS, version } from '../../src/scenario/scenario.ts';
+import { ENDING, STEPS, version } from '../../src/scenario/scenario.ts';
 
 const counter = (page: Page) => page.getByTestId('counter');
 const stepIndex = (id: string) => STEPS.findIndex((s) => s.id === id);
@@ -191,6 +192,7 @@ test('nothing overflows, cards stay in their region without overlapping, and lab
   page,
 }) => {
   test.setTimeout(120_000);
+  await page.evaluate(() => document.fonts.ready);
   for (const view of ['Simple', 'Technical'] as const) {
     await page.getByRole('button', { name: view }).click();
     for (let n = 0; n < STEPS.length; n++) {
@@ -257,6 +259,47 @@ test('nothing overflows, cards stay in their region without overlapping, and lab
   }
 });
 
+test('the caption never runs under the buttons, the scope note or the top-right slot', async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  await page.evaluate(() => document.fonts.ready);
+  for (const view of ['Technical', 'Simple'] as const) {
+    await page.getByRole('button', { name: view }).click();
+    for (let n = 0; n < STEPS.length; n++) {
+      await tick(page, n).click();
+      const clash = await page.evaluate(() => {
+        const range = document.createRange();
+        range.selectNodeContents(document.querySelector('.caption p[aria-live]')!);
+        const lines = [...range.getClientRects()];
+        const others = [
+          ...document.querySelectorAll('.caption :is(.scope, .nav, .hint, .legend, .ending)'),
+        ].map((e) => ({ name: e.className, r: e.getBoundingClientRect() }));
+        const hit = (a: DOMRect, b: DOMRect) =>
+          a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+        return others.filter((o) => lines.some((l) => hit(l, o.r))).map((o) => o.name);
+      });
+      expect(clash, `${STEPS[n]!.id} ${view}`).toEqual([]);
+    }
+  }
+});
+
+test('the explainer uses its own faces, not the fallbacks', async ({ page }) => {
+  await page.getByRole('button', { name: 'Technical' }).click();
+  await tick(page, stepIndex('P5')).click();
+  await page.evaluate(() => document.fonts.ready);
+  const used = await page.evaluate(() => ({
+    sans: document.fonts.check('500 15px "Source Sans 3"'),
+    mono: document.fonts.check('500 13px "Source Code Pro"'),
+    caption: getComputedStyle(document.querySelector('.caption p')!).fontFamily,
+    code: getComputedStyle(document.querySelector('.card code')!).fontFamily,
+  }));
+  expect(used.sans).toBe(true);
+  expect(used.mono).toBe(true);
+  expect(used.caption).toMatch(/^"?Source Sans 3/);
+  expect(used.code).toMatch(/^"?Source Code Pro/);
+});
+
 // Review Focus 1
 test('arrow keys still step the story while a header control has focus', async ({ page }) => {
   const technical = page.getByRole('button', { name: 'Technical' });
@@ -289,20 +332,36 @@ test('modified arrows do not step the story', async ({ page }) => {
 });
 
 // Review Focus 3
-test('Next on the last beat and Back on the first keep focus and stay put', async ({ page }) => {
-  const back = page.getByRole('button', { name: '◄ Back' });
+test('Back on the first beat stays put; on the last beat Next becomes Start over', async ({
+  page,
+}) => {
+  const back = page.getByRole('button', { name: 'Back', exact: true });
   await back.focus();
   await page.keyboard.press('Enter');
   await expect(counter(page)).toHaveText('1 / 38');
   await expect(back).toBeFocused();
 
-  await page.getByRole('button', { name: 'Go to R15: Closing' }).click();
-  const next = page.getByRole('button', { name: 'Next ►' });
-  await next.focus();
+  await page.getByRole('button', { name: 'Go to R14: Report and clear' }).click();
+  await page.getByRole('button', { name: 'Next', exact: true }).click();
+  // Pressed while R15 is still animating, by keyboard (Review Focus 3).
+  const restart = page.getByRole('button', { name: 'Start over' });
+  await restart.focus();
   await page.keyboard.press('Enter');
-  await expect(counter(page)).toHaveText('38 / 38');
+  await expect(counter(page)).toHaveText('1 / 38');
+  const next = page.getByRole('button', { name: 'Next', exact: true });
   await expect(next).toBeFocused();
-  await expect(next).toHaveAttribute('aria-disabled', 'true');
+  expect(
+    await page.evaluate(
+      () => document.getAnimations().filter((a) => a.playState === 'running').length,
+    ),
+  ).toBe(0);
+});
+
+test('the last beat completes the story: every tick done, a completion line', async ({ page }) => {
+  await page.getByRole('button', { name: 'Go to R15: Closing' }).click();
+  await expect(page.locator('.caption .ending')).toHaveText(ENDING);
+  await expect(page.locator('.tick:not([aria-current])')).toHaveCount(STEPS.length - 1);
+  await expect(page.locator('.tick.done')).toHaveCount(STEPS.length - 1);
 });
 
 // Review Focus 4: blocked storage, either at access or in its methods
@@ -349,6 +408,9 @@ for (const [w, h] of [
 ] as const) {
   test(`the whole stage fits ${w}×${h} without scrollbars`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
+    // The stage scale follows bind:innerWidth, so wait for the app to have applied the new size.
+    await page.waitForFunction(([w, h]) => innerWidth === w && innerHeight === h, [w, h]);
+    await page.evaluate(() => new Promise(requestAnimationFrame));
     const box = (await page.locator('.stage').boundingBox())!;
     expect(box.x).toBeGreaterThanOrEqual(-0.5);
     expect(box.y).toBeGreaterThanOrEqual(-0.5);
@@ -361,3 +423,72 @@ for (const [w, h] of [
     expect(scroll).toEqual({ x: 0, y: 0 });
   });
 }
+
+test('colour shows who made it: bands on new cards, edges on used ones, coloured handoffs', async ({
+  page,
+}) => {
+  await tick(page, stepIndex('P5')).click();
+  const s = stateAt(stepIndex('P5'));
+  const fresh = s.newIds[0]!;
+  const band = page.locator(`.card[data-version="${fresh}"] .head`);
+  // Intent's band: the producer colour behind dark text.
+  await expect(band).toHaveCSS('background-color', 'rgb(255, 109, 46)');
+  await expect(band).toHaveCSS('color', 'rgb(15, 18, 22)');
+  await expect(band).toHaveCSS('text-transform', 'uppercase');
+  // Region names are sentence case at 17px bold, with no "●" before the work.
+  const h = page.locator('#h-intent');
+  await expect(h.locator('.region-name')).toHaveCSS('font-size', '17px');
+  await expect(h.locator('.region-name')).toHaveCSS('text-transform', 'none');
+  await expect(h.locator('.work')).not.toContainText('●');
+  await expect(page.locator('.region[data-party="intent"]')).toHaveCSS('border-top-width', '4px');
+  // A handoff line and its label carry the producer's colour; signals stay neutral.
+  await tick(page, stepIndex('P6')).click();
+  const sd = '[data-route="intent>observability:sloDefinition"]';
+  // Arrowheads take their line's colour; `context-stroke` fell back to black.
+  const markerFill = (sel: string) =>
+    page.evaluate((q) => {
+      const el = document.querySelector(q)!;
+      const id = getComputedStyle(el).markerEnd.match(/#([^")]+)/)![1];
+      return {
+        stroke: getComputedStyle(el).stroke,
+        fill: getComputedStyle(document.querySelector(`#${id} path`)!).fill,
+      };
+    }, sel);
+  const sameColour = async (sel: string) => {
+    const m = await markerFill(sel);
+    expect(m.fill).toBe(m.stroke);
+  };
+  await sameColour(`path.route${sd}`);
+  expect((await markerFill('path.route.signal')).fill).toBe('rgb(154, 165, 180)');
+  const handoff = page.locator(`path.route${sd}`);
+  await expect(handoff).toHaveCSS('stroke', 'rgb(255, 109, 46)');
+  await expect(handoff).toHaveCSS('stroke-width', '2.5px');
+  await expect(page.locator(`.label${sd} .swatch`)).toHaveCSS(
+    'background-color',
+    'rgb(255, 109, 46)',
+  );
+  await expect(page.locator('path.route.signal').first()).toHaveCSS('stroke', 'rgb(154, 165, 180)');
+  // Work inside a responsibility is a minor handoff: same producer colour, thinner, solid, smaller arrow.
+  await tick(page, stepIndex('P14')).click();
+  const work = page.locator('path.route.work[data-party="observability"]').first();
+  await expect(work).toHaveCSS('stroke', 'rgb(0, 230, 118)');
+  await expect(work).toHaveCSS('stroke-width', '1.5px');
+  await expect(work).toHaveCSS('stroke-dasharray', 'none');
+  await expect(work).toHaveAttribute('marker-end', /arrow-minor/);
+  await sameColour('path.route.work[data-party="observability"]');
+  // Executor's band is a shade darker so white text meets AA (plan 5 D1).
+  await tick(page, stepIndex('P8')).click();
+  const cc = page.locator(`.card[data-version="${stateAt(stepIndex('P8')).newIds[0]}"] .head`);
+  await expect(cc).toHaveCSS('background-color', 'rgb(91, 94, 222)');
+  await expect(cc).toHaveCSS('color', 'rgb(255, 255, 255)');
+  // A card used this beat keeps its full-strength 4px provenance edge.
+  // A card both made and used this beat shows as new; the service request sits in Portal, not on a card.
+  const onCard = (n: number) =>
+    stateAt(n).touched.filter((id) => SLOTS[version(id).kind] && !stateAt(n).newIds.includes(id));
+  const used = STEPS.findIndex((_, n) => onCard(n).length > 0);
+  await tick(page, used).click();
+  await expect(page.locator(`.card[data-version="${onCard(used)[0]}"]`)).toHaveCSS(
+    'border-left-width',
+    '4px',
+  );
+});

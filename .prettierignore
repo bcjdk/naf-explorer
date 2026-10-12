@@ -3,3 +3,4 @@ docs/
 dist/
 package-lock.json
 CLAUDE.md
+.impeccable/

@@ -1,3 +1,16 @@
+/* Self-hosted, OFL (src/assets/fonts/OFL.txt; ADR 0003). Variable fonts: one file covers each weight range. */
+@font-face {
+  font-family: 'Source Sans 3';
+  src: url('./assets/fonts/source-sans-3-latin.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  src: url('./assets/fonts/source-code-pro-latin.woff2') format('woff2');
+  font-weight: 400 500;
+  font-display: swap;
+}
 html,
 body {
   color-scheme: dark;
@@ -6,7 +19,8 @@ body {
   height: 100%;
   overflow: hidden;
   font:
-    13px/1.4 system-ui,
+    13px/1.4 'Source Sans 3',
+    system-ui,
     sans-serif;
 }
 button {
@@ -14,7 +28,7 @@ button {
   color: inherit;
 }
 code {
-  font-family: ui-monospace, monospace;
+  font-family: 'Source Code Pro', ui-monospace, monospace;
 }
 :focus-visible {
   outline: 2px solid #ffffff;
@@ -57,8 +71,8 @@ code {
   border-bottom: 1px solid var(--border);
 }
 .header h1 {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
   margin: 0;
   white-space: nowrap;
 }
@@ -76,21 +90,38 @@ code {
   border: 0;
   padding: 2px 8px 2px 0;
   color: var(--muted);
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chapter-name:hover {
+  color: var(--text);
 }
 .chapter-name.current {
   color: var(--text);
 }
-/* Each tick is a short dash with a 16×20 hit area. */
+/* Each tick is a short dash with a 16×20 hit area: done, current (wider, brightest) or still to come. */
 .tick {
   width: 16px;
   height: 20px;
   padding: 0;
   border: 0;
   background: linear-gradient(var(--tick), var(--tick)) center / 12px 3px no-repeat;
+  cursor: pointer;
+}
+.tick.done {
+  background-image: linear-gradient(var(--line), var(--line));
 }
 .tick[aria-current='step'] {
+  width: 24px;
   background-image: linear-gradient(var(--text), var(--text));
-  background-size: 12px 4px;
+  background-size: 20px 4px;
+}
+.tick:hover {
+  background-size: 12px 5px;
+}
+.tick[aria-current='step']:hover {
+  background-size: 20px 5px;
 }
 .view {
   margin-left: auto;
@@ -105,6 +136,8 @@ code {
   border: 0;
   padding: 4px 12px;
   color: var(--muted);
+  font-weight: 600;
+  cursor: pointer;
 }
 .view button[aria-pressed='true'] {
   background: var(--card);
@@ -131,13 +164,14 @@ code {
   max-height: 90vh;
   padding: 0;
   border: 1px solid var(--border);
-  border-top: 3px solid var(--orchestrator);
+  border-top: 3px solid var(--border-new);
   border-radius: 10px;
   background: var(--panel);
   color: var(--text);
   box-shadow: 0 24px 64px rgb(0 0 0 / 0.5);
   font:
-    15px/1.6 system-ui,
+    15px/1.6 'Source Sans 3',
+    system-ui,
     sans-serif;
 }
 .about::backdrop {
@@ -185,7 +219,7 @@ code {
 .about blockquote {
   margin: 24px 0 0;
   padding: 14px 18px;
-  border-left: 3px solid var(--orchestrator);
+  border-left: 3px solid var(--border-new);
   border-radius: 0 6px 6px 0;
   background: var(--card);
   font-size: 15.5px;
@@ -216,7 +250,8 @@ code {
   border-radius: 5px;
   background: var(--card);
   font:
-    600 13px/1.5 system-ui,
+    600 13px/1.5 'Source Sans 3',
+    system-ui,
     sans-serif;
 }
 .about-or {
@@ -262,20 +297,23 @@ code {
   border-color: var(--border-new);
 }
 
-/* Regions: provenance is the top edge and the swatch only. */
+/* Regions stay neutral (direction C): provenance is the 4px top edge and the swatch only. */
 .region {
   position: absolute;
   box-sizing: border-box;
   background: var(--panel);
   border: 1px solid var(--border);
-  border-top: 2px solid var(--accent);
+  border-top: 4px solid var(--accent);
   border-radius: 6px;
   overflow: hidden;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.3;
 }
+/* Activity: a lifted neutral panel and a brighter border; the provenance edge stays. */
 .region.active {
   background: var(--panel-active);
+  border-color: var(--border-new);
+  border-top-color: var(--accent);
 }
 .region h2 {
   position: absolute;
@@ -283,45 +321,99 @@ code {
   right: 10px;
   top: 4px;
   margin: 0;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
 }
-.region h2 .role,
-.region h2 .work {
-  margin-left: 6px;
-  letter-spacing: 0;
-  text-transform: none;
-  font-weight: 400;
+.region[data-party='presentation'] h2 {
+  top: 0;
+  line-height: 18px;
+}
+.region h2 .role {
+  font-size: 14.5px;
+  font-weight: 500;
 }
 .role {
   color: var(--muted);
 }
+/* The work this beat: a neutral pill beside the name (not a status light). */
 .work {
-  font-style: italic;
+  padding: 0 8px;
+  border: 1px solid var(--border-new);
+  border-radius: 999px;
+  background: var(--card);
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.region-name {
+  all: unset;
+  cursor: pointer;
+  /* The one inspectable thing that otherwise reads as a plain heading. */
+  text-decoration: underline dotted;
+  text-decoration-color: var(--muted);
+  text-underline-offset: 3px;
+}
+.region-name:hover {
+  text-decoration-style: solid;
+  text-decoration-color: currentColor;
+}
+.region-name:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+/* Selection (spec §7): a dashed ring outside the element. Focus is a solid ring inside it; activity is the
+   region's background; the motion overlay's gain uses box-shadow. None of them shares another's styling. */
+.selected {
+  outline: 2px dashed var(--text);
+  outline-offset: 3px;
+}
+/* Focus stays visible on the selected element itself; the open inspector still shows what is selected. */
+.selected:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: -2px;
 }
 .swatch {
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  flex: none;
+  width: 11px;
+  height: 11px;
   margin-right: 8px;
   background: var(--accent);
   border-radius: 2px;
 }
 
-/* Cards look like documents; provenance is the left bar. */
+/* Cards are documents. Earlier beats fade back: no fill, a faint border, a dimmed edge and the dimmest AA text. */
 .card {
   position: absolute;
   box-sizing: border-box;
-  padding: 4px 8px 4px 10px;
+  padding: 0 8px 4px 10px;
   border-radius: 4px;
   overflow: hidden;
-  /* Earlier beats fade back: no fill, a faint border, a dimmed accent and the dimmest AA text. */
   background: var(--card-earlier);
   border: 1px solid var(--border-faint);
   border-left: 3px solid color-mix(in srgb, var(--accent) 40%, var(--card-earlier));
   color: var(--faded);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+  --band: var(--accent);
+  --on-band: var(--on-band-dark);
+}
+.card[data-producer='executor'] {
+  --band: var(--executor-band);
+  --on-band: var(--on-band-light);
+}
+.card[data-producer='network'] {
+  --on-band: var(--on-band-light);
 }
 .card:not(.new):not(.touched) .chip {
   border-color: var(--faded);
@@ -331,13 +423,41 @@ code {
 .card:not(.new):not(.touched) .chip.violated {
   border-color: var(--violated);
 }
-/* This beat's new artifacts, and the earlier ones it uses, stand forward. */
-.card.touched,
-.card.new {
+/* Used this beat: a neutral document with a full-strength 4px edge, and no band. */
+.card.touched {
   background: var(--card);
   color: var(--text);
   border-color: var(--border-new);
-  border-left-color: var(--accent);
+  border-left: 4px solid var(--accent);
+}
+/* Made this beat: the producer's band, a 12% tint and a 60% border. */
+.card.new {
+  background: color-mix(in srgb, var(--accent) 12%, var(--card));
+  color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--accent) 60%, var(--border));
+}
+.card.new .head {
+  background: var(--band);
+  color: var(--on-band);
+}
+/* Hover and press: neutral and instant (no transitions; motion belongs to ui/motion.ts). They leave the
+   provenance edge alone, and the dimmest text steps up to muted to keep AA on the lighter fill. */
+.card:hover {
+  background: var(--card-hover);
+  border-top-color: var(--border-new);
+  border-right-color: var(--border-new);
+  border-bottom-color: var(--border-new);
+}
+.surface:hover {
+  background: var(--card-hover);
+  border-color: var(--border-new);
+}
+.card:not(.new):not(.touched):hover {
+  color: var(--muted);
+}
+.card:active,
+.surface:active {
+  background: var(--card);
 }
 .card.stack-1 {
   box-shadow:
@@ -354,47 +474,66 @@ code {
 .card {
   container-type: inline-size;
 }
-/* Narrow cards (Collector's pipeline) take a slightly smaller type so their Technical lines fit. */
+/* The header bleeds to the card's edges so a new card's band spans it. */
+.head {
+  text-wrap: balance;
+  display: block;
+  margin: 0 -8px 3px -10px;
+  padding: 2px 8px 2px 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.by {
+  float: right;
+  margin-left: 8px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+}
+/* Only a new card names its producer (owner, plan 5 Task 4); afterwards the edge and the region say it. */
+.card:not(.new) .by {
+  display: none;
+}
+.status {
+  display: block;
+  margin-bottom: 2px;
+}
+.body {
+  display: block;
+}
+.line {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+/* Narrow cards (Collector's pipeline) step down to the floor sizes so their lines fit
+   (plan 5 Task 4). It comes after the base rules so it wins. */
 @container (max-width: 160px) {
   /* The region already names the producer; the header needs the room. */
   .by {
     display: none;
   }
   .head {
-    font-size: 9.5px;
+    font-size: 11px;
     letter-spacing: 0.03em;
   }
-  .line {
-    font-size: 10px;
+  .body {
+    font-size: 12.5px;
   }
-}
-.head {
-  font-size: 10px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-.type {
-  font-weight: 600;
-}
-.by {
-  float: right;
-  margin-left: 8px;
-  letter-spacing: 0;
-  text-transform: none;
-  white-space: nowrap;
-}
-.body {
-  margin-top: 3px;
-}
-.line {
-  display: block;
-  font-size: 10.5px;
-  line-height: 1.25;
-  overflow-wrap: anywhere;
+  .line {
+    font-size: 11px;
+  }
 }
 .marker {
   margin-right: 6px;
-  font-weight: 600;
+  font-size: 11.5px;
+  font-weight: 700;
 }
 
 /* Workflow steps: done, now, still to come. */
@@ -405,10 +544,11 @@ code {
   margin: 4px 0 0;
   padding: 0;
   list-style: none;
-  font-size: 10.5px;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--muted);
 }
-.wf-steps li + li::before {
+.wf-step + .wf-step::before {
   content: '› ';
 }
 .wf-steps .done::after {
@@ -419,9 +559,9 @@ code {
   font-weight: 700;
 }
 .waiting {
+  display: block;
   margin: 3px 0 0;
-  font-size: 11px;
-  font-style: italic;
+  font-size: 12px;
 }
 
 /* Status: icon + word, never a provenance colour. */
@@ -432,10 +572,14 @@ code {
   border: 1.5px solid var(--chip-text);
   border-radius: 3px;
   color: var(--chip-text);
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 700;
-  line-height: 15px;
+  line-height: 17px;
   letter-spacing: 0.04em;
+}
+.card .chip {
+  font-size: 11.5px;
+  line-height: 15px;
 }
 .chip.degraded {
   border-color: var(--hatch-b);
@@ -452,22 +596,28 @@ code {
 .surface {
   position: absolute;
   box-sizing: border-box;
-  padding: 2px 8px;
+  padding: 1px 8px;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--card-earlier);
   overflow: hidden;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  display: block;
 }
 .surface-name {
   display: block;
-  font-weight: 600;
+  font-size: 14.5px;
+  font-weight: 700;
   line-height: 1.25;
 }
 .minis {
   display: flex;
   flex-wrap: wrap;
   gap: 2px 6px;
-  margin-top: 2px;
+  margin-top: 0;
 }
 .mini {
   display: flex;
@@ -477,7 +627,8 @@ code {
   border-left: 3px solid var(--accent);
   background: var(--card);
   border-radius: 3px;
-  font-size: 10.5px;
+  font-size: 11.5px;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -486,11 +637,15 @@ code {
   border-left-color: var(--presentation);
   color: var(--muted);
 }
+/* A Presentation request made this beat stands forward with its full-strength edge. */
 .mini.own.new {
   color: var(--text);
+  background: color-mix(in srgb, var(--presentation) 12%, var(--card));
 }
 .mini .chip {
   margin: 0;
+  font-size: 11.5px;
+  line-height: 15px;
   text-transform: none;
 }
 
@@ -529,7 +684,8 @@ code {
 .node-name {
   fill: var(--text);
   font:
-    11px ui-monospace,
+    500 11px 'Source Code Pro',
+    ui-monospace,
     monospace;
   text-anchor: middle;
 }
@@ -547,6 +703,7 @@ code {
 }
 .facts p {
   margin: 0;
+  text-wrap: pretty;
 }
 
 /* Lines and their labels (spec §9). */
@@ -592,30 +749,54 @@ code {
 .route.signal {
   stroke-dasharray: 6 4;
 }
+/* Work inside a responsibility: a minor version of a handoff, in the same producer colour (owner, 2026-10-12). */
 .route.work {
-  stroke-dasharray: 1.5 3;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+/* Content lines carry their producer's colour; signals stay neutral. */
+.route.handoff {
+  stroke: var(--accent);
+  stroke-width: 2.5;
 }
 .label {
   position: absolute;
   transform: translate(-50%, -50%);
-  padding: 1px 6px;
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 4px;
   background: var(--bg);
   color: var(--text);
-  font-size: 11px;
+  font-size: 13.5px;
+  font-weight: 600;
   line-height: 1.3;
   white-space: nowrap;
+}
+.label.handoff {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+}
+.label .swatch {
+  margin-right: 6px;
+}
+.label:hover {
+  border-color: var(--border-new);
+}
+.label:active {
+  background: var(--card-hover);
 }
 .label:focus-visible {
   outline-offset: 1px;
 }
 .label.lane {
+  display: block;
   width: max-content;
-  padding: 1px 3px;
+  /* 2px less each side than before, so "Remediation" fits the 68px lane label at the 12px floor (plan 5 D5). */
+  padding: 1px 1px;
   white-space: normal;
   text-align: center;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.15;
 }
 
@@ -623,35 +804,69 @@ code {
 .caption {
   position: absolute;
   left: 12px;
-  top: 860px;
+  top: 844px;
   width: 1416px;
-  height: 84px;
+  height: 100px;
   box-sizing: border-box;
-  padding: 4px 200px 4px 14px;
+  padding: 6px 214px 0 14px;
   border-top: 1px solid var(--border);
   overflow: hidden;
 }
 .caption h2 {
   margin: 0 0 2px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--muted);
 }
 .caption p {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 18px;
+  font-weight: 500;
   line-height: 1.35;
 }
+/* The top-right slot: hint, legend or ending, one line, never under the caption text. */
+.caption :is(.hint, .legend, .ending) {
+  position: absolute;
+  right: 214px;
+  top: 6px;
+  font-size: 12.5px;
+  line-height: 1.3;
+  color: var(--muted);
+}
+.caption .ending {
+  color: var(--text);
+  font-weight: 600;
+}
+.legend {
+  display: flex;
+  gap: 18px;
+}
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend line {
+  stroke: var(--line);
+  stroke-width: 2;
+}
+.legend line.signal {
+  stroke-dasharray: 6 4;
+}
+.legend line.work {
+  stroke-width: 1.25;
+}
+/* Technical scope note: one line at the bottom right, under the buttons. */
 .caption .scope {
   position: absolute;
   right: 14px;
-  top: 38px;
-  width: 186px;
-  line-height: 1.25;
-  font-size: 11px;
+  bottom: 6px;
+  font-size: 12.5px;
+  line-height: 1.3;
   color: var(--muted);
+  white-space: nowrap;
 }
 .nav {
   position: absolute;
@@ -661,11 +876,224 @@ code {
   gap: 8px;
 }
 .nav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 4px;
-  padding: 4px 12px;
+  padding: 5px 14px;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.nav button:hover {
+  border-color: var(--border-new);
 }
 .nav button[aria-disabled='true'] {
   color: var(--muted);
+  cursor: default;
+}
+.nav button[aria-disabled='true']:hover {
+  border-color: var(--border);
+}
+/* Next (and Start over) is the primary action. */
+.nav .primary {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+.nav .primary:hover {
+  background: #ffffff;
+}
+.nav .primary:focus-visible {
+  outline-offset: 2px;
+}
+
+/* Inspector (spec §3, §7; design uplift §4): 400px over the responsibilities zone, opposite the selection,
+   as tall as its content up to 708px. The header carries the identity colour; the body uses the canvas's language. */
+.inspector {
+  position: absolute;
+  top: 52px;
+  width: 400px;
+  max-height: 708px;
+  box-sizing: border-box;
+  z-index: 10;
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--border-new);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.inspector.left {
+  left: 12px;
+}
+.inspector.right {
+  left: 1028px;
+}
+.inspector-head {
+  position: relative;
+  padding: 10px 16px 12px;
+  background: color-mix(in srgb, var(--accent) 14%, var(--panel));
+  border-top: 6px solid var(--accent);
+  border-radius: 5px 5px 0 0;
+}
+.inspector-head.dashed {
+  border-top-style: dashed;
+}
+.inspector-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.inspector-close:hover {
+  color: var(--text);
+  border-color: var(--border-new);
+}
+.inspector-close:active {
+  background: var(--card-hover);
+}
+.inspector .inspector-kind {
+  margin: 0 40px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.inspector-kind .inspector-link {
+  text-transform: none;
+  letter-spacing: 0;
+}
+.inspector h2 {
+  margin: 4px 40px 0 0;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.inspector .inspector-note {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+.inspector-body {
+  padding: 4px 16px 14px;
+}
+.inspector h3 {
+  margin: 12px 0 4px;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.inspector p {
+  margin: 0;
+}
+.inspector ul {
+  margin: 0;
+  padding-left: 18px;
+}
+/* Handed to: one block per consumer, edged in the consumer's colour, with why it needs the artifact. */
+.inspector :is(.look-blocks, .look-cards, .look-highlight, .look-code) ul {
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+.look-blocks li {
+  padding: 6px 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent, var(--border-new));
+  border-radius: 4px;
+}
+.inspector-uses {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+}
+/* Lineage, other versions, produced so far: small documents edged in their producer's colour. */
+.look-cards li {
+  padding: 4px 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent, var(--border-new));
+  border-radius: 4px;
+}
+.inspector .look-highlight ul {
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--border-new);
+  border-radius: 4px;
+}
+.inspector .look-code ul {
+  padding: 8px 10px;
+  background: var(--bg);
+  /* The payload's producer edge; the component sets --code on this section. */
+  border-left: 3px solid var(--code);
+  border-radius: 4px;
+  font-family: 'Source Code Pro', ui-monospace, monospace;
+  font-size: 13.5px;
+  overflow-wrap: anywhere;
+}
+/* Who handed what to whom, drawn like the line itself. */
+.inspector .strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 2px;
+}
+.strip-line {
+  flex: 1;
+  height: 0;
+  border-top: 2.5px solid var(--accent);
+  position: relative;
+}
+.strip.dashed .strip-line {
+  border-top: 2px dashed var(--line);
+}
+.strip-line::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: -6px;
+  border: 5px solid transparent;
+  border-left: 7px solid var(--accent);
+}
+.strip.dashed .strip-line::after {
+  border-left-color: var(--line);
+}
+.inspector-link {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: underline;
+  text-decoration-color: var(--border-new);
+  text-underline-offset: 3px;
+}
+.inspector-link:hover {
+  text-decoration-color: currentColor;
+}
+.inspector-link:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+.inspector-link .swatch {
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
 }

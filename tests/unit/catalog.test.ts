@@ -109,3 +109,10 @@ describe('work ownership (checklist 07)', () => {
     });
   });
 });
+
+describe('artifact catalog: inspector', () => {
+  it('every consumer of every artifact kind has a reason to use it (inspector handoff view)', () => {
+    for (const k of KINDS)
+      for (const c of k.consumers) expect(k.uses?.[c], `${k.id} → ${c}`).toMatch(/\S/);
+  });
+});

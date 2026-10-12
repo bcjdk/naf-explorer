@@ -76,6 +76,8 @@ export interface ArtifactKind {
   name: string;
   producer: Party;
   consumers: Party[];
+  /** For each consumer: why it needs this artifact (the inspector's handoff view). */
+  uses?: Partial<Record<Party, string>>;
   whatItIs: string;
   /** The Presentation surface that produces it (the Portal for the service request). */
   producerSurface?: Surface;

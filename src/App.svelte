@@ -2,6 +2,7 @@
   import { tick } from 'svelte';
   import { STEPS } from './scenario/scenario.ts';
   import type { View } from './scenario/types.ts';
+  import type { Target } from './model/inspect.ts';
   import { stateAt } from './model/state.ts';
   import { routesOf } from './routes.ts';
   import { timeline } from './model/timeline.ts';
@@ -12,6 +13,7 @@
   import Stage from './ui/Stage.svelte';
   import CaptionBar from './ui/CaptionBar.svelte';
   import About from './ui/About.svelte';
+  import Inspector from './ui/Inspector.svelte';
   import { finishAll, play, prefersReducedMotion } from './ui/motion.ts';
 
   const VIEW_KEY = 'naf.view';
@@ -29,11 +31,53 @@
   const stage = $derived(stateAt(step));
   const routes = $derived(routesOf(step, view));
 
+  let selected = $state<Target | null>(null);
+
+  let side = $state<'left' | 'right'>('right');
+  let opener: HTMLElement | null = null;
+  /** Until the first inspection, the caption says inspection exists. */
+  let inspected = $state(false);
+
+  /** Opens or moves the inspector (spec §7): finishes motion, sides it opposite the ring, focuses its heading. */
+  async function select(t: Target) {
+    finishAll();
+    // Safari and Firefox don't focus a clicked button, so <body> is no opener; links inside the panel keep the first one.
+    const active = document.activeElement as HTMLElement | null;
+    if (!active || active === document.body) opener = null;
+    else if (!active.closest('.inspector')) opener = active;
+    selected = t;
+    inspected = true;
+    await tick();
+    const ring = document.querySelector('.stage .selected');
+    const stageEl = document.querySelector('.stage');
+    // Nothing is ringed when the target isn't drawn in this beat: keep the side.
+    if (ring && stageEl) {
+      const a = ring.getBoundingClientRect();
+      const b = stageEl.getBoundingClientRect();
+      side = a.left + a.width / 2 > b.left + b.width / 2 ? 'left' : 'right';
+    }
+    await tick();
+    document.getElementById('inspector-title')?.focus();
+  }
+
+  async function closeInspector() {
+    // A ringed region isn't focusable; its title button is.
+    const ringed = document.querySelector<HTMLElement>('.stage .selected');
+    const ring = ringed?.matches('button')
+      ? ringed
+      : ringed?.querySelector<HTMLElement>('.region-name');
+    selected = null;
+    await tick();
+    (opener?.isConnected ? opener : (ring ?? document.getElementById('caption-heading')))?.focus();
+    opener = null;
+  }
+
   /** Every navigation finishes running motion first; only a single step forward plays (spec §8). */
   async function go(n: number, animate = false) {
     finishAll();
-    // A focused line label belongs to the old beat and is about to unmount: keep focus on the story.
-    const onLabel = document.activeElement?.classList.contains('label');
+    // A focused line label or inspector link may unmount with the old beat: focus never drops to <body>.
+    const prev = document.activeElement as HTMLElement | null;
+    const inPanel = !!prev?.closest('.inspector');
     const target = Math.max(0, Math.min(STEPS.length - 1, n));
     const from = step;
     step = target;
@@ -41,9 +85,11 @@
     // Rapid presses: only the latest navigation plays, once its beat is rendered.
     if (animate && step === target && target === from + 1 && !prefersReducedMotion())
       play(timeline(target));
-    if (onLabel)
-      (
-        document.querySelector<HTMLElement>('.label') ?? document.getElementById('caption-heading')
+    if (prev && prev !== document.body && !prev.isConnected)
+      (inPanel
+        ? document.getElementById('inspector-title')
+        : (document.querySelector<HTMLElement>('.label') ??
+          document.getElementById('caption-heading'))
       )?.focus();
   }
 
@@ -67,6 +113,11 @@
     if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
     // The story stands still while About is open.
     if (about?.open) return;
+    if (e.key === 'Escape' && selected) {
+      e.preventDefault();
+      closeInspector();
+      return;
+    }
     if (e.key === 'ArrowRight') {
       e.preventDefault();
       go(step + 1, true);
@@ -87,8 +138,25 @@
     style:transform="translate(-50%, -50%) scale({scale})"
   >
     <Header {step} {view} onJump={go} onView={setView} onAbout={openAbout} onReplay={replay} />
-    <Stage {stage} {routes} {view} {step} />
-    <CaptionBar {step} {view} onBack={() => go(step - 1)} onNext={() => go(step + 1, true)} />
+    <Stage {stage} {routes} {view} {step} {selected} onSelect={select} />
+    {#if selected}
+      <Inspector
+        target={selected}
+        {step}
+        {view}
+        {side}
+        onSelect={select}
+        onClose={closeInspector}
+      />
+    {/if}
+    <CaptionBar
+      {step}
+      {view}
+      hint={!inspected}
+      onBack={() => go(step - 1)}
+      onNext={() => go(step + 1, true)}
+      onRestart={() => go(0)}
+    />
   </div>
   <!-- Inside .viewport so the dialog inherits the colour tokens; showModal() lifts it to the top layer. -->
   <About bind:dialog={about} />

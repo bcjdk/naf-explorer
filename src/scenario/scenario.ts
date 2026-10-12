@@ -38,7 +38,7 @@ export const ABOUT = {
   howTo: [
     { keys: ['→', '←'], text: 'step through the story' },
     { keys: ['Simple', 'Technical'], text: 'choose the depth' },
-    { keys: ['click'], text: 'anything to inspect it' },
+    { keys: ['click', 'Enter'], text: 'any card, line label or responsibility name to inspect it' },
   ],
   naf: {
     label: 'Network Automation Forum Automation Framework',
@@ -56,6 +56,10 @@ export const ABOUT = {
 };
 
 export const SCOPE_NOTE = 'Values illustrative · NAF does not require SR-MPLS, gNMI or TWAMP.';
+
+/** The caption bar's completion line on the last beat (plan 5 D3; facts from P14, the Detect chapter and R15). */
+export const ENDING =
+  'Story complete: provisioned and verified, degradation detected, service restored on path B. The link still needs repair.';
 
 /** Ground-truth text for The Network region; which entry applies comes from stateAt. */
 export const NETWORK = {
@@ -191,13 +195,16 @@ export const WORKFLOW_STEPS: Record<string, { label: string; from: string }[]> =
   ],
 };
 
-/** What each surface is for, shown beside its name. */
+/** What each surface is, shown in its inspector. */
 export const SURFACE_ROLES: Record<Surface, string> = {
-  faultMgmt: 'NOC single pane of glass',
-  itsm: 'tickets',
-  portal: 'customers and operators',
-  perfMgmt: 'SLI dashboards',
-  api: 'other systems',
+  faultMgmt:
+    'The NOC’s single pane of glass for faults. Here it shows Observability’s service-impact events as they are raised and cleared, so operators see which services are affected. It displays them; it does not decide what to do.',
+  itsm: 'The IT service management system, where incidents and changes are tracked as tickets. Here it receives Observability’s repair-needed event, so the faulty link’s repair can be ticketed and followed up by people.',
+  portal:
+    'Where customers and operators request services and follow their state. Here ACME’s service request starts from it, and it shows the service state Observability sends.',
+  perfMgmt:
+    'Performance dashboards that chart SLIs and other measurements over time. Nothing is sent to it in this story.',
+  api: 'How other systems, such as a customer’s own tools or an OSS/BSS, request services and read their state programmatically. Nothing is sent to it in this story.',
 };
 
 export const KINDS: ArtifactKind[] = [
@@ -207,6 +214,10 @@ export const KINDS: ArtifactKind[] = [
     producer: 'presentation',
     producerSurface: 'portal',
     consumers: ['orchestrator'],
+    uses: {
+      orchestrator:
+        'It starts a provisioning workflow and relays the request to Intent as its own intent request.',
+    },
     whatItIs: 'A customer’s request for a service, made through the Portal.',
   },
   {
@@ -214,6 +225,10 @@ export const KINDS: ArtifactKind[] = [
     name: 'Intent request',
     producer: 'orchestrator',
     consumers: ['intent'],
+    uses: {
+      intent:
+        'It records the requested service as service intent, the source of truth for what ACME should get.',
+    },
     answeredBy: 'desiredStateReady',
     whatItIs: 'Orchestrator’s own request asking Intent to create a service.',
   },
@@ -236,6 +251,10 @@ export const KINDS: ArtifactKind[] = [
     name: 'Desired network state',
     producer: 'intent',
     consumers: ['executor'],
+    uses: {
+      executor:
+        'It renders and applies the configuration that Orchestrator’s apply request names. Executor takes it directly from Intent.',
+    },
     whatItIs: 'The per-device configuration intent derived from network intent.',
   },
   {
@@ -243,6 +262,10 @@ export const KINDS: ArtifactKind[] = [
     name: 'SLO definition',
     producer: 'intent',
     consumers: ['observability'],
+    uses: {
+      observability:
+        'It turns the definition into its own SLO rule, so it can evaluate the SLI without asking Intent again.',
+    },
     whatItIs: 'How the service is judged: the SLI definition and its objective.',
   },
   {
@@ -264,6 +287,10 @@ export const KINDS: ArtifactKind[] = [
     name: 'Apply request',
     producer: 'orchestrator',
     consumers: ['executor'],
+    uses: {
+      executor:
+        'It tells Executor which desired-state version to apply. The order names the version; the content stays with Intent.',
+    },
     answeredBy: 'applied',
     whatItIs:
       'Orchestrator’s own work order asking Executor to apply a named desired-state version. It names the version only; Executor takes the content directly from Intent (ADR 0002).',
@@ -273,6 +300,10 @@ export const KINDS: ArtifactKind[] = [
     name: 'Remediation decision',
     producer: 'orchestrator',
     consumers: ['intent'],
+    uses: {
+      intent:
+        'It says what to change (exclude the faulty link). Intent updates network intent, selects the path and derives the new desired state.',
+    },
     answeredBy: 'desiredStateReady',
     whatItIs: 'An intent change request produced by the remediation workflow’s policy evaluation.',
   },
@@ -281,6 +312,9 @@ export const KINDS: ArtifactKind[] = [
     name: 'Configuration change',
     producer: 'executor',
     consumers: ['network'],
+    uses: {
+      network: 'The devices run the new configuration.',
+    },
     whatItIs: 'Rendered configuration applied to devices.',
   },
   {
@@ -288,6 +322,9 @@ export const KINDS: ArtifactKind[] = [
     name: 'Raw signals',
     producer: 'network',
     consumers: ['collector'],
+    uses: {
+      collector: 'It gathers them and normalizes them into one shape that can be compared.',
+    },
     whatItIs:
       'Measurements and configuration exactly as devices report them, each in its own format.',
   },
@@ -296,6 +333,9 @@ export const KINDS: ArtifactKind[] = [
     name: 'Observed device state',
     producer: 'collector',
     consumers: ['intent'],
+    uses: {
+      intent: 'It checks drift: does what the devices actually have match the desired state?',
+    },
     whatItIs: 'Applied configuration as read back from devices, for Intent’s drift check.',
   },
   {
@@ -310,6 +350,10 @@ export const KINDS: ArtifactKind[] = [
     name: 'Enriched observations',
     producer: 'collector',
     consumers: ['observability'],
+    uses: {
+      observability:
+        'It computes the SLI and correlates observations, to understand the service’s state.',
+    },
     whatItIs: 'Normalized observations tagged with link, path and service IDs.',
   },
   {
@@ -331,6 +375,11 @@ export const KINDS: ArtifactKind[] = [
     name: 'Service state',
     producer: 'observability',
     consumers: ['presentation', 'orchestrator'],
+    uses: {
+      presentation:
+        'It displays the service’s state to the people who use it, for example in the Portal.',
+      orchestrator: 'A running workflow waits for the service to be HEALTHY before it completes.',
+    },
     whatItIs: 'Whether the service meets its objective, from the SLI and the SLO rule.',
   },
   {
@@ -338,6 +387,11 @@ export const KINDS: ArtifactKind[] = [
     name: 'Service-impact event',
     producer: 'observability',
     consumers: ['presentation', 'orchestrator'],
+    uses: {
+      presentation:
+        'It displays the event: service impact in fault management, repair work in ITSM.',
+      orchestrator: 'An event, not raw service state, is what starts its remediation workflow.',
+    },
     whatItIs: 'A raised, cleared or follow-up event about impact on a service.',
   },
   {
@@ -345,6 +399,10 @@ export const KINDS: ArtifactKind[] = [
     name: 'Path health',
     producer: 'observability',
     consumers: ['orchestrator'],
+    uses: {
+      orchestrator:
+        'Its remediation policy moves the service only if the alternate path is healthy.',
+    },
     whatItIs: 'Health of a path, assessed from link telemetry.',
   },
 ];
@@ -544,8 +602,7 @@ export const VERSIONS: ArtifactVersion[] = [
     technical: [
       'CPH01 Hu0/0/0/1: Rx −2.4 dBm, CRC 0',
       'other links: Rx −2.1 to −2.6 dBm, CRC 0',
-      'all links: oper UP, IS-IS UP',
-      'twamp-light loss 0.00% both directions',
+      'oper UP, IS-IS UP · twamp loss 0.00%',
     ],
   },
   {
@@ -598,10 +655,9 @@ export const VERSIONS: ArtifactVersion[] = [
     meaning:
       'Light falling and errors rising at CPH01; ACME’s probe losing packets; links still UP.',
     technical: [
-      'CPH01 Hu0/0/0/1 Rx −10.9 dBm, CRC 1,240/min',
+      'CPH01 Hu0/0/0/1: Rx −10.9, CRC 1,240/min',
       'other links: Rx −2.1 to −2.6 dBm, CRC 0',
-      'all links: oper UP, IS-IS UP',
-      'twamp-light AAR01→CPH01 loss 0.4%',
+      'oper UP, IS-IS UP · probe loss 0.4%',
     ],
   },
   {
@@ -611,12 +667,7 @@ export const VERSIONS: ArtifactVersion[] = [
     lineage: ['raw-deg'],
     meaning:
       'The same signals in one shape: light down, errors up, probe losing packets, everything UP.',
-    technical: [
-      'rx_power −10.9 dBm',
-      'crc_errors 1,240/min',
-      'oper, isis: UP',
-      'probe_loss 0.4% AAR01→CPH01',
-    ],
+    technical: ['rx_power −10.9 dBm', 'crc_errors 1,240/min', 'oper, isis: UP', 'probe_loss 0.4%'],
   },
   {
     id: 'enr-deg',
@@ -652,8 +703,8 @@ export const VERSIONS: ArtifactVersion[] = [
     meaning:
       'Loss lines up with low light and errors on CPH01–ODE01: it points to optics, a strong clue, not proof.',
     technical: [
-      '10:45–10:46 · path A',
-      'sli 0.4% · Rx −10.9 dBm · CRC ≈1,240/min',
+      'path A · sli 0.4%',
+      'Rx −10.9 dBm, CRC ≈1,240/min',
       'suspect ODE01→CPH01, not proof',
     ],
   },
@@ -672,12 +723,8 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'loss violation',
     status: 'VIOLATED',
     lineage: ['ss2', 'evid'],
-    meaning: 'Loss objective violated; suspect CPH01–ODE01 on the current path A.',
-    technical: [
-      'acme-loss-violation',
-      'ACME-L3VPN-001 · loss < 0.1%',
-      'implicated CPH01–ODE01 · path A',
-    ],
+    meaning: 'Loss objective violated; suspect CPH01–ODE01 on path A.',
+    technical: ['acme-loss-violation', 'suspect CPH01–ODE01 · path A'],
   },
   // Remediate
   {
@@ -694,13 +741,8 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'path B',
     status: 'HEALTHY',
     lineage: ['enr-deg'],
-    meaning:
-      'Path B’s links via KOL01 look healthy: normal light, no errors, UP. ACME is not yet measured there.',
-    technical: [
-      'path B: CPH01–KOL01–AAR01',
-      'Rx −2.1 to −2.6 dBm, CRC 0, UP',
-      'link telemetry only, 10:45–10:46',
-    ],
+    meaning: 'Path B’s links look healthy; ACME is not yet measured there.',
+    technical: ['Rx −2.1 to −2.6 dBm', 'CRC 0, UP, 10:45–10:46', 'link telemetry only'],
   },
   {
     id: 'dec',
@@ -774,12 +816,7 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'after reroute',
     lineage: [],
     meaning: 'Fresh telemetry: errors continue on the faulty fibre, and ACME’s probe is clean.',
-    technical: [
-      'CPH01 Hu0/0/0/1 Rx −10.9 dBm, CRC 1,240/min',
-      'other links: Rx −2.1 to −2.6 dBm, CRC 0',
-      'all links: oper UP, IS-IS UP',
-      'twamp-light loss 0.00% both directions',
-    ],
+    technical: ['CPH01 Hu0/0/0/1: Rx −10.9, CRC 1,240/min', 'oper UP, IS-IS UP · twamp loss 0.00%'],
   },
   {
     id: 'norm-after',
@@ -838,9 +875,9 @@ export const VERSIONS: ArtifactVersion[] = [
     lineage: ['evid', 'enr-after'],
     meaning: 'ACME was auto-remediated onto path B; link CPH01–ODE01 still needs repair.',
     technical: [
-      'repair CPH01–ODE01 (ODE01→CPH01)',
+      'repair CPH01–ODE01',
       'Rx −10.9 dBm, CRC ≈1,240/min',
-      'ACME auto-remediated to path B',
+      'ACME auto-remediated: path B',
     ],
   },
 ];
@@ -865,8 +902,8 @@ export const STEPS: Step[] = [
     chapter: 'provision',
     title: 'Orientation',
     caption: T(
-      'One automation system: six responsibilities, with The Network beneath them. Solid lines carry content from the responsibility that produces it to the one that uses it; dashed lines are Orchestrator’s coordination signals. These are roles, not products.',
-      'Six NAF responsibilities: Presentation, Intent, Orchestrator, Executor, Collector, Observability; The Network is infrastructure, not a responsibility. Solid = artifact handoff (producer → consumer); dashed = coordination signal (always involves Orchestrator). Roles, not products: one product can play several roles.',
+      'One automation system: six responsibilities, with The Network beneath them. Thick coloured lines carry content from the responsibility that produces it to the one that uses it, thin ones are work inside a responsibility, and dashed lines are Orchestrator’s coordination signals. These are roles, not products.',
+      'Six NAF responsibilities: Presentation, Intent, Orchestrator, Executor, Collector, Observability; The Network is infrastructure, not a responsibility. Thick solid = artifact handoff (producer → consumer); thin solid = work inside a responsibility; dashed = coordination signal (always involves Orchestrator). Roles, not products: one product can play several roles.',
     ),
     events: [],
   },
@@ -881,7 +918,7 @@ export const STEPS: Step[] = [
     events: [
       appear('sr'),
       hand('sr', 'presentation', 'orchestrator', 'portal'),
-      work('orchestrator', 'startWorkflow', 'start workflow', 'start provision/ACME-L3VPN-001'),
+      work('orchestrator', 'startWorkflow', 'start workflow', 'start provision'),
       appear('wf-prov'),
     ],
   },
@@ -1175,12 +1212,7 @@ export const STEPS: Step[] = [
       'Workflow remediation/acme-loss-violation starts under pol-loss-reroute (pre-approved): if an SLO is violated, the evidence implicates a link on the current path, and a healthy alternate exists, request that the link be excluded.',
     ),
     events: [
-      work(
-        'orchestrator',
-        'startWorkflow',
-        'start workflow',
-        'start remediation under pol-loss-reroute',
-      ),
+      work('orchestrator', 'startWorkflow', 'start workflow', 'start pol-loss-reroute'),
       appear('wf-rem'),
     ],
   },
@@ -1213,7 +1245,7 @@ export const STEPS: Step[] = [
       'pol-loss-reroute conditions met. Orchestrator → Intent: remediation decision intent-change ACME-L3VPN-001, exclude-link CPH01–ODE01. The decision names no path. Where policy is evaluated is a design choice.',
     ),
     events: [
-      work('orchestrator', 'evaluatePolicy', 'evaluate policy', 'evaluate pol-loss-reroute'),
+      work('orchestrator', 'evaluatePolicy', 'evaluate policy'),
       appear('dec'),
       hand('dec', 'orchestrator', 'intent'),
     ],
