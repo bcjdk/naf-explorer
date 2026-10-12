@@ -16,8 +16,7 @@ export interface Rect {
 /**
  * Spec §3 bands (rev 7, plan 5 D2), absolute stage coordinates. The blocks are 30px apart under Presentation
  * and 24px elsewhere; the header bar hugs the canvas at 16px, the caption bar at 12px, and the side margins
- * are 12px. The lanes beside
- * Orchestrator (72px) carry its exchanges; Orchestrator lines up with the rows beside it.
+ * are 12px. The lanes beside Orchestrator (72px) carry its exchanges; Orchestrator lines up with the rows beside it.
  */
 export const REGIONS: Record<Party, Rect> = {
   presentation: { x: 12, y: 52, w: 1416, h: 84 },

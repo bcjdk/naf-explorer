@@ -36,7 +36,7 @@
   <p aria-live="polite">{s.caption[view]}</p>
   <!-- One slot at the top right: the hint until the first inspection, then the legend; the ending on the last beat. -->
   {#if atEnd}
-    <p class="ending">{ENDING}</p>
+    <p class="ending" role="status">{ENDING}</p>
   {:else if hint}
     <p class="hint">Click any card, line label or responsibility name to inspect it.</p>
   {:else}

@@ -62,7 +62,7 @@ typography:
     fontWeight: 500
     lineHeight: 1.2
   card-payload:
-    fontFamily: "'Source Sans 3', system-ui, sans-serif"
+    fontFamily: "'Source Code Pro', ui-monospace, monospace"
     fontSize: '12px'
     fontWeight: 500
     lineHeight: 1.2
@@ -218,7 +218,7 @@ Flat and tonal. Depth is a one-step lift in fill (card, then card-hover, panel t
 
 ## Shapes
 
-Small, quiet radii: 3px chips, 4px cards/labels/buttons, 6px regions/inspector/view switch, 10px About dialog, pill only for the work pill. Provenance is expressed as straight edges (4px region top, 3-4px card left, 6px inspector top). Lines are round-capped; signals are dashed (6 4), content handoffs solid 2.5px, work lines solid 1.5px with 6px arrowheads, handoff arrowheads 8px.
+Small, quiet radii: 3px chips, 4px cards/labels/buttons, 6px regions/inspector/view switch, 10px About dialog, pill only for the work pill. Provenance is expressed as straight edges (4px region top, 3-4px card left, 6px inspector top). Lines are round-capped; signals are dashed (6 4), content handoffs solid 2.5px, work lines solid 1.5px. Arrowheads use the default `markerUnits="strokeWidth"`, so they render at about 9px (work: 6 × 1.5), about 20px (handoff: 8 × 2.5) and about 14px (signal: 8 × 1.75).
 
 ## Components
 

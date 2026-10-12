@@ -23,7 +23,7 @@ Brief 04 said provenance colour is "a thin accent… never fills or text colour"
 ## Consequences
 
 - Text on solid bands has to meet AA for every producer colour. Executor and The Network take white text; the other five take dark text. A unit test enforces this.
-- Larger type (card text 15px, caption 18px) means re-tuning card slots, and copy may need shortening; shortenings are listed for plan 6.
-- The page now loads about 6 font files (on the order of 150–250 KB). Fallback fonts show until they load.
+- Larger type (card text 15px (13.5px as built; see the design-uplift spec's As built), caption 18px) means re-tuning card slots, and copy may need shortening; shortenings are listed for plan 6.
+- The page now loads 2 variable WOFF2 font files (about 50 KB). Fallback fonts show until they load.
 - Impeccable's detector will keep flagging the 3px provenance edges as "side-tab" accents. They are deliberate.
 - Executor's band is one exception to "the true colour": white text on `#6366f1` is 4.47:1, so the band only is filled with `#5b5ede` (Executor mixed 92% with black). Everywhere else Executor keeps `#6366f1`.

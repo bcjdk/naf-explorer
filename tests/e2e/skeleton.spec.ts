@@ -408,6 +408,9 @@ for (const [w, h] of [
 ] as const) {
   test(`the whole stage fits ${w}×${h} without scrollbars`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
+    // The stage scale follows bind:innerWidth, so wait for the app to have applied the new size.
+    await page.waitForFunction(([w, h]) => innerWidth === w && innerHeight === h, [w, h]);
+    await page.evaluate(() => new Promise(requestAnimationFrame));
     const box = (await page.locator('.stage').boundingBox())!;
     expect(box.x).toBeGreaterThanOrEqual(-0.5);
     expect(box.y).toBeGreaterThanOrEqual(-0.5);

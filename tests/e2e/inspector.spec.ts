@@ -273,7 +273,4 @@ test('a handoff line shows a strip: who to whom, in the producer colour', async 
   const line = strip.locator('.strip-line');
   await expect(line).toHaveCSS('border-top-style', 'solid');
   await expect(line).toHaveCSS('border-top-color', 'rgb(245, 197, 24)');
-  await page.screenshot({
-    path: '.superpowers/sdd/2026-10-12-plan-5-design-uplift/insp-handoff-sr.png',
-  });
 });
