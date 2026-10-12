@@ -43,7 +43,8 @@
     finishAll();
     // Safari and Firefox don't focus a clicked button, so <body> is no opener; links inside the panel keep the first one.
     const active = document.activeElement as HTMLElement | null;
-    if (active && active !== document.body && !active.closest('.inspector')) opener = active;
+    if (!active || active === document.body) opener = null;
+    else if (!active.closest('.inspector')) opener = active;
     selected = t;
     inspected = true;
     await tick();
@@ -60,7 +61,11 @@
   }
 
   async function closeInspector() {
-    const ring = document.querySelector<HTMLElement>('.stage .selected');
+    // A ringed region isn't focusable; its title button is.
+    const ringed = document.querySelector<HTMLElement>('.stage .selected');
+    const ring = ringed?.matches('button')
+      ? ringed
+      : ringed?.querySelector<HTMLElement>('.region-name');
     selected = null;
     await tick();
     (opener?.isConnected ? opener : (ring ?? document.getElementById('caption-heading')))?.focus();

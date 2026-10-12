@@ -208,3 +208,14 @@ test('closing after a click that focused nothing returns focus to the ringed ele
   await page.keyboard.press('Escape');
   await expect(card(page, 'ds1')).toBeFocused();
 });
+
+test('closing a region selected by a click that focused nothing returns to its title', async ({
+  page,
+}) => {
+  await tick(page, at('P10')).click();
+  const intent = page.getByRole('button', { name: 'Intent', exact: true });
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+  await intent.dispatchEvent('click');
+  await page.keyboard.press('Escape');
+  await expect(intent).toBeFocused();
+});
