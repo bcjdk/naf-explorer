@@ -210,6 +210,16 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 - **Focus:** opening moves focus to the panel heading. Esc or ✕ closes it and returns focus to the element that opened it.
 - **Selection** is an outline ring around the selected element. **Activity** (the current step's region) is a subtle background highlight plus the work label. Neither uses the other's styling, and neither uses provenance colour.
 
+**As built (rev 10).**
+
+- **D1.** Cards and surfaces are native `<button>`s with full-sentence names, region titles are a button inside the `<h2>`, and line labels are buttons.
+- **D2.** The selection ring is a dashed 2px `outline`, offset 3px outside, in the text colour. Focus wins while the element itself is focused, and gain and stacks use `box-shadow`, so nothing erases the ring.
+- **D3.** Earlier versions are reached through Lineage and Other versions links. Selecting one rings its slot card, and the panel names the earlier version.
+- **D4.** The panel opens opposite the ringed element's centre. If nothing is ringed, it keeps its side.
+- **D5.** Selecting, or focusing a line label, finishes running motion.
+- **D6.** "Why the receiver needs it" is scenario data: `uses` on each artifact kind, one sentence per consumer.
+- **Discoverability.** Inspectable things have neutral, instant hover and press states, and region titles carry a dotted underline. A caption hint ("Click any card, line label or responsibility name to inspect it.") shows until the first inspection, and About names what can be inspected.
+
 ## 8. Motion
 
 - **The DOM always renders `stateAt(n)`, the end state.** Motion is an overlay created with the Web Animations API (`el.animate(keyframes, { delay, duration, fill: 'backwards' })`). It animates elements *into* the state that is already rendered. Svelte transitions are not used.
@@ -371,3 +381,4 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
 - **rev 7 (plan 2, user review):** every canvas block has the same 30px above and below it, matching the space under Presentation. The header and caption bars hug the canvas at 16px. The stage grows to 1440×952 so no card loses room; it still scales to fit, about 95% on a 900px-tall window.
 - **rev 8 (user):** About opens on every load and refresh (brief 06 and 07 amended), in a larger window.
 - **rev 9 (plan 3):** motion as a WAAPI overlay over the end state, from `timeline(n)`, replacing rev 3a's interim CSS line animation and the card fade. Replay sits right of About. See §8 "As built".
+- **rev 10 (plan 4):** the inspector, from `inspect(target, n, view)`; cards and surfaces are buttons; the selection ring is a dashed outline; hover states and a first-run hint make inspectables discoverable. See §7 "As built". The visual design (§10) and the inspector's presentation are extended by `docs/specs/2026-10-12-design-uplift.md` (plan 5).
