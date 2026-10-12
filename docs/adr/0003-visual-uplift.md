@@ -1,6 +1,6 @@
 # ADR 0003: NAF colour reaches the documents, and the explainer gets its own typeface
 
-- **Status:** proposed, 2026-10-12
+- **Status:** accepted, 2026-10-12 (built in plan 5)
 - **Amends:** `docs/specs/2026-10-10-naf-explorer-design.md` §10; supersedes the provenance-colour line of `docs/brief/04-experience-and-visual-direction.md` (guidance)
 
 ## Context
@@ -26,3 +26,4 @@ Brief 04 said provenance colour is "a thin accent… never fills or text colour"
 - Larger type (card text 15px, caption 18px) means re-tuning card slots, and copy may need shortening; shortenings are listed for plan 6.
 - The page now loads about 6 font files (on the order of 150–250 KB). Fallback fonts show until they load.
 - Impeccable's detector will keep flagging the 3px provenance edges as "side-tab" accents. They are deliberate.
+- Executor's band is one exception to "the true colour": white text on `#6366f1` is 4.47:1, so the band only is filled with `#5b5ede` (Executor mixed 92% with black). Everywhere else Executor keeps `#6366f1`.

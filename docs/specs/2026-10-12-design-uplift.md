@@ -1,7 +1,7 @@
 # Design uplift: design spec
 
 - **Date:** 2026-10-12
-- **Status:** draft, awaiting review
+- **Status:** built (plan 5, 2026-10-12). See "As built" at the end.
 - **Extends:** `docs/specs/2026-10-10-naf-explorer-design.md`. This spec replaces its §10 (Visual design) and the presentation parts of §7 (Inspector). Every other section, and every NAF semantic invariant in `CLAUDE.md`, stands unchanged.
 - **Decision record:** `docs/adr/0003-visual-uplift.md` (typefaces as project assets; how far NAF colour reaches).
 - **Evidence:** the Impeccable critique of 2026-10-12 (`.impeccable/critique/`, 29/40). Its findings were that provenance colour was too timid to carry identity, the inspector was an untyped bulleted form, type was flat and 10–12px, and activity and "new this step" barely registered.
@@ -237,3 +237,22 @@ Party names in the panel ("Intent" in a kind line, consumers under Handed to, th
 
 - **The final type size:** confirmed at the visual check-in (§5).
 - **The completion line's copy:** drafted in the plan, approved by the owner.
+
+## As built (plan 5)
+
+Where this list and the sections above disagree, this list wins.
+
+- **D1. Executor's band** is filled with `--executor-band` `#5b5ede` (Executor mixed 92% with black), because white text on `#6366f1` reaches only 4.47:1. Edges, strokes, swatches and tints keep `#6366f1`.
+- **D2. The caption bar is 100px.** The two row gaps are 24px and the Network → caption hug is 12px; the top lane keeps 30px.
+- **D3. The completion line** sits in the caption bar's top-right slot, not beneath the caption: "Story complete: provisioned and verified, degradation detected, service restored on path B. The link still needs repair."
+- **D5. Lane labels** use 12px, the floor.
+- **D6. Status and marker** sit on their own line under the card header, never on the band.
+- **D7. The artifact inspector** keeps Meaning. "Produced by" became the kind line, and "Used by" became "Handed to".
+- **Card type is smaller than §2.1** (owner, at the check-in), because the cards did not fit the fixed stage: card text 13.5px, payload lines 12px, card header 11.5px, card line height 1.2. "by <producer>" shows on new cards only. Narrow Collector cards use 12.5 / 11 / 11, and Presentation minis 11.5. Every other size follows §2.1.
+- **13 copy shortenings** made to fit are listed in `docs/deferred-work.md` ("Plan 6: shortened for fit (plan 5)"). No sentence that carries a NAF invariant was cut.
+- **§3.3 opening intros were dropped** (owner, at the check-in): "Does" and "Does not" live only in the inspector.
+- **Surface subtitles were dropped from the canvas** (owner). The inspector's surface view opens with "What it is", a sentence or two per surface (`SURFACE_ROLES`).
+- **Work lines are coloured** (owner), replacing §2.2's "neutral" work line. A work line is a thinner (1.5px) solid line in the producer's colour, with a small arrowhead: a minor version of a handoff. The legend's work sample is a thin solid line.
+- **Arrowheads** use one marker per colour, because `context-stroke` does not resolve in the target browser.
+- **Back and Next** use an inline SVG triangle, so the accessible names are "Back" and "Next".
+- **Open with the owner:** the finish review found the solid Observability (and Orchestrator) band loud on the dark canvas. A band-only deeper shade, like D1, is the suggested option. Not changed.

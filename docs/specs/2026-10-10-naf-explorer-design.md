@@ -256,6 +256,8 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 
 ## 10. Visual design
 
+> Replaced by `docs/specs/2026-10-12-design-uplift.md` (plan 5) and ADR 0003. The D2 band numbers are in `src/layout.ts`; the built system is recorded in `DESIGN.md`.
+
 - **Canvas:** dark neutral background, thin borders, modest radii. `system-ui` for prose and `ui-monospace` for machine values, so no web fonts are loaded. No glow, heavy gradients, glassmorphism or NOC-wall styling.
 - **Provenance colour** is a thin accent only: the region's top edge and the card's left bar. It is never a fill or a text colour. The NAF colours are Presentation `#f5c518`, Observability `#00e676`, Orchestrator `#00d4ff`, Intent `#ff6d2e`, Collector `#F43F5E`, Executor `#6366F1` and Infrastructure `#64748b`.
 - **Cards look like documents:** a type label, "by <producer>", the version, and the body (meaning or Technical lines). Status chips sit inline with the text. Subdued earlier artifacts use a muted text colour, never opacity.
@@ -382,3 +384,4 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
 - **rev 8 (user):** About opens on every load and refresh (brief 06 and 07 amended), in a larger window.
 - **rev 9 (plan 3):** motion as a WAAPI overlay over the end state, from `timeline(n)`, replacing rev 3a's interim CSS line animation and the card fade. Replay sits right of About. See §8 "As built".
 - **rev 10 (plan 4):** the inspector, from `inspect(target, n, view)`; cards and surfaces are buttons; the selection ring is a dashed outline; hover states and a first-run hint make inspectables discoverable. See §7 "As built". The visual design (§10) and the inspector's presentation are extended by `docs/specs/2026-10-12-design-uplift.md` (plan 5).
+- **rev 11 (plan 5):** design uplift: Source Sans 3 and Source Code Pro; NAF colour on documents, handoff and work lines, and the inspector (ADR 0003); caption bar 100px and row gaps 24px; Start over on the last beat; line legend. See `docs/specs/2026-10-12-design-uplift.md` "As built".

@@ -1,0 +1,364 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-12T14:48:26.660079Z",
+  "title": "Design System: How Network Automation Works",
+  "extensions": {
+    "colorMeta": {
+      "presentation": {
+        "role": "primary",
+        "displayName": "Presentation Yellow",
+        "canonical": "#f5c518",
+        "tonalRamp": [
+          "#3d3106",
+          "#624f0a",
+          "#876c0d",
+          "#ac8a11",
+          "#d0a714",
+          "#f5c518",
+          "#f7d146",
+          "#f9dc74"
+        ]
+      },
+      "observability": {
+        "role": "primary",
+        "displayName": "Observability Green",
+        "canonical": "#00e676",
+        "tonalRamp": [
+          "#003a1e",
+          "#005c2f",
+          "#007f41",
+          "#00a153",
+          "#00c464",
+          "#00e676",
+          "#33eb91",
+          "#66f0ad"
+        ]
+      },
+      "orchestrator": {
+        "role": "primary",
+        "displayName": "Orchestrator Cyan",
+        "canonical": "#00d4ff",
+        "tonalRamp": [
+          "#003540",
+          "#005566",
+          "#00758c",
+          "#0094b2",
+          "#00b4d9",
+          "#00d4ff",
+          "#33ddff",
+          "#66e5ff"
+        ]
+      },
+      "intent": {
+        "role": "primary",
+        "displayName": "Intent Orange",
+        "canonical": "#ff6d2e",
+        "tonalRamp": [
+          "#401b0c",
+          "#662c12",
+          "#8c3c19",
+          "#b24c20",
+          "#d95d27",
+          "#ff6d2e",
+          "#ff8a58",
+          "#ffa782"
+        ]
+      },
+      "collector": {
+        "role": "primary",
+        "displayName": "Collector Rose",
+        "canonical": "#f43f5e",
+        "tonalRamp": [
+          "#3d1018",
+          "#621926",
+          "#862334",
+          "#ab2c42",
+          "#cf3650",
+          "#f43f5e",
+          "#f6657e",
+          "#f88c9e"
+        ]
+      },
+      "executor": {
+        "role": "primary",
+        "displayName": "Executor Indigo",
+        "canonical": "#6366f1",
+        "tonalRamp": [
+          "#191a3c",
+          "#282960",
+          "#363885",
+          "#4547a9",
+          "#5457cd",
+          "#6366f1",
+          "#8285f4",
+          "#a1a3f7"
+        ]
+      },
+      "network": {
+        "role": "primary",
+        "displayName": "Network Slate",
+        "canonical": "#64748b",
+        "tonalRamp": [
+          "#191d23",
+          "#282e38",
+          "#37404c",
+          "#465161",
+          "#556376",
+          "#64748b",
+          "#8390a2",
+          "#a2acb9"
+        ]
+      },
+      "bg": {
+        "role": "neutral",
+        "displayName": "Night Slate",
+        "canonical": "#0f1216",
+        "tonalRamp": [
+          "#040406",
+          "#060709",
+          "#080a0c",
+          "#0a0d0f",
+          "#0d0f13",
+          "#0f1216",
+          "#3f4145",
+          "#6f7173"
+        ]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Panel",
+        "canonical": "#151a20",
+        "tonalRamp": [
+          "#050608",
+          "#080a0d",
+          "#0c0e12",
+          "#0f1216",
+          "#12161b",
+          "#151a20",
+          "#44484d",
+          "#737679"
+        ]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "Card",
+        "canonical": "#1b2129",
+        "tonalRamp": [
+          "#07080a",
+          "#0b0d10",
+          "#0f1217",
+          "#13171d",
+          "#171c23",
+          "#1b2129",
+          "#494d54",
+          "#767a7f"
+        ]
+      },
+      "border-new": {
+        "role": "neutral",
+        "displayName": "Bright Border",
+        "canonical": "#8b97a8",
+        "tonalRamp": [
+          "#23262a",
+          "#383c43",
+          "#4c535c",
+          "#616a76",
+          "#76808f",
+          "#8b97a8",
+          "#a2acb9",
+          "#b9c1cb"
+        ]
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#e6e9ee",
+        "tonalRamp": [
+          "#3a3a3c",
+          "#5c5d5f",
+          "#7f8083",
+          "#a1a3a7",
+          "#c4c6ca",
+          "#e6e9ee",
+          "#ebedf1",
+          "#f0f2f5"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "canonical": "#a3adbb",
+        "tonalRamp": [
+          "#292b2f",
+          "#41454b",
+          "#5a5f67",
+          "#727983",
+          "#8b939f",
+          "#a3adbb",
+          "#b5bdc9",
+          "#c8ced6"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "body": {
+        "displayName": "Base",
+        "purpose": "Page base, 13px."
+      },
+      "caption-text": {
+        "displayName": "Caption",
+        "purpose": "Story caption bar."
+      },
+      "inspector-body": {
+        "displayName": "Inspector",
+        "purpose": "Reading size lives in the inspector."
+      },
+      "card-body": {
+        "displayName": "Card body",
+        "purpose": "Card status and body lines."
+      },
+      "card-header": {
+        "displayName": "Card header",
+        "purpose": "Uppercase band header on cards."
+      },
+      "code": {
+        "displayName": "Code",
+        "purpose": "Payloads and node names only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "gain",
+        "value": "inset 0 0 0 1px #8b97a8",
+        "purpose": "Brief inset edge when a receiver gains a result (motion.ts only)."
+      },
+      {
+        "name": "about-drop",
+        "value": "0 24px 64px rgb(0 0 0 / 0.5)",
+        "purpose": "About dialog only."
+      }
+    ],
+    "motion": [
+      {
+        "name": "instant",
+        "value": "none",
+        "purpose": "Hover and press have no transition."
+      },
+      {
+        "name": "ease-in-out",
+        "value": "ease-in-out",
+        "purpose": "Dot travel along a line (ui/motion.ts)."
+      },
+      {
+        "name": "ease-out",
+        "value": "ease-out",
+        "purpose": "Light-up of an active region (ui/motion.ts)."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "stage",
+        "value": "1440x952, scaled to fit"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "New Card",
+      "kind": "card",
+      "refersTo": "card-touched",
+      "description": "A card made this beat: producer band, 12% tint, 60% border.",
+      "html": "<div class=\"ds-card\"><span class=\"ds-head\">Service state</span><span class=\"ds-line\">DEGRADED path</span></div>",
+      "css": ".ds-card{box-sizing:border-box;width:232px;padding:0 8px 4px 10px;border-radius:4px;background:color-mix(in srgb,#00e676 12%,#1b2129);border:1px solid color-mix(in srgb,#00e676 60%,#2c343f);color:#e6e9ee;font:500 13.5px/1.2 'Source Sans 3',system-ui,sans-serif}.ds-card:hover{background:#232a34}.ds-head{margin:0 -8px 3px -10px;padding:2px 8px 2px 10px;background:#00e676;color:#0f1216;font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}.ds-line{font-size:12px}"
+    },
+    {
+      "name": "Status Chip",
+      "kind": "chip",
+      "refersTo": "",
+      "description": "Icon + word, never a provenance colour.",
+      "html": "<span class=\"ds-chip\">&#10003; HEALTHY</span> <span class=\"ds-chip ds-v\">&#10005; VIOLATED</span>",
+      "css": ".ds-chip{display:inline-block;padding:0 6px;border:1.5px solid #e6e9ee;border-radius:3px;color:#e6e9ee;font:700 12.5px/17px 'Source Sans 3',sans-serif;letter-spacing:.04em}.ds-v{background:#e879f9;border-color:#e879f9;color:#0f1216}"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "custom",
+      "refersTo": "button-primary",
+      "description": "Next / Start over.",
+      "html": "<button class=\"ds-btn\">Next</button>",
+      "css": ".ds-btn{background:#e6e9ee;color:#0f1216;border:1px solid #e6e9ee;border-radius:4px;padding:5px 14px;font:600 14.5px 'Source Sans 3',sans-serif;cursor:pointer}.ds-btn:hover{background:#fff}.ds-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}"
+    },
+    {
+      "name": "Handoff Label",
+      "kind": "custom",
+      "refersTo": "label",
+      "description": "Pill on a line with producer swatch and 55% border.",
+      "html": "<span class=\"ds-label\"><span class=\"ds-sw\"></span>Desired state</span>",
+      "css": ".ds-label{display:inline-flex;align-items:center;padding:1px 7px;border:1px solid color-mix(in srgb,#ff6d2e 55%,#2c343f);border-radius:4px;background:#0f1216;color:#e6e9ee;font:600 13.5px 'Source Sans 3',sans-serif}.ds-sw{width:11px;height:11px;margin-right:6px;border-radius:2px;background:#ff6d2e}.ds-label:hover{border-color:#8b97a8}"
+    },
+    {
+      "name": "Region Header",
+      "kind": "custom",
+      "refersTo": "region",
+      "description": "Neutral panel with 4px provenance edge and swatch.",
+      "html": "<div class=\"ds-region\"><h2><span class=\"ds-sw\"></span>Intent</h2></div>",
+      "css": ".ds-region{width:240px;height:60px;background:#151a20;border:1px solid #2c343f;border-top:4px solid #ff6d2e;border-radius:6px;color:#e6e9ee}.ds-region h2{margin:4px 10px;font:700 17px 'Source Sans 3',sans-serif;display:flex;align-items:center}.ds-sw{width:11px;height:11px;margin-right:8px;border-radius:2px;background:#ff6d2e}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Annotated Blueprint",
+    "overview": "One fixed 1440x952 stage holds seven neutral dark regions that never move. Everything on it is a document: a card, a label, a line. The only loud thing is provenance colour, the NAF block colours, spent narrowly so the eye can follow who made what.",
+    "keyCharacteristics": [
+      "Neutral dark canvas; colour is provenance only.",
+      "Fixed stage geometry, hard-coded per scenario (layout.ts).",
+      "Status is always icon + word, in neutral or non-provenance styling.",
+      "Hover and press are neutral and instant; all motion lives in ui/motion.ts.",
+      "Type is one humanist sans with a monospace only for payloads and node names."
+    ],
+    "rules": [
+      {
+        "name": "The Provenance-Only Rule",
+        "body": "Colour means who produced a thing, and nothing else: region edge + swatch, new-card band/tint/border, touched-card edge, handoff and work lines and arrowheads, label swatch, inspector identity header and edges. Never text, status, selection, focus or activity.",
+        "section": "colors"
+      },
+      {
+        "name": "The Status Rule",
+        "body": "Chips carry a glyph and the word; never a provenance colour, never colour alone.",
+        "section": "colors"
+      },
+      {
+        "name": "The Band Text Rule",
+        "body": "Dark text on light bands, white on Executor and The Network.",
+        "section": "colors"
+      },
+      {
+        "name": "The Smaller-Card Rule",
+        "body": "Card type is 13.5 / 12 / 11.5; the inspector carries the reading size. Nothing below 11px.",
+        "section": "typography"
+      },
+      {
+        "name": "The Instant Neutral Rule",
+        "body": "Hover and press are neutral and instant, with no transitions, and never touch the provenance edge.",
+        "section": "elevation"
+      },
+      {
+        "name": "The One Motion File Rule",
+        "body": "All animation lives in ui/motion.ts; CSS declares end states only.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use a provenance colour only on edges, swatches, bands, tints, borders, lines and arrowheads.",
+      "Do write status as glyph + word and keep it out of the provenance palette.",
+      "Do keep selection (dashed ring), focus (solid white ring), activity (lifted panel) and gain (inset shadow) distinct.",
+      "Do keep hover and press neutral and instant; put motion in ui/motion.ts.",
+      "Do check text on bands for AA (white on Executor #5b5ede and Network)."
+    ],
+    "donts": [
+      "Don't colour a run of text, a status or a selection with a provenance colour.",
+      "Don't tint regions; they stay neutral, with only the 4px edge and swatch.",
+      "Don't add canvas Does/Does-not intros or surface subtitles; the inspector explains.",
+      "Don't add neon, glassmorphism, NOC-wall styling or decorative motion.",
+      "Don't add CSS transitions or keyframes outside ui/motion.ts."
+    ]
+  }
+}
