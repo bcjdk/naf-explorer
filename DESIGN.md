@@ -243,7 +243,7 @@ Labels are bg-filled 4px-radius pills on the line; handoff labels carry a produc
 
 ### Caption bar and buttons
 
-Caption left; hint, legend or completion line in the top-right slot; Back/Next top-right at 14.5px/600. Next (and Start over) is the primary: ink fill, dark text. Disabled uses aria-disabled and Muted text.
+Caption left; legend or completion line in the top-right slot; Back/Next top-right at 14.5px/600. Next (and Start over) is the primary: ink fill, dark text. Disabled uses aria-disabled and Muted text.
 
 ### Inspector
 

@@ -5,14 +5,12 @@
   let {
     step,
     view,
-    hint,
     onBack,
     onNext,
     onRestart,
   }: {
     step: number;
     view: View;
-    hint: boolean;
     onBack: () => void;
     onNext: () => void;
     onRestart: () => void;
@@ -40,11 +38,9 @@
       ? ` ${ENDING}`
       : ''}
   </p>
-  <!-- One slot at the top right: the hint until the first inspection, then the legend; the ending on the last beat. -->
+  <!-- One slot at the top right: the line legend; the ending on the last beat. -->
   {#if atEnd}
     <p class="ending">{ENDING}</p>
-  {:else if hint}
-    <p class="hint">Click any card, surface, line label or responsibility name to inspect it.</p>
   {:else}
     <p class="legend">
       <span

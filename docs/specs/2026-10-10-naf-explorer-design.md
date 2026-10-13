@@ -221,7 +221,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 - **D4.** The panel opens opposite the ringed element's centre. If nothing is ringed, it keeps its side.
 - **D5.** Selecting, or focusing a line label, finishes running motion.
 - **D6.** "Why the receiver needs it" is scenario data: `uses` on each artifact kind, one sentence per consumer.
-- **Discoverability.** Inspectable things have neutral, instant hover and press states, and region titles carry a dotted underline. A caption hint ("Click any card, line label or responsibility name to inspect it.") shows until the first inspection, and About names what can be inspected.
+- **Discoverability.** Inspectable things have neutral, instant hover and press states, and region titles carry a dotted underline. About names what can be inspected, and P1's caption ends "Click anything to see what it is and who uses it." (The caption-bar hint was retired on 2026-10-13: the owner found it out of place.)
 
 ## 8. Motion
 
@@ -390,3 +390,4 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
 - **rev 11 (plan 5):** design uplift: Source Sans 3 and Source Code Pro; NAF colour on documents, handoff and work lines, and the inspector (ADR 0003); caption bar 100px and row gaps 24px; Start over on the last beat; line legend. See `docs/specs/2026-10-12-design-uplift.md` "As built".
 - **rev 12 (plan 6a):** Orchestrator's repair request to ITSM replaces Observability's repair-needed event (ADR 0004); The Network is active on the fault beat. See `docs/plans/2026-10-13-plan-6a-story-fixes.md`.
 - **rev 13 (plan 6b):** Observability raises a link event in Detect (D7) and Orchestrator opens the repair request in ITSM straight away (D8); the remediation workflow completes in R14 again and R15 is the closing only. "Service-impact event" becomes "Event" (link problem, loss violation, cleared). 40 beats (ADR 0004).
+- **rev 14:** the caption-bar hint is retired; P1's caption says inspection exists and About keeps the how-to. The legend holds the top-right slot from the first beat. An axe scan covers P1, D10 and R14 in both views, the inspector and About.

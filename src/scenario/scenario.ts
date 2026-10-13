@@ -933,8 +933,8 @@ export const STEPS: Step[] = [
     chapter: 'provision',
     title: 'Orientation',
     caption: T(
-      'One automation system: six responsibilities, with The Network beneath them. Thick coloured lines carry content from the responsibility that produces it to the one that uses it, thin ones are work inside a responsibility, and dashed lines are Orchestrator’s coordination signals. These are roles, not products.',
-      'Six NAF responsibilities: Presentation, Intent, Orchestrator, Executor, Collector, Observability; The Network is infrastructure, not a responsibility. Thick solid = artifact handoff (producer → consumer); thin solid = work inside a responsibility; dashed = coordination signal (always involves Orchestrator). Roles, not products: one product can play several roles.',
+      'One automation system: six responsibilities, with The Network beneath them. Thick coloured lines carry content from the responsibility that produces it to the one that uses it, thin ones are work inside a responsibility, and dashed lines are Orchestrator’s coordination signals. These are roles, not products. Click anything to see what it is and who uses it.',
+      'Six NAF responsibilities: Presentation, Intent, Orchestrator, Executor, Collector, Observability; The Network is infrastructure, not a responsibility. Thick solid = artifact handoff (producer → consumer); thin solid = work inside a responsibility; dashed = coordination signal (always involves Orchestrator). Roles, not products: one product can play several roles. Click anything to see what it is and who uses it.',
     ),
     events: [],
   },
