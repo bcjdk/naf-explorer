@@ -31,8 +31,22 @@ code {
   font-family: 'Source Code Pro', ui-monospace, monospace;
 }
 :focus-visible {
-  outline: 2px solid #ffffff;
+  outline: 2px solid var(--focus);
   outline-offset: -2px;
+}
+.skip {
+  position: absolute;
+  left: 12px;
+  top: -40px;
+  z-index: 10;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 600;
+}
+.skip:focus-visible {
+  top: 8px;
 }
 .sr-only {
   position: absolute;
@@ -356,7 +370,7 @@ code {
   text-decoration-color: currentColor;
 }
 .region-name:focus-visible {
-  outline: 2px solid #ffffff;
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 /* Selection (spec §7): a dashed ring outside the element (inside cards and surfaces, below). Focus is a solid ring inside it; activity is the
@@ -386,7 +400,7 @@ code {
 }
 /* Focus stays visible on the selected element itself; the open inspector still shows what is selected. */
 .selected:focus-visible {
-  outline: 2px solid #ffffff;
+  outline: 2px solid var(--focus);
   outline-offset: -2px;
 }
 .swatch {
@@ -433,6 +447,13 @@ code {
 }
 .card:not(.new):not(.touched) .chip.violated {
   border-color: var(--violated);
+}
+/* The faded chip steps up with the card's text on the lighter hover fill, to keep AA. */
+.card:not(.new):not(.touched):hover .chip {
+  color: var(--muted);
+}
+.card:not(.new):not(.touched):hover .chip:not(.violated) {
+  border-color: var(--muted);
 }
 /* Used this beat: a neutral document with a full-strength 4px edge, and no band. */
 .card.touched {
@@ -510,7 +531,7 @@ code {
   text-transform: none;
   white-space: nowrap;
 }
-/* Only a new card names its producer (owner, plan 5 Task 4); afterwards the edge and the region say it. */
+/* Only a new card names its producer (owner's call); afterwards the edge and the region say it. */
 .card:not(.new) .by {
   display: none;
 }
@@ -529,7 +550,7 @@ code {
   overflow-wrap: anywhere;
 }
 /* Narrow cards (Collector's pipeline) step down to the floor sizes so their lines fit
-   (plan 5 Task 4). It comes after the base rules so it wins. */
+   It comes after the base rules so it wins. */
 @container (max-width: 160px) {
   /* The region already names the producer; the header needs the room. */
   .by {
@@ -808,7 +829,7 @@ code {
 .label.lane {
   display: block;
   width: max-content;
-  /* 2px less each side than before, so "Remediation" fits the 68px lane label at the 12px floor (plan 5 D5). */
+  /* 2px less each side than before, so "Remediation" fits the 68px lane label at the 12px floor. */
   padding: 1px 1px;
   white-space: normal;
   text-align: center;
@@ -1105,11 +1126,15 @@ code {
   text-decoration-color: currentColor;
 }
 .inspector-link:focus-visible {
-  outline: 2px solid #ffffff;
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 .inspector-link .swatch {
   width: 10px;
   height: 10px;
   margin-right: 6px;
+}
+/* The skip link lands focus on the canvas landmark itself; it is not a control, so no ring. */
+#canvas:focus-visible {
+  outline: none;
 }

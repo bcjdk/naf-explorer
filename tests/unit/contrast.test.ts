@@ -32,7 +32,7 @@ const contrast = (a: string, b: string) => {
   const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
   return (hi! + 0.05) / (lo! + 0.05);
 };
-/** The band fill and its text for each producer (spec §2.2; D1). */
+/** The band fill and its text for each producer (design-uplift spec §2.2; ADR 0003). */
 const band = (p: (typeof PRODUCERS)[number]) =>
   p === 'executor'
     ? (['executor-band', 'on-band-light'] as const)

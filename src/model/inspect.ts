@@ -20,7 +20,7 @@ import type {
   Surface,
   View,
 } from '../scenario/types.ts';
-import { MARKER_TEXT, artifactName, describe, statusText } from './describe.ts';
+import { MARKER_TEXT, answerName, artifactName, describe, statusText } from './describe.ts';
 import { lineKey, stateAt, type Exchange } from './state.ts';
 
 /** What the reader can select (spec §7). A line is identified by its beat and its route key. */
@@ -42,8 +42,8 @@ export interface Item {
   status?: Status;
 }
 /** How a section is drawn (design uplift §4.2). */
-export type Look = 'text' | 'list' | 'blocks' | 'cards' | 'code' | 'highlight';
-export interface Section {
+type Look = 'text' | 'list' | 'blocks' | 'cards' | 'code' | 'highlight';
+interface Section {
   heading: string;
   items: Item[];
   look: Look;
@@ -207,15 +207,7 @@ export function inspect(target: Target, n: number, view: View): Inspection {
             ...sec('About', e.version ? [link(e.version)] : [], 'cards'),
             ...sec(
               'Answered by',
-              [
-                text(
-                  a
-                    ? a in SIGNALS
-                      ? SIGNALS[a as SignalId].label
-                      : kind(a as KindId).name
-                    : 'Nothing: it answers an earlier request.',
-                ),
-              ],
+              [text(a ? answerName(a) : 'Nothing: it answers an earlier request.')],
               'text',
             ),
           ],

@@ -11,6 +11,9 @@
   class="about"
   aria-labelledby="about-title"
   onclick={(e) => e.target === dialog && dialog?.close()}
+  onclose={() => {
+    if (dialog && 'onLoad' in dialog.dataset) document.getElementById('caption-heading')?.focus();
+  }}
 >
   <div class="about-body">
     <button class="about-close" aria-label="Close About" onclick={() => dialog?.close()}>✕</button>

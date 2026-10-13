@@ -63,7 +63,7 @@ export const ABOUT = {
 
 export const SCOPE_NOTE = 'Values illustrative · NAF does not require SR-MPLS, gNMI or TWAMP.';
 
-/** The caption bar's completion line on the last beat (plan 5 D3; facts from P14, the Detect chapter and R15). */
+/** The caption bar's completion line on the last beat, summing up the three chapters. */
 export const ENDING =
   'Story complete: provisioned and verified, degradation detected, service restored on path B. The link still needs repair.';
 

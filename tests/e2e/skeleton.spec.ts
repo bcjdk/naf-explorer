@@ -145,22 +145,22 @@ test('the view switch changes text only, keeps the step and is remembered', asyn
 test('switching views keeps every card, surface, network fact, line and focus', async ({
   page,
 }) => {
-  const d8 = stepIndex('D10');
-  await tick(page, d8).click();
+  const d10 = stepIndex('D10');
+  await tick(page, d10).click();
   const technical = page.getByRole('button', { name: 'Technical' });
   await technical.focus();
   await page.keyboard.press('Enter');
   await expect(technical).toHaveAttribute('aria-pressed', 'true');
   await expect(technical).toBeFocused();
   await expect(page.locator('[data-version="ev-viol"]')).toContainText('acme-loss-violation');
-  await expectEndState(page, d8);
+  await expectEndState(page, d10);
   await page.keyboard.press('Shift+Tab');
   await page.keyboard.press('Enter');
   await expect(page.getByRole('button', { name: 'Simple' })).toHaveAttribute(
     'aria-pressed',
     'true',
   );
-  await expectEndState(page, d8);
+  await expectEndState(page, d10);
 });
 
 test('Portal shows what it received and keeps its own request', async ({ page }) => {
@@ -520,7 +520,7 @@ test('colour shows who made it: bands on new cards, edges on used ones, coloured
   await expect(work).toHaveCSS('stroke-dasharray', 'none');
   await expect(work).toHaveAttribute('marker-end', /arrow-minor/);
   await sameColour('path.route.work[data-party="observability"]');
-  // Executor's band is a shade darker so white text meets AA (plan 5 D1).
+  // Executor's band is a shade darker so white text meets AA (ADR 0003).
   await tick(page, stepIndex('P8')).click();
   const cc = page.locator(`.card[data-version="${stateAt(stepIndex('P8')).newIds[0]}"] .head`);
   await expect(cc).toHaveCSS('background-color', 'rgb(91, 94, 222)');

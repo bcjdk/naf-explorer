@@ -47,3 +47,11 @@ test('About links open in a new tab', async ({ page }) => {
   }
   await expect(page.getByRole('dialog').getByRole('link')).toHaveCount(3);
 });
+
+test('closing the About window that opened on load puts focus on the story, not the page', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#caption-heading')).toBeFocused();
+});

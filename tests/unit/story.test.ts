@@ -547,7 +547,7 @@ describe('evaluation (checklist 07)', () => {
   });
 });
 
-describe('the link repair (ADR 0004, plan 6b)', () => {
+describe('the link repair (ADR 0004)', () => {
   it('asks ITSM for the repair in Detect, from the link event, before any service is judged', () => {
     const link = appearAt('ev-link');
     const ticket = appearAt('rr');

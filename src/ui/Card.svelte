@@ -1,17 +1,10 @@
 <script lang="ts">
-  import {
-    RESPONSIBILITIES,
-    SIGNALS,
-    WORKFLOW_STEPS,
-    kind,
-    version,
-  } from '../scenario/scenario.ts';
-  import type { KindId, SignalId } from '../scenario/types.ts';
+  import { RESPONSIBILITIES, WORKFLOW_STEPS, kind, version } from '../scenario/scenario.ts';
   import type { View } from '../scenario/types.ts';
   import type { Slot, StageState } from '../model/state.ts';
-  import { MARKER_TEXT, cardName, statusText } from '../model/describe.ts';
+  import { MARKER_TEXT, answerName, cardName, statusText } from '../model/describe.ts';
   import type { Target } from '../model/inspect.ts';
-  import type { Rect } from '../layout.ts';
+  import { STACK_ROOM, type Rect } from '../layout.ts';
 
   let {
     slot,
@@ -41,8 +34,6 @@
   const steps = $derived(WORKFLOW_STEPS[v.id]);
   const now = $derived(stage.progress[v.id] ?? -1);
   const running = $derived(steps !== undefined && now < steps.length);
-  const answerName = (a: string) =>
-    a in SIGNALS ? SIGNALS[a as SignalId].label : kind(a as KindId).name;
   const marker = (id: string) => stage.markers[id];
   const earlierText = (e: (typeof earlier)[number]) =>
     [e.label, e.status && statusText(e.status), marker(e.id) && MARKER_TEXT[marker(e.id)!]]
@@ -65,10 +56,10 @@
   style:--accent="var(--{k.producer})"
   style:left="{rect.x}px"
   style:top="{rect.y}px"
-  style:width="{rect.w - 6}px"
-  style:height="{rect.h - 6}px"
+  style:width="{rect.w - STACK_ROOM}px"
+  style:height="{rect.h - STACK_ROOM}px"
 >
-  <!-- The header is the producer's band when the card is new; status never sits on a provenance colour (plan 5 D6). -->
+  <!-- The header is the producer's band when the card is new; status sits on its own line, never on a provenance colour. -->
   <span class="head">
     <span class="by">by {RESPONSIBILITIES[k.producer].name}</span>
     <span class="type">{k.name} · {v.label}</span>
