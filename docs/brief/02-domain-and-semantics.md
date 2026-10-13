@@ -9,11 +9,11 @@ The NAF framework names six responsibilities. In this demo they are **roles**, n
 | Responsibility | Does | Does not |
 |---|---|---|
 | **Presentation** | Lets people and other systems request services and see their state, through surfaces such as a portal, fault management (the NOC's single pane of glass), ITSM (tickets), performance dashboards and APIs. | Decide or act on its own. |
-| **Intent** | Records service intent, derives network intent and desired state, and checks drift between observed and desired state. In this scenario it is the source of truth for intended state. | Apply changes to devices. |
+| **Intent** | Records service intent, derives network intent and desired state, and supplies desired state to Executor and Observability. It does not evaluate the network (ADR 0006). In this scenario it is the source of truth for intended state. | Apply changes to devices. |
 | **Orchestrator** | Coordinates workflows across responsibilities using signals. In this scenario it relays requests to Intent, and its remediation workflow evaluates a pre-approved policy and produces the remediation decision; on a link event it asks ITSM for the link's repair. | Configure the network; own service intent, derived network intent or desired state. |
 | **Executor** | Renders and applies configuration changes. In this scenario it takes desired state from Intent, which is one common pattern, not a NAF requirement. | Decide what the network should be; verify the outcome. |
-| **Collector** | Gathers and normalizes live network state, tags it with service IDs from a locally cached copy of intent, and reads back applied state for drift checks. | Interpret service impact. |
-| **Observability** | Turns SLO definitions into SLO rules, computes SLIs, correlates observations and evaluates SLIs against SLOs to understand service state, and raises and clears events. | Change the network. |
+| **Collector** | Gathers and normalizes live network state, tags it with service IDs from a locally cached copy of intent, and reads back applied configuration for Observability's conformance check. | Interpret service impact. |
+| **Observability** | Turns SLO definitions into SLO rules, computes SLIs, correlates observations and evaluates SLIs against SLOs to understand service state, and raises and clears events., and checks configuration conformance (observed against desired state) | Change the network. |
 
 **The Network** (infrastructure) sits beneath the six responsibilities and is not one of them. Only Executor writes to it, and only Collector reads from it.
 
@@ -21,7 +21,7 @@ The NAF framework names six responsibilities. In this demo they are **roles**, n
 
 There are two different kinds of communication. The demo must keep them visibly distinct.
 
-- **Coordination signals** are workflow messages that always involve Orchestrator: start, *desired state ready*, *onboard service assurance*, *assurance onboarded*, *applied*, *read back applied state*, *read back done*, *check drift*, *in sync*, and *query alternate-path health*. Signals are **not artifacts**.
+- **Coordination signals** are workflow messages that always involve Orchestrator: start, *desired state ready*, *onboard service assurance*, *assurance onboarded*, *applied*, *read back applied state*, *read back done*, *check config*, *in sync*, and *query alternate-path health*. Signals are **not artifacts**.
 - **Artifacts** are typed content handed from the responsibility that **produces** them to the one that **uses** them, for example desired state, the SLO definition or observations. Each handoff carries one specific artifact version.
 
 The rules:
@@ -46,7 +46,7 @@ The rules:
 
 ## Two kinds of verification
 
-- **Configuration verification:** after Executor signals *applied* (a successful commit, which is not verification), Orchestrator asks Collector to *read back applied state*. Collector reads back the applied configuration, hands the observed device state directly to Intent, and signals Orchestrator *read back done*. Orchestrator then asks Intent to *check drift*. Intent's drift check confirms that the observed state matches the desired state and signals Orchestrator *in sync*. A mismatch would lead Orchestrator's workflow to roll back; the story only mentions this.
+- **Configuration verification:** after Executor signals *applied* (a successful commit, which is not verification), Orchestrator asks Collector to *read back applied state*. Collector reads back the applied configuration, hands the observed device state to Observability, and signals Orchestrator *read back done*. Orchestrator then asks Observability to *check config*. Intent supplies the desired state directly to Observability, which checks that the observed state conforms to it and signals Orchestrator *in sync* (ADR 0006). A mismatch would lead Orchestrator's workflow to roll back; the story only mentions this.
 - **Service verification:** "configured as intended" is not "working". Observability computes the SLI from live measurements and evaluates it against the SLO rule to decide whether the service is healthy.
 
 ## Service assurance onboarding

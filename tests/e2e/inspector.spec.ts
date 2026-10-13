@@ -16,7 +16,7 @@ test.beforeEach(async ({ page }) => {
 test('cards, surfaces and region titles are buttons with full names', async ({ page }) => {
   await tick(page, at('P10')).click();
   await expect(
-    page.getByRole('button', { name: /^Desired network state v1, by Intent, in sync$/ }),
+    page.getByRole('button', { name: /^Desired network state v1, by Intent$/ }),
   ).toBeVisible();
   await expect(page.getByRole('button', { name: /^Portal$/ })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Intent', exact: true })).toBeVisible();
@@ -120,7 +120,7 @@ test('a line label shows its signal view, and says so when its beat has passed',
   page,
 }) => {
   await tick(page, at('P10')).click();
-  await page.locator('.label', { hasText: 'check drift' }).click();
+  await page.locator('.label', { hasText: 'check config' }).click();
   await expect(panel(page)).toContainText('Answered by');
   await expect(panel(page)).toContainText('in sync');
   await page.keyboard.press('ArrowRight');
@@ -237,7 +237,7 @@ test('the header carries the identity colour; a signal’s edge is dashed', asyn
     'width',
     /^(3[2-9]|[4-9]\d)px$/,
   );
-  await page.locator('.label', { hasText: 'check drift' }).click();
+  await page.locator('.label', { hasText: 'check config' }).click();
   await expect(head).toHaveCSS('border-top-color', 'rgb(0, 212, 255)');
   await expect(head).toHaveCSS('border-top-style', 'dashed');
 });

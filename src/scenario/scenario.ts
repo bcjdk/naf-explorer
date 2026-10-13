@@ -104,9 +104,9 @@ export const RESPONSIBILITIES: Record<Party, ResponsibilityInfo> = {
     does: [
       'Records service intent.',
       'Derives network intent and desired state.',
-      'Checks drift between observed and desired state.',
+      'Supplies desired state to Executor and Observability.',
     ],
-    doesNot: ['Apply changes to devices.'],
+    doesNot: ['Apply changes to devices.', 'Evaluate what the network actually has.'],
   },
   orchestrator: {
     id: 'orchestrator',
@@ -144,9 +144,9 @@ export const RESPONSIBILITIES: Record<Party, ResponsibilityInfo> = {
     does: [
       'Gathers and normalizes live network state.',
       'Tags it with link, path and service IDs from a locally cached copy of intent.',
-      'Reads back applied state for drift checks.',
+      'Reads back applied configuration for Observability’s conformance check.',
     ],
-    doesNot: ['Interpret service impact.'],
+    doesNot: ['Interpret service impact.', 'Judge whether configuration conforms.'],
   },
   observability: {
     id: 'observability',
@@ -156,6 +156,7 @@ export const RESPONSIBILITIES: Record<Party, ResponsibilityInfo> = {
       'Turns SLO definitions into SLO rules.',
       'Computes SLIs, correlates observations and evaluates SLIs against SLOs.',
       'Raises and clears events: link problems and impact on services.',
+      'Checks configuration conformance: does the observed state match the desired state?',
     ],
     doesNot: ['Change the network.'],
   },
@@ -255,10 +256,12 @@ export const KINDS: ArtifactKind[] = [
     id: 'desiredState',
     name: 'Desired network state',
     producer: 'intent',
-    consumers: ['executor'],
+    consumers: ['executor', 'observability'],
     uses: {
       executor:
         'It renders and applies the desired-state version that Orchestrator’s apply request names. Executor takes it directly from Intent.',
+      observability:
+        'It is what Observability checks the read-back configuration against: does the network have what Intent intends?',
     },
     whatItIs: 'The per-device configuration intent derived from network intent.',
   },
@@ -353,11 +356,13 @@ export const KINDS: ArtifactKind[] = [
     id: 'observedState',
     name: 'Observed device state',
     producer: 'collector',
-    consumers: ['intent'],
+    consumers: ['observability'],
     uses: {
-      intent: 'It checks drift: does what the devices actually have match the desired state?',
+      observability:
+        'It checks conformance: does what the devices actually have match the desired state?',
     },
-    whatItIs: 'Applied configuration as read back from devices, for Intent’s drift check.',
+    whatItIs:
+      'Applied configuration as read back from devices, for Observability’s conformance check.',
   },
   {
     id: 'normalized',
@@ -455,24 +460,24 @@ export const SIGNALS: Record<SignalId, SignalInfo> = {
   readBack: {
     id: 'readBack',
     label: 'read back applied state',
-    asks: 'Asks Collector to read back applied configuration and hand it to Intent.',
+    asks: 'Asks Collector to read back applied configuration and hand it to Observability.',
     answeredBy: 'readBackDone',
   },
   readBackDone: {
     id: 'readBackDone',
     label: 'read back done',
-    asks: 'Tells Orchestrator the observed state has been handed to Intent.',
+    asks: 'Tells Orchestrator the read-back is done and the observed state is with Observability.',
   },
-  checkDrift: {
-    id: 'checkDrift',
-    label: 'check drift',
-    asks: 'Asks Intent to compare observed state with desired state.',
+  checkConformance: {
+    id: 'checkConformance',
+    label: 'check config',
+    asks: 'Asks Observability whether the observed configuration conforms to a desired-state version.',
     answeredBy: 'inSync',
   },
   inSync: {
     id: 'inSync',
     label: 'in sync',
-    asks: 'Tells Orchestrator the observed state matches the desired state.',
+    asks: 'Observability’s verdict: the observed configuration conforms to the desired state.',
   },
   queryAltPath: {
     id: 'queryAltPath',
@@ -484,7 +489,7 @@ export const SIGNALS: Record<SignalId, SignalInfo> = {
 
 export const ALLOWED_WORK: Record<Party, WorkVerb[]> = {
   presentation: [],
-  intent: ['record', 'derive', 'checkDrift'],
+  intent: ['record', 'derive'],
   orchestrator: ['startWorkflow', 'completeWorkflow', 'evaluatePolicy'],
   executor: ['render', 'apply'],
   collector: ['collect', 'normalize', 'enrich', 'readBack'],
@@ -496,6 +501,7 @@ export const ALLOWED_WORK: Record<Party, WorkVerb[]> = {
     'raiseEvent',
     'clearEvent',
     'assessPath',
+    'checkConformance',
   ],
   network: [],
 };
@@ -1046,8 +1052,8 @@ export const STEPS: Step[] = [
     chapter: 'provision',
     title: 'Read back',
     caption: T(
-      'Configuration verification begins. Orchestrator asks Collector to read back what the devices actually have. Collector hands the observed device state directly to Intent and tells Orchestrator the read-back is done.',
-      'Orchestrator ⇢ Collector: read back applied state. Network → Collector: gNMI Get of CPH01 and AAR01. Collector → Intent: observed device state v1. Collector ⇢ Orchestrator: read back done.',
+      'Configuration verification begins. Orchestrator asks Collector to read back what the devices actually have. Collector hands the observed device state to Observability and tells Orchestrator the read-back is done.',
+      'Orchestrator ⇢ Collector: read back applied state. Network → Collector: gNMI Get of CPH01 and AAR01. Collector → Observability: observed device state v1. Collector ⇢ Orchestrator: read back done.',
     ),
     events: [
       sig('readBack', 'orchestrator', 'collector'),
@@ -1055,23 +1061,28 @@ export const STEPS: Step[] = [
       hand('rb-a', 'network', 'collector'),
       work('collector', 'readBack', 'read back', 'gNMI Get CPH01, AAR01'),
       appear('obs1'),
-      hand('obs1', 'collector', 'intent'),
+      hand('obs1', 'collector', 'observability'),
       sig('readBackDone', 'collector', 'orchestrator'),
     ],
   },
   {
     id: 'P10',
     chapter: 'provision',
-    title: 'Check drift',
+    title: 'Check conformance',
     caption: T(
-      'Orchestrator asks Intent to check drift. The observed state matches the desired state, so desired state v1 is in sync, and Intent tells Orchestrator. A mismatch would have led the workflow to roll back.',
-      'Orchestrator ⇢ Intent: check drift v1. Intent compares observed device state v1 with desired state v1: no drift, desired state v1 = IN SYNC. Intent ⇢ Orchestrator: in sync. On drift, the workflow would roll back.',
+      'Orchestrator asks Observability whether the network now has what was intended. Intent supplies desired state v1, Observability compares it with what the devices have, finds they match, and tells Orchestrator. A mismatch would have led the workflow to roll back.',
+      'Orchestrator ⇢ Observability: check config v1. Intent → Observability: desired state v1, direct. Observability compares observed device state v1 with desired state v1 (semantically, not as a text diff): conforms. Observability ⇢ Orchestrator: in sync. On a mismatch, the workflow would roll back.',
     ),
     events: [
-      sig('checkDrift', 'orchestrator', 'intent', 'ds1'),
-      work('intent', 'checkDrift', 'check drift', 'compare observed v1 with desired v1'),
-      mark('ds1', 'IN_SYNC'),
-      sig('inSync', 'intent', 'orchestrator', 'ds1'),
+      sig('checkConformance', 'orchestrator', 'observability', 'ds1'),
+      hand('ds1', 'intent', 'observability'),
+      work(
+        'observability',
+        'checkConformance',
+        'check conformance',
+        'compare observed v1 with desired v1',
+      ),
+      sig('inSync', 'observability', 'orchestrator', 'ds1'),
     ],
   },
   {
@@ -1372,8 +1383,8 @@ export const STEPS: Step[] = [
     chapter: 'remediate',
     title: 'Read back',
     caption: T(
-      'Configuration verification again. Orchestrator asks Collector to read back; Collector hands the observed state directly to Intent and reports the read-back done.',
-      'Orchestrator ⇢ Collector: read back applied state. Network → Collector: gNMI Get. Collector → Intent: observed device state v2. Collector ⇢ Orchestrator: read back done.',
+      'Configuration verification again. Orchestrator asks Collector to read back; Collector hands the observed state to Observability and reports the read-back done.',
+      'Orchestrator ⇢ Collector: read back applied state. Network → Collector: gNMI Get. Collector → Observability: observed device state v2. Collector ⇢ Orchestrator: read back done.',
     ),
     events: [
       sig('readBack', 'orchestrator', 'collector'),
@@ -1381,23 +1392,28 @@ export const STEPS: Step[] = [
       hand('rb-b', 'network', 'collector'),
       work('collector', 'readBack', 'read back', 'gNMI Get CPH01, AAR01'),
       appear('obs2'),
-      hand('obs2', 'collector', 'intent'),
+      hand('obs2', 'collector', 'observability'),
       sig('readBackDone', 'collector', 'orchestrator'),
     ],
   },
   {
     id: 'R9',
     chapter: 'remediate',
-    title: 'Check drift',
+    title: 'Check conformance',
     caption: T(
-      'Orchestrator asks Intent to check drift. There is no drift: desired state v2 is in sync, and Intent tells Orchestrator.',
-      'Orchestrator ⇢ Intent: check drift v2. Observed v2 matches desired v2: = IN SYNC. Intent ⇢ Orchestrator: in sync.',
+      'Orchestrator asks Observability to check the change. Intent supplies desired state v2, the devices match it, and Observability tells Orchestrator.',
+      'Orchestrator ⇢ Observability: check config v2. Intent → Observability: desired state v2, direct. Observed v2 conforms to desired v2. Observability ⇢ Orchestrator: in sync.',
     ),
     events: [
-      sig('checkDrift', 'orchestrator', 'intent', 'ds2'),
-      work('intent', 'checkDrift', 'check drift', 'compare observed v2 with desired v2'),
-      mark('ds2', 'IN_SYNC'),
-      sig('inSync', 'intent', 'orchestrator', 'ds2'),
+      sig('checkConformance', 'orchestrator', 'observability', 'ds2'),
+      hand('ds2', 'intent', 'observability'),
+      work(
+        'observability',
+        'checkConformance',
+        'check conformance',
+        'compare observed v2 with desired v2',
+      ),
+      sig('inSync', 'observability', 'orchestrator', 'ds2'),
     ],
   },
   {

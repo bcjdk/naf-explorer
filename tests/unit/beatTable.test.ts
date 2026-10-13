@@ -6,10 +6,16 @@ group('describe', () => {
   it('writes signals, handoffs, work and marks as one line each', () => {
     expect(
       describe(
-        { t: 'signal', signal: 'checkDrift', from: 'orchestrator', to: 'intent', version: 'ds1' },
+        {
+          t: 'signal',
+          signal: 'checkConformance',
+          from: 'orchestrator',
+          to: 'observability',
+          version: 'ds1',
+        },
         'simple',
       ),
-    ).toBe('Orchestrator ⇢ Intent: check drift v1');
+    ).toBe('Orchestrator ⇢ Observability: check config v1');
     expect(
       describe(
         {

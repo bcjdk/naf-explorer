@@ -93,8 +93,8 @@ interface Step { id: string; chapter: 'provision' | 'detect' | 'remediate'; titl
 ```
 
 - **`WorkVerb`** is a closed union, and each owner has its own allowed verbs as listed in `07`.
-- **The signal vocabulary** is the amended list in `02`. Each request signal declares what answers it (`answeredBy`), for example `check drift → in sync` and `query alternate-path health → path B health`; Orchestrator's own requests (intent request, remediation decision, apply request) declare theirs too; the repair request, handed to people through ITSM, has none (ADR 0004). Both the inspector and the request/answer test use this.
-- **State changes are not artifacts.** IN SYNC, UNCHANGED and workflow COMPLETED are `mark` events and don't count toward the pacing rule. Status values (HEALTHY → DEGRADED → HEALTHY) are separate **versions**.
+- **The signal vocabulary** is the amended list in `02`. Each request signal declares what answers it (`answeredBy`), for example `check config → in sync` and `query alternate-path health → path B health`; Orchestrator's own requests (intent request, remediation decision, apply request) declare theirs too; the repair request, handed to people through ITSM, has none (ADR 0004). Both the inspector and the request/answer test use this.
+- **State changes are not artifacts.** UNCHANGED and workflow COMPLETED are `mark` events and don't count toward the pacing rule. Status values (HEALTHY → DEGRADED → HEALTHY) are separate **versions**.
 - **The event order within a step is the causal order**, and therefore the motion order.
 
 ### 4.2 What is derived from it (pure functions in `src/model/`)
@@ -134,8 +134,8 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 | P6 | Onboard assurance | Intent: SLO definition (v1) · Observability: SLO rule (acme-loss) | Orchestrator ⇢ Observability: onboard service assurance · Intent → Observability: SLO definition (v1) · Observability: configure SLO rule · Observability ⇢ Orchestrator: assurance onboarded |
 | P7 | Order apply | Orchestrator: Apply request (desired state v1) | Orchestrator → Executor: Apply request (desired state v1) |
 | P8 | Apply | Executor: Configuration change (v1) | Intent → Executor: Desired network state (v1) · Executor: render · Executor: apply · Executor → The Network: Configuration change (v1) · ACME traffic: path A via ODE01 · Executor ⇢ Orchestrator: applied v1 |
-| P9 | Read back | The Network: Raw signals (read-back A) · Collector: Observed device state (v1) | Orchestrator ⇢ Collector: read back applied state · The Network → Collector: Raw signals (read-back A) · Collector: read back · Collector → Intent: Observed device state (v1) · Collector ⇢ Orchestrator: read back done |
-| P10 | Check drift | none | Orchestrator ⇢ Intent: check drift v1 · Intent: check drift · Desired network state (v1) = IN SYNC · Intent ⇢ Orchestrator: in sync v1 |
+| P9 | Read back | The Network: Raw signals (read-back A) · Collector: Observed device state (v1) | Orchestrator ⇢ Collector: read back applied state · The Network → Collector: Raw signals (read-back A) · Collector: read back · Collector → Observability: Observed device state (v1) · Collector ⇢ Orchestrator: read back done |
+| P10 | Check conformance | none | Orchestrator ⇢ Observability: check config v1 · Intent → Observability: Desired network state (v1) · Observability: check conformance · Observability ⇢ Orchestrator: in sync v1 |
 | P11 | Collect | The Network: Raw signals (baseline) · Collector: Normalized observations (baseline) | The Network → Collector: Raw signals (baseline) · Collector: collect · Collector: normalize |
 | P12 | Enrich | Collector: Enriched observations (baseline) | Collector: enrich · Collector → Observability: Enriched observations (baseline) |
 | P13 | Compute SLI | Observability: SLI (0.00%) | Observability: compute SLI |
@@ -168,8 +168,8 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 | R5 | Derive | Intent: Desired network state (v2) | Intent: derive desired state · Intent ⇢ Orchestrator: desired state ready v2 |
 | R6 | Order apply | Orchestrator: Apply request (desired state v2) | Orchestrator → Executor: Apply request (desired state v2) |
 | R7 | Apply | Executor: Configuration change (v2) | Intent → Executor: Desired network state (v2) · Executor: render · Executor: apply · Executor → The Network: Configuration change (v2) · ACME traffic: path B via KOL01 · Executor ⇢ Orchestrator: applied v2 |
-| R8 | Read back | The Network: Raw signals (read-back B) · Collector: Observed device state (v2) | Orchestrator ⇢ Collector: read back applied state · The Network → Collector: Raw signals (read-back B) · Collector: read back · Collector → Intent: Observed device state (v2) · Collector ⇢ Orchestrator: read back done |
-| R9 | Check drift | none | Orchestrator ⇢ Intent: check drift v2 · Intent: check drift · Desired network state (v2) = IN SYNC · Intent ⇢ Orchestrator: in sync v2 |
+| R8 | Read back | The Network: Raw signals (read-back B) · Collector: Observed device state (v2) | Orchestrator ⇢ Collector: read back applied state · The Network → Collector: Raw signals (read-back B) · Collector: read back · Collector → Observability: Observed device state (v2) · Collector ⇢ Orchestrator: read back done |
+| R9 | Check conformance | none | Orchestrator ⇢ Observability: check config v2 · Intent → Observability: Desired network state (v2) · Observability: check conformance · Observability ⇢ Orchestrator: in sync v2 |
 | R10 | Collect | The Network: Raw signals (after reroute) · Collector: Normalized observations (after reroute) | The Network → Collector: Raw signals (after reroute) · Collector: collect · Collector: normalize |
 | R11 | Enrich | Collector: Enriched observations (after reroute) | Collector: enrich · Collector → Observability: Enriched observations (after reroute) |
 | R12 | Compute SLI | Observability: SLI (0.00%) | Observability: compute SLI |
@@ -272,7 +272,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
   | ▲ DEGRADED | achromatic with a pattern |
   | ✕ VIOLATED | one magenta hue, used by no responsibility, with dark text |
   | ✓ CLEARED | neutral; distinguished from HEALTHY by its word |
-  | = IN SYNC / = UNCHANGED | neutral markers, not chips |
+  | = UNCHANGED / = COMPLETED | neutral markers, not chips |
 
   `UP` never appears in a chip.
 - **Colour tokens** are defined once in `src/theme.ts` and applied as CSS custom properties. A unit test checks the WCAG AA contrast of every text/background token pair, including subdued text and the VIOLATED chip.
@@ -286,7 +286,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 - **Tab order:** header (chapters and ticks, view switch, About, Replay) → canvas (Presentation surfaces, Observability, Collector, Orchestrator, Intent, Executor, The Network, then the current line labels) → caption bar (Back, Next).
 - **Semantics:**
   - each region is a `<section>` with a heading;
-  - cards and surfaces are buttons with a full accessible name, for example "Desired state v2, by Intent, in sync";
+  - cards and surfaces are buttons with a full accessible name, for example "Desired network state v2, by Intent, 1 earlier version";
   - the caption is `aria-live="polite"`;
   - the view switch is two toggle buttons with `aria-pressed` inside a labelled group (native radios would consume ← and →).
 - **Focus is never lost:**
@@ -328,7 +328,7 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
 
 - **Unit tests over the data** (`tests/unit/semantics.test.ts`, `story.test.ts`): every item in the `07` Semantics section, including the ADR 0001 additions:
   - request/answer pairing before Orchestrator's next request;
-  - apply → applied → read back → check drift;
+  - apply → applied → read back → check conformance (ADR 0006);
   - *assurance onboarded* before the first apply;
   - Orchestrator never names a path it wasn't told.
   
@@ -391,3 +391,4 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
 - **rev 13 (plan 6b):** Observability raises a link event in Detect (D7) and Orchestrator opens the repair request in ITSM straight away (D8); the remediation workflow completes in R14 again and R15 is the closing only. "Service-impact event" becomes "Event" (link problem, loss violation, cleared). 40 beats (ADR 0004).
 - **rev 14:** the caption-bar hint is retired; P1's caption says inspection exists and About keeps the how-to. The legend holds the top-right slot from the first beat. An axe scan covers P1, D10 and R14 in both views, the inspector and About.
 - **rev 15:** Orchestrator hands the completed provisioning workflow record to the Portal at P15, and the Portal's service request reads "completed" beside the service state (ADR 0005). Observability's columns are 14px apart so P14's work line has a stem. A card's selection ring is a haloed overlay, visible over a bright band. Raw signals (degraded) name `Hu0/0/0/1` again.
+- **rev 16:** Observability, not Intent, checks configuration conformance (ADR 0006): the read-back goes Collector → Observability, Intent hands desired state directly to Observability in the check beat, and Observability answers *in sync*. Same 40 beats.

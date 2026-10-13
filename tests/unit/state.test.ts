@@ -35,7 +35,13 @@ const fixture: Step[] = [
       { t: 'network', acmePath: 'A' },
       { t: 'network', link: { id: 'CPH01-ODE01', status: 'DEGRADED' } },
       { t: 'handoff', version: 'b', from: 'presentation', to: 'orchestrator', surface: 'portal' },
-      { t: 'signal', signal: 'checkDrift', from: 'orchestrator', to: 'intent', version: 'a' },
+      {
+        t: 'signal',
+        signal: 'checkConformance',
+        from: 'orchestrator',
+        to: 'observability',
+        version: 'a',
+      },
       { t: 'appear', version: 'c' },
     ],
   },
@@ -74,7 +80,7 @@ describe('stateAt', () => {
 
   it('tracks the answer Orchestrator is still waiting for', () => {
     expect(at(0).waiting).toBeNull();
-    expect(at(1).waiting).toEqual({ answer: 'inSync', from: 'intent' });
+    expect(at(1).waiting).toEqual({ answer: 'inSync', from: 'observability' });
   });
 
   it('records what each surface received, ignoring what it sent', () => {
@@ -109,7 +115,13 @@ describe('linesOf', () => {
     expect(linesOf(0, fixture).map((e) => e.t)).toEqual(['handoff', 'work']);
     expect(linesOf(1, fixture)).toEqual([
       { t: 'handoff', version: 'b', from: 'presentation', to: 'orchestrator', surface: 'portal' },
-      { t: 'signal', signal: 'checkDrift', from: 'orchestrator', to: 'intent', version: 'a' },
+      {
+        t: 'signal',
+        signal: 'checkConformance',
+        from: 'orchestrator',
+        to: 'observability',
+        version: 'a',
+      },
     ]);
   });
 });

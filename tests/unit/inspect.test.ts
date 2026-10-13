@@ -81,8 +81,11 @@ describe('inspect: artifacts (spec §7)', () => {
   });
 
   it('shows the status as a chip and the marker as text', () => {
+    const si = inspect({ t: 'artifact', version: 'si' }, at('R15'), 'simple');
+    expect(texts(si, 'Status')).toEqual(['= UNCHANGED']);
+    // Intent no longer judges conformance, so desired state carries no in-sync marker.
     const ds = inspect({ t: 'artifact', version: 'ds1' }, at('P10'), 'simple');
-    expect(texts(ds, 'Status')).toEqual(['= IN SYNC']);
+    expect(section(ds, 'Status')).toEqual([]);
     const ss = inspect({ t: 'artifact', version: 'ss1' }, at('P15'), 'simple');
     expect(section(ss, 'Status')[0]?.status).toBe(version('ss1').status);
   });

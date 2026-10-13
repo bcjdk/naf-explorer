@@ -43,7 +43,7 @@ describe('artifact catalog (brief 02, 03; checklist 07)', () => {
         .filter((k) => k.consumers.length > 0)
         .map((k) => [k.id, k.consumers]),
     ).toEqual([
-      ['observedState', ['intent']],
+      ['observedState', ['observability']],
       ['enriched', ['observability']],
     ]);
   });
@@ -83,7 +83,7 @@ describe('signal catalog (ADR 0001)', () => {
     expect(SIGNALS.onboard.answeredBy).toBe('onboarded');
     expect(kind('applyRequest').answeredBy).toBe('applied');
     expect(SIGNALS.readBack.answeredBy).toBe('readBackDone');
-    expect(SIGNALS.checkDrift.answeredBy).toBe('inSync');
+    expect(SIGNALS.checkConformance.answeredBy).toBe('inSync');
     expect(SIGNALS.queryAltPath.answeredBy).toBe('pathHealth');
   });
 
@@ -96,7 +96,7 @@ describe('work ownership (checklist 07)', () => {
   it('assigns each kind of work to its owner only', () => {
     expect(ALLOWED_WORK).toEqual({
       presentation: [],
-      intent: ['record', 'derive', 'checkDrift'],
+      intent: ['record', 'derive'],
       orchestrator: ['startWorkflow', 'completeWorkflow', 'evaluatePolicy'],
       executor: ['render', 'apply'],
       collector: ['collect', 'normalize', 'enrich', 'readBack'],
@@ -108,6 +108,7 @@ describe('work ownership (checklist 07)', () => {
         'raiseEvent',
         'clearEvent',
         'assessPath',
+        'checkConformance',
       ],
       network: [],
     });

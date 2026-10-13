@@ -39,14 +39,14 @@ export type SignalId =
   | 'applied'
   | 'readBack'
   | 'readBackDone'
-  | 'checkDrift'
+  | 'checkConformance'
   | 'inSync'
   | 'queryAltPath';
 
 export type WorkVerb =
   | 'record'
   | 'derive'
-  | 'checkDrift'
+  | 'checkConformance'
   | 'render'
   | 'apply'
   | 'collect'
