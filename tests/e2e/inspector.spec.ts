@@ -27,7 +27,12 @@ test('clicking a card rings it; selection is not focus styling', async ({ page }
   await card(page, 'ds1').click();
   await expect(card(page, 'ds1')).toHaveClass(/\bselected\b/);
   await expect(card(page, 'ds1')).toHaveAttribute('aria-current', 'true');
-  await expect(card(page, 'ds1')).toHaveCSS('outline-style', 'dashed');
+  const ring = await card(page, 'ds1').evaluate((el) => {
+    const r = getComputedStyle(el, '::after');
+    return [r.content, r.borderTopStyle, r.position];
+  });
+  expect(ring).toEqual(['""', 'dashed', 'absolute']);
+  await expect(card(page, 'ds1')).toHaveCSS('outline-style', 'none');
   await page.keyboard.press('Tab');
   await card(page, 'ds1').focus();
   await page.keyboard.press('Enter');
@@ -287,4 +292,16 @@ test('the inspector moves opposite its target when the target appears in a later
   await expect(panel).toHaveClass(/\bright\b/);
   await tick(page, at('P10')).click();
   await expect(panel).toHaveClass(/\bleft\b/);
+});
+
+test('the Portal shows the order completed beside the service state from P15 on', async ({
+  page,
+}) => {
+  const portal = page.locator('.surface[data-surface="portal"]');
+  await tick(page, at('P14')).click();
+  await expect(portal).not.toContainText('completed');
+  await tick(page, at('P15')).click();
+  await expect(portal).toContainText('Service request · completed');
+  await expect(portal).toContainText('HEALTHY');
+  await expect(portal).toHaveAttribute('aria-label', /, order completed$/);
 });

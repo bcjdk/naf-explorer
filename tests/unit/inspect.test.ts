@@ -31,7 +31,12 @@ describe('inspect: artifacts (spec §7)', () => {
         expect(i.party, id).toBe(k.producer);
         expect(i.by, id).toBe(k.producer);
         const handed = section(i, 'Handed to');
-        for (const c of k.consumers) {
+        const receivers = new Set(
+          STEPS.flatMap((s) =>
+            s.events.flatMap((e) => (e.t === 'handoff' && e.version === id ? [e.to] : [])),
+          ),
+        );
+        for (const c of k.consumers.filter((c) => receivers.has(c))) {
           const item = handed.find((x) => x.party === c);
           expect(item?.text, `${id} handed to ${c}`).toContain(RESPONSIBILITIES[c].name);
           expect(item?.target, `${id} ${c} link`).toEqual({ t: 'responsibility', party: c });
@@ -43,6 +48,12 @@ describe('inspect: artifacts (spec §7)', () => {
     expect(texts(ss, 'Handed to').join(' ')).toContain(SURFACES.portal);
     const ev = inspect({ t: 'artifact', version: 'ev-viol' }, at('D10'), 'simple');
     expect(texts(ev, 'Handed to').join(' ')).toContain(SURFACES.faultMgmt);
+    // Per version, not per kind: only the provisioning record reaches the Portal (ADR 0005), and the
+    // DEGRADED state goes to no workflow.
+    const rem = inspect({ t: 'artifact', version: 'wf-rem' }, at('R15'), 'simple');
+    expect(section(rem, 'Handed to').some((x) => x.party === 'presentation')).toBe(false);
+    const ss2 = inspect({ t: 'artifact', version: 'ss2' }, at('D9'), 'simple');
+    expect(section(ss2, 'Handed to').some((x) => x.party === 'orchestrator')).toBe(false);
   });
 
   it('links each lineage entry to that version', () => {
@@ -204,6 +215,9 @@ describe('accessible names (spec §11)', () => {
       'Portal, showing Service state 09:13, by Observability, healthy',
     );
     expect(surfaceName('api')).toBe('API');
+    expect(surfaceName('portal', 'ss1', 'wf-prov')).toBe(
+      'Portal, showing Service state 09:13, by Observability, healthy, order completed',
+    );
   });
 });
 

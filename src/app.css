@@ -365,11 +365,22 @@ code {
   outline: 2px dashed var(--text);
   outline-offset: 3px;
 }
-/* Cards and surfaces sit flush with their region's clipped edges, so their ring is drawn just inside them. */
-:is(.card, .surface).selected {
-  outline-offset: -4px;
+/* Cards and surfaces sit flush with their region's clipped edges, so their ring is drawn just inside them.
+   A card's ring is an overlay haloed in the stage colour, so it stays visible across a bright producer band
+   as well as the dark body; focus keeps its solid outline alongside it. */
+.card.selected:not(:focus-visible) {
+  outline: none;
 }
-/* Surfaces have no spare height below their last item, so their ring sits a pixel nearer the edge. */
+.card.selected::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border: 2px dashed var(--text);
+  border-radius: 3px;
+  pointer-events: none;
+  filter: drop-shadow(0 0 1px var(--bg)) drop-shadow(0 0 1px var(--bg));
+}
+/* A surface has no spare height below its last item, so its ring sits 3px in. */
 .surface.selected {
   outline-offset: -3px;
 }

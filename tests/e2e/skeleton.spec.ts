@@ -230,6 +230,24 @@ test('nothing overflows, cards stay in their region without overlapping, and lab
           range.selectNodeContents(h);
           return { name: h.textContent!.trim().slice(0, 24), rect: range.getBoundingClientRect() };
         });
+        // No line runs through a region's name, role or work pill (sampled every 4px along each path).
+        const marks = [
+          ...document.querySelectorAll('.region h2 :is(.region-name, .work, .role)'),
+        ].map(box);
+        for (const path of document.querySelectorAll<SVGPathElement>('path.route')) {
+          const toScreen = path.ownerSVGElement!.getScreenCTM()!;
+          const len = path.getTotalLength();
+          for (let d = 0; d <= len; d += 4) {
+            const p = path.getPointAtLength(d).matrixTransform(toScreen);
+            const m = marks.find(
+              (r) => p.x > r.left && p.x < r.right && p.y > r.top && p.y < r.bottom,
+            );
+            if (m) {
+              out.push(`line ${path.dataset.route} crosses a region header`);
+              break;
+            }
+          }
+        }
         // A new card's type text never runs under its floated "by" (3px allowed for line-box metrics).
         for (const c of document.querySelectorAll('.card.new')) {
           const by = box(c.querySelector('.by')!);

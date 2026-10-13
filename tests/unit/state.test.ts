@@ -50,6 +50,7 @@ describe('stateAt', () => {
       touched: [],
       markers: {},
       surfaces: {},
+      orders: {},
       slots: {},
       linkDegraded: false,
       faultNow: false,
@@ -110,5 +111,16 @@ describe('linesOf', () => {
       { t: 'handoff', version: 'b', from: 'presentation', to: 'orchestrator', surface: 'portal' },
       { t: 'signal', signal: 'checkDrift', from: 'orchestrator', to: 'intent', version: 'a' },
     ]);
+  });
+});
+
+describe('order status (ADR 0005)', () => {
+  it('keeps the Portal showing the service state when Orchestrator reports the order complete', async () => {
+    const { STEPS: steps } = await import('../../src/scenario/scenario.ts');
+    const p15 = steps.findIndex((s) => s.id === 'P15');
+    const s = stateAt(p15);
+    expect(s.surfaces.portal).toBe('ss1');
+    expect(s.orders.portal).toBe('wf-prov');
+    expect(stateAt(p15 - 1).orders.portal).toBeUndefined();
   });
 });
