@@ -56,7 +56,7 @@ group('beatTable', () => {
   const rows = md.split('\n').filter((l) => /^\| [PDR]\d+ \|/.test(l));
 
   it('has one row per beat under three chapter headings', () => {
-    expect(rows).toHaveLength(38);
+    expect(rows).toHaveLength(40);
     expect(md).toContain('### Provision');
     expect(md).toContain('### Detect');
     expect(md).toContain('### Remediate');

@@ -42,7 +42,7 @@ test('Back and jumps show the end state at once, finishing any running motion', 
   await page.keyboard.press('ArrowLeft');
   expect(await running(page)).toBe(0);
   await next(page).click();
-  await tick(page, at('D8')).click();
+  await tick(page, at('D10')).click();
   expect(await running(page)).toBe(0);
 });
 

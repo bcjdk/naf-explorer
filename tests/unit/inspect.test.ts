@@ -41,7 +41,7 @@ describe('inspect: artifacts (spec §7)', () => {
     });
     const ss = inspect({ t: 'artifact', version: 'ss1' }, at('P15'), 'simple');
     expect(texts(ss, 'Handed to').join(' ')).toContain(SURFACES.portal);
-    const ev = inspect({ t: 'artifact', version: 'ev-viol' }, at('D8'), 'simple');
+    const ev = inspect({ t: 'artifact', version: 'ev-viol' }, at('D10'), 'simple');
     expect(texts(ev, 'Handed to').join(' ')).toContain(SURFACES.faultMgmt);
   });
 

@@ -28,7 +28,7 @@ export type KindId =
   | 'sli'
   | 'evidence'
   | 'serviceState'
-  | 'serviceEvent'
+  | 'event'
   | 'pathHealth';
 
 /** The amended signal vocabulary of brief 02 (ADR 0001). */

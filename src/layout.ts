@@ -52,7 +52,7 @@ export const SLOTS: Partial<Record<KindId, Rect>> = {
   evidence: { x: 8, y: 128, w: 232, h: 114 },
   sli: { x: 8, y: 242, w: 232, h: 107 },
   serviceState: { x: 248, y: 28, w: 232, h: 109 },
-  serviceEvent: { x: 248, y: 137, w: 232, h: 103 },
+  event: { x: 248, y: 137, w: 232, h: 103 },
   pathHealth: { x: 248, y: 240, w: 232, h: 109 },
   // Intent: derivation descends; every card's left edge faces Orchestrator.
   serviceIntent: { x: 8, y: 28, w: 232, h: 114 },
@@ -123,7 +123,7 @@ export const WAYPOINTS: Record<string, [number, number][]> = {
     [700, LANES.topHigh],
   ],
   // Events climb the gutter inside Observability's right edge, then take the top lane to Fault Management.
-  'observability>presentation:serviceEvent@faultMgmt': [
+  'observability>presentation:event@faultMgmt': [
     [494, 350],
     [494, LANES.top],
     [160, LANES.top],

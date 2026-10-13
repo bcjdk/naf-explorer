@@ -115,7 +115,8 @@ export const RESPONSIBILITIES: Record<Party, ResponsibilityInfo> = {
     does: [
       'Coordinates workflows across responsibilities using signals, and waits for each job it starts to be answered.',
       'Turns service requests into intent requests to Intent, and hands Executor apply requests.',
-      'Its remediation workflow evaluates a pre-approved policy, produces the remediation decision, and asks ITSM for the repair that automation cannot do.',
+      'Its remediation workflow evaluates a pre-approved policy and produces the remediation decision.',
+      'Asks ITSM for repairs that automation cannot do.',
     ],
     doesNot: [
       'Configure the network.',
@@ -154,7 +155,7 @@ export const RESPONSIBILITIES: Record<Party, ResponsibilityInfo> = {
     does: [
       'Turns SLO definitions into SLO rules.',
       'Computes SLIs, correlates observations and evaluates SLIs against SLOs.',
-      'Raises and clears service-impact events.',
+      'Raises and clears events: link problems and impact on services.',
     ],
     doesNot: ['Change the network.'],
   },
@@ -195,15 +196,14 @@ export const WORKFLOW_STEPS: Record<string, { label: string; from: string }[]> =
     { label: 'apply', from: 'R6' },
     { label: 'verify config', from: 'R8' },
     { label: 'verify service', from: 'R10' },
-    { label: 'request repair', from: 'R15' },
   ],
 };
 
 /** What each surface is, shown in its inspector. */
 export const SURFACE_ROLES: Record<Surface, string> = {
   faultMgmt:
-    'The NOC’s single pane of glass for faults. Here it shows Observability’s service-impact events as they are raised and cleared, so operators see which services are affected. It displays them; it does not decide what to do.',
-  itsm: 'The IT service management system, where incidents and changes are tracked as tickets. Here it receives Orchestrator’s repair request, so the faulty link’s repair can be ticketed and followed up by people.',
+    'The NOC’s single pane of glass for faults. Here it shows Observability’s events, a link problem and then service impact, as they are raised and cleared, so operators see which services are affected. It displays them; it does not decide what to do.',
+  itsm: 'The IT service management system, where incidents and changes are tracked as tickets. Here it receives Orchestrator’s repair request as soon as the link problem is detected, so the faulty link’s repair can be ticketed and followed up by people.',
   portal:
     'Where customers and operators request services and follow their state. Here ACME’s service request starts from it, and it shows the service state Observability sends.',
   perfMgmt:
@@ -310,7 +310,7 @@ export const KINDS: ArtifactKind[] = [
         'It shows the request in ITSM as a ticket, so people can repair the faulty link. Automation has done what it can.',
     },
     whatItIs:
-      'Orchestrator’s request, at the end of its remediation workflow, to repair the link the service was moved away from.',
+      'Orchestrator’s request, prompted by Observability’s link event, to repair a suspect link. No service needs to be affected for it.',
   },
   {
     id: 'remediationDecision',
@@ -400,15 +400,18 @@ export const KINDS: ArtifactKind[] = [
     whatItIs: 'Whether the service meets its objective, from the SLI and the SLO rule.',
   },
   {
-    id: 'serviceEvent',
-    name: 'Service-impact event',
+    id: 'event',
+    name: 'Event',
     producer: 'observability',
     consumers: ['presentation', 'orchestrator'],
     uses: {
-      presentation: 'It displays the event in Fault Management, where the NOC sees service impact.',
-      orchestrator: 'An event, not raw service state, is what starts its remediation workflow.',
+      presentation:
+        'It displays the event in Fault Management, where the NOC sees link problems and service impact.',
+      orchestrator:
+        'Events, not raw state, are what it acts on: a link event makes it ask for a repair, a service-impact event starts its remediation workflow.',
     },
-    whatItIs: 'A raised or cleared event about impact on a service.',
+    whatItIs:
+      'Something Observability raises or clears: a suspected link problem, or impact on a service.',
   },
   {
     id: 'pathHealth',
@@ -730,6 +733,14 @@ export const VERSIONS: ArtifactVersion[] = [
     ],
   },
   {
+    id: 'ev-link',
+    kind: 'event',
+    label: 'link problem',
+    lineage: ['evid'],
+    meaning: 'Link CPH01–ODE01 is suspected of optical degradation. No service is named.',
+    technical: ['link-degradation CPH01–ODE01', 'suspect optics, not proof'],
+  },
+  {
     id: 'ss2',
     kind: 'serviceState',
     label: '10:46',
@@ -740,7 +751,7 @@ export const VERSIONS: ArtifactVersion[] = [
   },
   {
     id: 'ev-viol',
-    kind: 'serviceEvent',
+    kind: 'event',
     label: 'loss violation',
     status: 'VIOLATED',
     lineage: ['ss2', 'evid'],
@@ -885,7 +896,7 @@ export const VERSIONS: ArtifactVersion[] = [
   },
   {
     id: 'ev-clear',
-    kind: 'serviceEvent',
+    kind: 'event',
     label: 'cleared',
     status: 'CLEARED',
     lineage: ['ev-viol', 'ss3'],
@@ -896,9 +907,9 @@ export const VERSIONS: ArtifactVersion[] = [
     id: 'rr',
     kind: 'repairRequest',
     label: 'CPH01–ODE01',
-    lineage: ['dec', 'ss3'],
-    meaning: 'Fix link CPH01–ODE01; ACME is healthy.',
-    technical: ['link CPH01–ODE01 · ACME HEALTHY'],
+    lineage: ['ev-link'],
+    meaning: 'Fix suspect link CPH01–ODE01.',
+    technical: ['link CPH01–ODE01 · suspect optics'],
   },
 ];
 
@@ -1196,6 +1207,31 @@ export const STEPS: Step[] = [
   {
     id: 'D7',
     chapter: 'detect',
+    title: 'Link event',
+    caption: T(
+      'The evidence points at a backbone link, whatever it carries. Observability raises a link event: CPH01–ODE01 is suspected of optical degradation. It goes to Fault Management and to Orchestrator.',
+      'Event link-degradation CPH01–ODE01 (suspect: ODE01→CPH01 Rx −10.9 dBm, CRC/FCS ≈1,240/min; not proof). No service is named. Observability → Fault Management, Orchestrator.',
+    ),
+    events: [
+      work('observability', 'raiseEvent', 'raise link event'),
+      appear('ev-link'),
+      hand('ev-link', 'observability', 'presentation', 'faultMgmt'),
+      hand('ev-link', 'observability', 'orchestrator'),
+    ],
+  },
+  {
+    id: 'D8',
+    chapter: 'detect',
+    title: 'Ticket',
+    caption: T(
+      'Orchestrator asks ITSM for the link’s repair, so people can fix the fibre. Automation can route around a faulty link, but only people can repair it.',
+      'Orchestrator → ITSM: repair request CPH01–ODE01 (from link-degradation). It needs no answer: the repair happens outside automation.',
+    ),
+    events: [appear('rr'), hand('rr', 'orchestrator', 'presentation', 'itsm')],
+  },
+  {
+    id: 'D9',
+    chapter: 'detect',
     title: 'Evaluate',
     caption: T(
       'Observability evaluates the SLI against the SLO rule. 0.4% breaches the objective, so ACME’s service is degraded, even though the interface is UP and routing is established. The Portal now shows it.',
@@ -1208,7 +1244,7 @@ export const STEPS: Step[] = [
     ],
   },
   {
-    id: 'D8',
+    id: 'D10',
     chapter: 'detect',
     title: 'Raise event',
     caption: T(
@@ -1414,8 +1450,8 @@ export const STEPS: Step[] = [
     chapter: 'remediate',
     title: 'Report and clear',
     caption: T(
-      'Observability sends the healthy state to the Portal and to Orchestrator, whose workflow has been waiting for it, and clears the service-impact event in Fault Management.',
-      'Observability → Portal, Orchestrator: service state HEALTHY; the workflow’s wait-for-HEALTHY subscription is satisfied. Observability → Fault Management: acme-loss-violation CLEARED.',
+      'Observability sends the healthy state to the Portal and to Orchestrator, whose workflow has been waiting for it, and clears the service-impact event in Fault Management. Orchestrator completes the remediation workflow.',
+      'Observability → Portal, Orchestrator: service state HEALTHY; the workflow’s wait-for-HEALTHY subscription is satisfied. Observability → Fault Management: acme-loss-violation CLEARED. remediation/acme-loss-violation = COMPLETED.',
     ),
     events: [
       hand('ss3', 'observability', 'presentation', 'portal'),
@@ -1423,6 +1459,8 @@ export const STEPS: Step[] = [
       work('observability', 'clearEvent', 'clear event'),
       appear('ev-clear'),
       hand('ev-clear', 'observability', 'presentation', 'faultMgmt'),
+      work('orchestrator', 'completeWorkflow', 'complete workflow'),
+      mark('wf-rem', 'COMPLETED'),
     ],
   },
   {
@@ -1430,15 +1468,10 @@ export const STEPS: Step[] = [
     chapter: 'remediate',
     title: 'Closing',
     caption: T(
-      'The fibre is still faulty, so Orchestrator asks ITSM for the link’s repair and completes the remediation workflow. The service is healthy while the link is degraded: device state is not service state, in both directions. Here the policy was pre-approved, so the loop closed automatically; another deployment could pause for operator approval.',
-      'Orchestrator → ITSM: repair request CPH01–ODE01 (suspect in acme-loss-violation); ACME-L3VPN-001 auto-remediated, HEALTHY. remediation/acme-loss-violation = COMPLETED. Closed-loop remediation is one pattern; an approval gate is another.',
+      'The fibre is still faulty, and its repair ticket from Detect is still open in ITSM. The service is healthy while the link is degraded: device state is not service state, in both directions. Here the policy was pre-approved, so the loop closed automatically; another deployment could pause for operator approval.',
+      'Link CPH01–ODE01 still degraded (ODE01→CPH01 Rx −10.9 dBm); repair request CPH01–ODE01 open in ITSM. ACME-L3VPN-001 HEALTHY on path B. Closed-loop remediation is one pattern; an approval gate is another.',
     ),
-    events: [
-      appear('rr'),
-      hand('rr', 'orchestrator', 'presentation', 'itsm'),
-      work('orchestrator', 'completeWorkflow', 'complete workflow'),
-      mark('wf-rem', 'COMPLETED'),
-    ],
+    events: [],
   },
 ];
 
