@@ -172,8 +172,8 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 | R11 | Enrich | Collector: Enriched observations (after reroute) | Collector: enrich · Collector → Observability: Enriched observations (after reroute) |
 | R12 | Compute SLI | Observability: SLI (0.00%) | Observability: compute SLI |
 | R13 | Evaluate | Observability: Service state (10:49) | Observability: evaluate SLI against SLO |
-| R14 | Report and clear | Observability: Service-impact event (cleared) | Observability → Portal: Service state (10:49) · Observability → Orchestrator: Service state (10:49) · Observability: clear event · Observability → Fault Management: Service-impact event (cleared) · Orchestrator: complete workflow · Workflow record (remediation) completed |
-| R15 | Closing | Observability: Service-impact event (repair needed) | Observability: raise repair event · Observability → ITSM: Service-impact event (repair needed) |
+| R14 | Report and clear | Observability: Service-impact event (cleared) | Observability → Portal: Service state (10:49) · Observability → Orchestrator: Service state (10:49) · Observability: clear event · Observability → Fault Management: Service-impact event (cleared) |
+| R15 | Closing | Orchestrator: Repair request | Orchestrator → ITSM: Repair request · Orchestrator: complete workflow · Workflow record (remediation) completed |
 
 **Key lineage:**
 - service state ← SLI + SLO rule;
@@ -185,7 +185,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 - config change vN ← desired state vN;
 - observed vN ← read-back;
 - cleared event ← violation event + HEALTHY service state;
-- repair event ← evidence + enriched (after reroute).
+- repair request ← decision + HEALTHY service state (ADR 0004).
 
 **Fault Management during R12:** it still shows ✕ VIOLATED, because HEALTHY hasn't reached Presentation yet. From R13 on, no surface shows VIOLATED (`07`).
 
@@ -385,3 +385,4 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
 - **rev 9 (plan 3):** motion as a WAAPI overlay over the end state, from `timeline(n)`, replacing rev 3a's interim CSS line animation and the card fade. Replay sits right of About. See §8 "As built".
 - **rev 10 (plan 4):** the inspector, from `inspect(target, n, view)`; cards and surfaces are buttons; the selection ring is a dashed outline; hover states and a first-run hint make inspectables discoverable. See §7 "As built". The visual design (§10) and the inspector's presentation are extended by `docs/specs/2026-10-12-design-uplift.md` (plan 5).
 - **rev 11 (plan 5):** design uplift: Source Sans 3 and Source Code Pro; NAF colour on documents, handoff and work lines, and the inspector (ADR 0003); caption bar 100px and row gaps 24px; Start over on the last beat; line legend. See `docs/specs/2026-10-12-design-uplift.md` "As built".
+- **rev 12 (plan 6a):** Orchestrator's repair request to ITSM replaces Observability's repair-needed event (ADR 0004); The Network is active on the fault beat. See `docs/plans/2026-10-13-plan-6a-story-fixes.md`.

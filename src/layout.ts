@@ -64,6 +64,7 @@ export const SLOTS: Partial<Record<KindId, Rect>> = {
   intentRequest: { x: 8, y: 168, w: 280, h: 86 },
   remediationDecision: { x: 8, y: 258, w: 280, h: 102 },
   applyRequest: { x: 8, y: 364, w: 280, h: 96 },
+  repairRequest: { x: 8, y: 464, w: 280, h: 66 },
   // Collector: the telemetry pipeline, then the read-back facing Orchestrator's lane.
   normalized: { x: 8, y: 28, w: 152, h: 137 },
   enriched: { x: 164, y: 28, w: 168, h: 137 },
@@ -127,9 +128,10 @@ export const WAYPOINTS: Record<string, [number, number][]> = {
     [494, LANES.top],
     [160, LANES.top],
   ],
-  'observability>presentation:serviceEvent@itsm': [
-    [494, 350],
-    [494, LANES.top],
+  // The repair request leaves Orchestrator into the left lane and climbs it to the top lane and ITSM.
+  'orchestrator>presentation:repairRequest@itsm': [
+    [LANES.left, 663],
+    [LANES.left, LANES.top],
     [440, LANES.top],
   ],
   // The service request enters Orchestrator right of its header.

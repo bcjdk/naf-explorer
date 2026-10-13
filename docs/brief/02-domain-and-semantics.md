@@ -10,7 +10,7 @@ The NAF framework names six responsibilities. In this demo they are **roles**, n
 |---|---|---|
 | **Presentation** | Lets people and other systems request services and see their state, through surfaces such as a portal, fault management (the NOC's single pane of glass), ITSM (tickets), performance dashboards and APIs. | Decide or act on its own. |
 | **Intent** | Records service intent, derives network intent and desired state, and checks drift between observed and desired state. In this scenario it is the source of truth for intended state. | Apply changes to devices. |
-| **Orchestrator** | Coordinates workflows across responsibilities using signals. In this scenario it relays requests to Intent, and its remediation workflow evaluates a pre-approved policy and produces the remediation decision. | Configure the network; own service intent, derived network intent or desired state. |
+| **Orchestrator** | Coordinates workflows across responsibilities using signals. In this scenario it relays requests to Intent, and its remediation workflow evaluates a pre-approved policy, produces the remediation decision, and asks ITSM for the link's repair. | Configure the network; own service intent, derived network intent or desired state. |
 | **Executor** | Renders and applies configuration changes. In this scenario it takes desired state from Intent, which is one common pattern, not a NAF requirement. | Decide what the network should be; verify the outcome. |
 | **Collector** | Gathers and normalizes live network state, tags it with service IDs from a locally cached copy of intent, and reads back applied state for drift checks. | Interpret service impact. |
 | **Observability** | Turns SLO definitions into SLO rules, computes SLIs, correlates observations and evaluates SLIs against SLOs to understand service state, and raises and clears events. | Change the network. |
@@ -30,7 +30,7 @@ The rules:
 - **Orchestrator stays in control of every job it starts.** Each signal that asks a responsibility to do work is answered to Orchestrator when that work is done (*desired state ready*, *assurance onboarded*, *applied*, *read back done*, *in sync*, or the requested artifact), and Orchestrator sends the next job only after that answer. Orchestrator coordinates work **between** responsibilities, not the steps **inside** one: Intent's record → derive network intent → derive desired state runs as one job, answered by *desired state ready*.
 - Orchestrator never learns intended state by reading it. Anything its workflow needs to decide (the implicated link, the current path, whether a healthy alternate exists) reaches it in Observability's artifacts, and its decisions name only what to change (for example "exclude CPH01–ODE01"), never the resulting path: Intent selects that.
 - A running workflow that waits for an outcome subscribes to it (for example "wait for service state HEALTHY") and closes the subscription when it completes. Outside a workflow, Orchestrator reacts to **events**, not to raw service state.
-- Orchestrator hands over only its **own** artifacts: an *intent request* (relaying a service request to Intent), a *remediation decision* (an intent change request) and an *apply request* (a work order naming a desired-state version, ADR 0002).
+- Orchestrator hands over only its **own** artifacts: an *intent request* (relaying a service request to Intent), a *remediation decision* (an intent change request) an *apply request* (a work order naming a desired-state version, ADR 0002) and a *repair request* (asking ITSM for the physical repair automation cannot do, ADR 0004).
 - Every artifact handoff names exactly one artifact version, and must go from that artifact's producer to one of its declared consumers.
 - An artifact version is transferred across a given boundary at most once. Re-using it later is "in use", not a new transfer.
 
@@ -59,4 +59,4 @@ When a service is provisioned and its desired state is ready, Orchestrator's wor
 
 - Observability **raises** a service-impact event when the SLO is breached, and sends it to fault management and to Orchestrator.
 - When the service is healthy again, Observability **clears** that event in fault management. A surface must never keep showing an open violation after recovery.
-- The remaining physical fault is reported separately to ITSM as repair work.
+- The remaining physical fault is reported separately to ITSM as repair work, by Orchestrator's remediation workflow (ADR 0004).

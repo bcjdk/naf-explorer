@@ -5,9 +5,9 @@ const consumersOf = (p: string) => KINDS.filter((k) => k.consumers.includes(p as
 const producedBy = (p: string) => KINDS.filter((k) => k.producer === p);
 
 describe('artifact catalog (brief 02, 03; checklist 07)', () => {
-  it('has the 20 artifact kinds of brief 03 (ADR 0002), each once', () => {
-    expect(KINDS).toHaveLength(20);
-    expect(new Set(KINDS.map((k) => k.id)).size).toBe(20);
+  it('has the 21 artifact kinds of brief 03 (ADR 0004), each once', () => {
+    expect(KINDS).toHaveLength(21);
+    expect(new Set(KINDS.map((k) => k.id)).size).toBe(21);
   });
 
   it('has no artifact between Orchestrator and The Network', () => {
@@ -67,8 +67,11 @@ describe('artifact catalog (brief 02, 03; checklist 07)', () => {
     expect(kind('serviceRequest').producerSurface).toBe('portal');
   });
 
-  it('has every Orchestrator request declare what answers it', () => {
-    for (const k of producedBy('orchestrator').filter((k) => k.consumers.length > 0)) {
+  it('has every Orchestrator request to a responsibility declare what answers it', () => {
+    // Presentation never acts, so a request handed to it (the repair request) needs no answer (ADR 0004).
+    for (const k of producedBy('orchestrator').filter(
+      (k) => k.consumers.filter((c) => c !== 'presentation').length > 0,
+    )) {
       expect(k.answeredBy, k.id).toBeDefined();
     }
   });
@@ -114,5 +117,13 @@ describe('artifact catalog: inspector', () => {
   it('every consumer of every artifact kind has a reason to use it (inspector handoff view)', () => {
     for (const k of KINDS)
       for (const c of k.consumers) expect(k.uses?.[c], `${k.id} → ${c}`).toMatch(/\S/);
+  });
+});
+
+describe('shown text', () => {
+  it('names no internal documents: no ADRs, spec sections or plans', async () => {
+    const scenario = await import('../../src/scenario/scenario.ts');
+    const shown = JSON.stringify(Object.values(scenario).filter((x) => typeof x !== 'function'));
+    expect(shown).not.toMatch(/\bADR\b|spec §|\bplan \d/i);
   });
 });
