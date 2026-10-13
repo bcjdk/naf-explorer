@@ -195,6 +195,13 @@ describe('inspect: surfaces', () => {
         texts(inspect({ t: 'surface', surface: s }, at('P15'), 'simple'), 'What it is'),
       ).toEqual([SURFACE_ROLES[s]]);
   });
+  it('says, per surface, whether NAF would usually count it as Presentation', () => {
+    const naf = (s: keyof typeof SURFACES) =>
+      texts(inspect({ t: 'surface', surface: s }, at('P1'), 'simple'), 'In NAF terms')[0];
+    expect(naf('itsm')).toMatch(/^Generally not considered part of the Presentation layer/);
+    for (const s of ['faultMgmt', 'perfMgmt'] as const) expect(naf(s)).toMatch(/^May or may not/);
+    for (const s of ['portal', 'api'] as const) expect(naf(s)).toMatch(/^Generally considered/);
+  });
   it('shows the latest received artifact and its sender, and the Portal its own request', () => {
     const i = inspect({ t: 'surface', surface: 'portal' }, at('P15'), 'simple');
     expect(section(i, 'Showing')[0]?.target).toEqual({ t: 'artifact', version: 'ss1' });

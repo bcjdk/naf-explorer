@@ -21,17 +21,19 @@ An interactive explainer of network automation as separate responsibilities conn
 Network engineers, architects and senior technical leadership who know networking and want a clear mental model of how automation systems divide the work.
 
 **Why**
-Automation is easier to reason about as roles and handoffs than as a list of tools — and "the interface is UP" is not the same as "the service is healthy".
+Automation is easier to reason about as roles and handoffs than as a list of tools. And "the interface is UP" is not the same as "the service is healthy".
 
-> This is an example of how good network automation can look when the NAF framework is used as the reference — not a prescription for how network automation should look.
+> This is an example of how good network automation can look when the NAF framework is used as the reference. It is not a prescription for how network automation should look. For one story on one canvas, Presentation also holds ITSM, usually its own platform, and Fault and Performance Management, which may or may not count. Each surface's inspector says which.
+
+The second half of the quote (added 2026-10-13 by the owner) owns up to the liberties the canvas takes with NAF's Presentation layer. Each surface's inspector has an "In NAF terms" line: ITSM is generally not Presentation; Fault Management and Performance Management may or may not be; Portal and API generally are.
 
 **How to use it**
 → / ← to step through · **Simple** / **Technical** for depth · click anything to inspect it.
 
 **References**
 
-- [NAF Automation Framework](https://reference.networkautomation.forum/Framework/Framework/) — the Network Automation Forum reference architecture this story is built on.
-- With warm thanks to my good friend Thomas Kjær Aabo, whose [How the Internet Works](https://tkjaer.github.io/how-the-internet-works/) ([source](https://github.com/tkjaer/how-the-internet-works)) directly inspired this project — its explorable, step-by-step picture of a complex system and its switch between simple and technical explanations shaped the approach here.
+- [NAF Automation Framework](https://reference.networkautomation.forum/Framework/Framework/). The Network Automation Forum reference architecture this story is built on.
+- With warm thanks to my good friend Thomas Kjær Aabo, whose [How the Internet Works](https://tkjaer.github.io/how-the-internet-works/) ([source](https://github.com/tkjaer/how-the-internet-works)) directly inspired this project. Its explorable, step-by-step picture of a complex system and its switch between simple and technical explanations shaped the approach here.
 
 ## Credit notes
 

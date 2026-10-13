@@ -30,11 +30,14 @@ export const ABOUT = {
     },
     {
       heading: 'Why',
-      text: 'Automation is easier to reason about as roles and handoffs than as a list of tools — and “the interface is UP” is not the same as “the service is healthy”.',
+      text: 'Automation is easier to reason about as roles and handoffs than as a list of tools. And “the interface is UP” is not the same as “the service is healthy”.',
     },
   ],
   framing:
-    'This is an example of how good network automation can look when the NAF framework is used as the reference — not a prescription for how network automation should look.',
+    'This is an example of how good network automation can look when the NAF framework is used as the reference. It is not a prescription for how network automation should look.',
+  /** Where the canvas takes liberties with NAF's Presentation layer, said once here and per surface in the inspector. */
+  liberties:
+    'For one story on one canvas, Presentation also holds ITSM, usually its own platform, and Fault and Performance Management, which may or may not count. Each surface’s inspector says which.',
   howTo: [
     { keys: ['→', '←'], text: 'step through the story' },
     { keys: ['Simple', 'Technical'], text: 'choose the depth' },
@@ -46,7 +49,7 @@ export const ABOUT = {
   naf: {
     label: 'Network Automation Forum Automation Framework',
     href: 'https://reference.networkautomation.forum/Framework/Framework/',
-    after: ' — the Network Automation Forum reference architecture this story is built on.',
+    after: 'The Network Automation Forum reference architecture this story is built on.',
   },
   credit: {
     before: 'With warm thanks to my good friend Thomas Kjær Aabo, whose ',
@@ -54,7 +57,7 @@ export const ABOUT = {
     href: 'https://tkjaer.github.io/how-the-internet-works/',
     source: 'https://github.com/tkjaer/how-the-internet-works',
     after:
-      ' directly inspired this project — its explorable, step-by-step picture of a complex system and its switch between simple and technical explanations shaped the approach here.',
+      ' directly inspired this project. Its explorable, step-by-step picture of a complex system and its switch between simple and technical explanations shaped the approach here.',
   },
 };
 
@@ -198,6 +201,17 @@ export const WORKFLOW_STEPS: Record<string, { label: string; from: string }[]> =
     { label: 'verify config', from: 'R8' },
     { label: 'verify service', from: 'R10' },
   ],
+};
+
+/** Whether NAF would usually count each surface as Presentation: the canvas takes liberties (see ABOUT.liberties). */
+export const SURFACE_NAF: Record<Surface, string> = {
+  faultMgmt:
+    'May or may not be considered part of the Presentation layer, depending on the implementation. It is often its own NOC platform.',
+  itsm: 'Generally not considered part of the Presentation layer. An ITSM system is usually its own platform that automation integrates with. It sits here so the whole story fits on one canvas.',
+  portal: 'Generally considered part of the Presentation layer.',
+  perfMgmt:
+    'May or may not be considered part of the Presentation layer, depending on the implementation.',
+  api: 'Generally considered part of the Presentation layer.',
 };
 
 /** What each surface is, shown in its inspector. */

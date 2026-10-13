@@ -4,6 +4,7 @@ import {
   STEPS,
   SURFACES,
   SURFACE_ROLES,
+  SURFACE_NAF,
   VERSIONS,
   kind,
   producerOf,
@@ -247,6 +248,7 @@ export function inspect(target: Target, n: number, view: View): Inspection {
         by: 'presentation',
         sections: [
           ...sec('What it is', [text(SURFACE_ROLES[s])], 'text'),
+          ...sec('In NAF terms', [text(SURFACE_NAF[s])], 'text'),
           ...sec(
             'Showing',
             [shown ? link(shown) : text('Nothing received yet.')],

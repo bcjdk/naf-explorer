@@ -26,7 +26,7 @@
       {/each}
     </div>
 
-    <blockquote>{ABOUT.framing}</blockquote>
+    <blockquote>{ABOUT.framing} {ABOUT.liberties}</blockquote>
 
     <h3>How to use it</h3>
     <ul class="about-keys">
@@ -42,7 +42,7 @@
     <ul class="about-refs">
       <li>
         <a href={ABOUT.naf.href} target="_blank" rel="noopener">{ABOUT.naf.label}</a>
-        <span>{ABOUT.naf.after.replace(/^ — /, '')}</span>
+        <span>{ABOUT.naf.after}</span>
       </li>
       <li>
         <span

@@ -7,6 +7,8 @@ test('About opens on load with focus on ✕, and again after a refresh', async (
   await expect(about).toBeVisible();
   await expect(page.getByRole('button', { name: 'Close About' })).toBeFocused();
   await expect(about).toContainText('not a prescription for how network automation should look');
+  // The canvas's liberties with the Presentation layer are said up front.
+  await expect(about).toContainText('ITSM, usually its own platform');
   await page.keyboard.press('Escape');
   await expect(about).toBeHidden();
   await page.reload();
