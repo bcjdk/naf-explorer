@@ -83,7 +83,7 @@ test('the keyboard walks the whole story forward and back, showing each beat’s
 });
 
 test('jumps in any order show the target beat’s end state', async ({ page }) => {
-  for (const id of ['D8', 'P2', 'R14', 'P8', 'P1', 'R6', 'D1', 'R13', 'P14']) {
+  for (const id of ['D10', 'P2', 'R14', 'P8', 'P1', 'R6', 'D1', 'R13', 'P14']) {
     await tick(page, stepIndex(id)).click();
     await expectEndState(page, stepIndex(id));
   }
@@ -92,8 +92,8 @@ test('jumps in any order show the target beat’s end state', async ({ page }) =
 });
 
 test('a step tick jumps to that beat and shows its end state', async ({ page }) => {
-  await page.getByRole('button', { name: 'Go to D8: Raise event' }).click();
-  await expect(counter(page)).toHaveText('23 / 38');
+  await page.getByRole('button', { name: 'Go to D10: Raise event' }).click();
+  await expect(counter(page)).toHaveText('25 / 40');
   await expect(page.locator('[data-surface="faultMgmt"]')).toContainText('✕ VIOLATED');
   await expect(page.locator('[data-version="ev-viol"]')).toBeVisible();
 });
@@ -133,7 +133,7 @@ test('the view switch changes text only, keeps the step and is remembered', asyn
   await expect(caption).toContainText('Through the Portal');
   await page.getByRole('button', { name: 'Technical' }).click();
   await expect(caption).toContainText('ACME-L3VPN-001');
-  await expect(counter(page)).toHaveText('2 / 38');
+  await expect(counter(page)).toHaveText('2 / 40');
   await expect(page.getByText('Values illustrative')).toBeVisible();
   await page.reload();
   await expect(page.getByRole('button', { name: 'Technical' })).toHaveAttribute(
@@ -145,7 +145,7 @@ test('the view switch changes text only, keeps the step and is remembered', asyn
 test('switching views keeps every card, surface, network fact, line and focus', async ({
   page,
 }) => {
-  const d8 = stepIndex('D8');
+  const d8 = stepIndex('D10');
   await tick(page, d8).click();
   const technical = page.getByRole('button', { name: 'Technical' });
   await technical.focus();
@@ -164,7 +164,7 @@ test('switching views keeps every card, surface, network fact, line and focus', 
 });
 
 test('Portal shows what it received and keeps its own request', async ({ page }) => {
-  await page.getByRole('button', { name: 'Go to D7: Evaluate' }).click();
+  await page.getByRole('button', { name: 'Go to D9: Evaluate' }).click();
   const portal = page.locator('[data-surface="portal"]');
   await expect(portal).toContainText('▲ DEGRADED');
   await expect(portal.locator('[data-version="sr"]')).toContainText('Service request');
@@ -230,6 +230,21 @@ test('nothing overflows, cards stay in their region without overlapping, and lab
           range.selectNodeContents(h);
           return { name: h.textContent!.trim().slice(0, 24), rect: range.getBoundingClientRect() };
         });
+        // A new card's type text never runs under its floated "by" (3px allowed for line-box metrics).
+        for (const c of document.querySelectorAll('.card.new')) {
+          const by = box(c.querySelector('.by')!);
+          if (!by.width) continue;
+          const r = document.createRange();
+          r.selectNodeContents(c.querySelector('.type')!);
+          for (const l of r.getClientRects())
+            if (
+              l.left < by.right &&
+              by.left < l.right &&
+              l.top < by.bottom - 3 &&
+              by.top < l.bottom
+            )
+              out.push(`${(c as HTMLElement).dataset.version} type runs under "by"`);
+        }
         labels.forEach((l, i) => {
           for (const m of labels.slice(i + 1))
             if (hit(box(l), box(m)))
@@ -305,7 +320,7 @@ test('arrow keys still step the story while a header control has focus', async (
   const technical = page.getByRole('button', { name: 'Technical' });
   await technical.focus();
   await page.keyboard.press('ArrowRight');
-  await expect(counter(page)).toHaveText('2 / 38');
+  await expect(counter(page)).toHaveText('2 / 40');
   await expect(technical).toHaveAttribute('aria-pressed', 'false');
   await expect(technical).toBeFocused();
 });
@@ -314,7 +329,7 @@ test('stepping while a line label has focus keeps focus on the story', async ({ 
   await page.getByRole('button', { name: 'Go to P8: Apply' }).click();
   await page.locator('.label').first().focus();
   await page.keyboard.press('ArrowRight');
-  await expect(counter(page)).toHaveText('9 / 38');
+  await expect(counter(page)).toHaveText('9 / 40');
   const focused = await page.evaluate(
     () =>
       document.activeElement?.classList.contains('label') ||
@@ -327,7 +342,7 @@ test('stepping while a line label has focus keeps focus on the story', async ({ 
 test('modified arrows do not step the story', async ({ page }) => {
   for (const key of ['Alt+ArrowRight', 'Shift+ArrowRight', 'Control+ArrowRight']) {
     await page.keyboard.press(key);
-    await expect(counter(page)).toHaveText('1 / 38');
+    await expect(counter(page)).toHaveText('1 / 40');
   }
 });
 
@@ -338,7 +353,7 @@ test('Back on the first beat stays put; on the last beat Next becomes Start over
   const back = page.getByRole('button', { name: 'Back', exact: true });
   await back.focus();
   await page.keyboard.press('Enter');
-  await expect(counter(page)).toHaveText('1 / 38');
+  await expect(counter(page)).toHaveText('1 / 40');
   await expect(back).toBeFocused();
 
   await page.getByRole('button', { name: 'Go to R14: Report and clear' }).click();
@@ -347,7 +362,7 @@ test('Back on the first beat stays put; on the last beat Next becomes Start over
   const restart = page.getByRole('button', { name: 'Start over' });
   await restart.focus();
   await page.keyboard.press('Enter');
-  await expect(counter(page)).toHaveText('1 / 38');
+  await expect(counter(page)).toHaveText('1 / 40');
   const next = page.getByRole('button', { name: 'Next', exact: true });
   await expect(next).toBeFocused();
   expect(
@@ -406,7 +421,7 @@ for (const [name, block] of Object.entries(blockers)) {
       'true',
     );
     await page.keyboard.press('ArrowRight');
-    await expect(counter(page)).toHaveText('2 / 38');
+    await expect(counter(page)).toHaveText('2 / 40');
     expect(errors).toEqual([]);
   });
 }

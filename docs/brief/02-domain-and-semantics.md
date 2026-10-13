@@ -10,7 +10,7 @@ The NAF framework names six responsibilities. In this demo they are **roles**, n
 |---|---|---|
 | **Presentation** | Lets people and other systems request services and see their state, through surfaces such as a portal, fault management (the NOC's single pane of glass), ITSM (tickets), performance dashboards and APIs. | Decide or act on its own. |
 | **Intent** | Records service intent, derives network intent and desired state, and checks drift between observed and desired state. In this scenario it is the source of truth for intended state. | Apply changes to devices. |
-| **Orchestrator** | Coordinates workflows across responsibilities using signals. In this scenario it relays requests to Intent, and its remediation workflow evaluates a pre-approved policy, produces the remediation decision, and asks ITSM for the link's repair. | Configure the network; own service intent, derived network intent or desired state. |
+| **Orchestrator** | Coordinates workflows across responsibilities using signals. In this scenario it relays requests to Intent, and its remediation workflow evaluates a pre-approved policy and produces the remediation decision; on a link event it asks ITSM for the link's repair. | Configure the network; own service intent, derived network intent or desired state. |
 | **Executor** | Renders and applies configuration changes. In this scenario it takes desired state from Intent, which is one common pattern, not a NAF requirement. | Decide what the network should be; verify the outcome. |
 | **Collector** | Gathers and normalizes live network state, tags it with service IDs from a locally cached copy of intent, and reads back applied state for drift checks. | Interpret service impact. |
 | **Observability** | Turns SLO definitions into SLO rules, computes SLIs, correlates observations and evaluates SLIs against SLOs to understand service state, and raises and clears events. | Change the network. |
@@ -42,7 +42,7 @@ The rules:
   - correlate signals (a strong clue, not proof of root cause);
   - evaluate the SLI against the SLO rule;
   - set the service state;
-  - raise or clear service-impact events.
+  - raise link events and raise or clear service-impact events.
 
 ## Two kinds of verification
 
@@ -57,6 +57,6 @@ When a service is provisioned and its desired state is ready, Orchestrator's wor
 
 ## Alarm lifecycle
 
-- Observability **raises** a service-impact event when the SLO is breached, and sends it to fault management and to Orchestrator.
+- Observability **raises** a link event when correlation points at a suspect link (no service named), and a service-impact event when the SLO is breached. It sends both to fault management and to Orchestrator.
 - When the service is healthy again, Observability **clears** that event in fault management. A surface must never keep showing an open violation after recovery.
-- The remaining physical fault is reported separately to ITSM as repair work, by Orchestrator's remediation workflow (ADR 0004).
+- The physical fault is reported to ITSM as repair work as soon as it is detected: Orchestrator turns Observability's link event into a repair request (ADR 0004). It is separate from any service's remediation.

@@ -32,10 +32,10 @@ const textOf = (id: string) => {
 };
 
 describe('story shape', () => {
-  it('has the 38 beats of spec §5 in order', () => {
+  it('has the 40 beats of spec §5 in order', () => {
     const ids = [
       ...Array.from({ length: 15 }, (_, i) => `P${i + 1}`),
-      ...Array.from({ length: 8 }, (_, i) => `D${i + 1}`),
+      ...Array.from({ length: 10 }, (_, i) => `D${i + 1}`),
       ...Array.from({ length: 15 }, (_, i) => `R${i + 1}`),
     ];
     expect(STEPS.map((s) => s.id)).toEqual(ids);
@@ -123,8 +123,8 @@ describe('lineage (spec §5 key lineage)', () => {
     evidence: ['sli', 'enriched'],
     serviceState: ['sli', 'sloRule'],
     pathHealth: ['enriched'],
-    remediationDecision: ['serviceEvent', 'pathHealth'],
-    repairRequest: ['remediationDecision', 'serviceState'],
+    remediationDecision: ['event', 'pathHealth'],
+    repairRequest: ['event'],
   };
 
   it('derives every version from the inputs its kind requires', () => {
@@ -157,7 +157,8 @@ describe('lineage (spec §5 key lineage)', () => {
       expect(version(id).lineage, id).toEqual(expect.arrayContaining(parents));
     has('ev-viol', ['ss2', 'evid']);
     has('ev-clear', ['ev-viol', 'ss3']);
-    has('rr', ['dec', 'ss3']);
+    has('ev-link', ['evid']);
+    expect(version('rr').lineage).toEqual(['ev-link']);
     has('dec', ['ev-viol', 'pathB']);
     has('ni2', ['dec', 'si']);
     has('wf-prov', ['sr']);
@@ -234,6 +235,7 @@ describe('handoffs and signals (brief 02; checklist 07)', () => {
     expect(route('sr')).toEqual(['portal']);
     expect(route('ev-viol')).toEqual(['faultMgmt']);
     expect(route('ev-clear')).toEqual(['faultMgmt']);
+    expect(route('ev-link')).toEqual(['faultMgmt']);
     expect(route('rr')).toEqual(['itsm']);
     for (const v of ['ss1', 'ss2', 'ss3']) expect(route(v)).toEqual(['portal']);
   });
@@ -490,6 +492,7 @@ describe('status semantics (checklist 07)', () => {
       (v) =>
         v.kind === 'evidence' ||
         v.kind === 'repairRequest' ||
+        v.id === 'ev-link' ||
         ['collector', 'network'].includes(producerOf(v.id)),
     );
     expect(none.length).toBeGreaterThan(0);
@@ -528,5 +531,19 @@ describe('evaluation (checklist 07)', () => {
         STEPS[n]!.id,
       ).not.toContain('VIOLATED');
     }
+  });
+});
+
+describe('the link repair (ADR 0004, plan 6b)', () => {
+  it('asks ITSM for the repair in Detect, from the link event, before any service is judged', () => {
+    const link = appearAt('ev-link');
+    const ticket = appearAt('rr');
+    expect(STEPS[ticket.si]!.chapter).toBe('detect');
+    expect(before(link, ticket)).toBe(true);
+    expect(before(ticket, appearAt('ss2'))).toBe(true);
+    expect(before(ticket, appearAt('ev-viol'))).toBe(true);
+    // The link event names no service; the ticket names only what Orchestrator was told.
+    expect(textOf('ev-link')).not.toMatch(/ACME|path [AB]/);
+    expect(textOf('rr')).not.toMatch(/ACME|path [AB]|HEALTHY|DEGRADED/);
   });
 });

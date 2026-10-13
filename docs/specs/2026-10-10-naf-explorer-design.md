@@ -15,7 +15,7 @@ A desktop-first, self-guided explainer. A reader who knows networking steps thro
 
 ## 2. User experience
 
-- The reader steps through **38 beats** (Provision 15, Detect 8, Remediate 15; ADR 0002) with → / ← or Next / Back.
+- The reader steps through **40 beats** (Provision 15, Detect 10, Remediate 15; ADR 0002, ADR 0004) with → / ← or Next / Back.
 - The header shows the three chapter names with a tick per beat. Clicking a chapter name or tick jumps to that beat and shows its end state. **Replay** animates the current beat.
 - **Simple | Technical** changes text only.
 - Clicking any card, surface, region title or current line label, or pressing Enter on it, opens the **inspector**.
@@ -36,7 +36,7 @@ The stage is fixed at 1440×952 (rev 7; about 1440×900) and scaled uniformly to
 | Caption bar | 860–944 | Full width. Chapter · n/N · step title · 2–3 caption lines · Back / Next on the right; Technical adds the scope note under them |
 
 - **The read path is on the left and the write path on the right.** Altitude comes from the chains inside each region: Intent's derivation descends and Observability's understanding rises.
-- **Observability** has two columns: the column facing Orchestrator holds what it exchanges with Orchestrator (service state, service-impact event, path B health); the other holds the SLO rule, evidence and the SLI. **Intent's** cards all face Orchestrator. **Orchestrator** shows the workflow record, with its steps, the current step and what it is waiting for, and then its own requests in the order they are made.
+- **Observability** has two columns: the column facing Orchestrator holds what it exchanges with Orchestrator (service state, events, path B health); the other holds the SLO rule, evidence and the SLI. **Intent's** cards all face Orchestrator. **Orchestrator** shows the workflow record, with its steps, the current step and what it is waiting for, and then its own requests in the order they are made.
 - **Each region** shows its name and a one-line role subtitle when idle. When active, the subtitle is replaced by the current work label (for example "● normalize").
 - **The Network** is drawn as a stretched diamond: CPH01 at the left point, AAR01 at the right point, ODE01 at the top and KOL01 at the bottom. Path A runs over the top and path B along the bottom.
   - ACME's current path is the thick line.
@@ -116,7 +116,7 @@ interface Step { id: string; chapter: 'provision' | 'detect' | 'remediate'; titl
 
 `src/layout.ts` maps regions, surfaces, artifact kinds and versions to rectangles, and line routes to anchors and waypoints. The semantic tests never import it, and the layout tests never assert semantics.
 
-## 5. Step breakdown (38 beats)
+## 5. Step breakdown (40 beats)
 
 "New" lists each party's new artifact (at most one per party). Exchanges are in causal order: ⇢ is a signal, → is a handoff. *mark* changes an existing version.
 
@@ -152,8 +152,10 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 | D4 | Enrich | Collector: Enriched observations (degraded) | Collector: enrich · Collector → Observability: Enriched observations (degraded) |
 | D5 | Compute SLI | Observability: SLI (0.4%) | Observability: compute SLI |
 | D6 | Correlate | Observability: Correlated evidence (path A, 10:46) | Observability: correlate |
-| D7 | Evaluate | Observability: Service state (10:46) | Observability: evaluate SLI against SLO · Observability → Portal: Service state (10:46) |
-| D8 | Raise event | Observability: Service-impact event (loss violation) | Observability: raise event · Observability → Fault Management: Service-impact event (loss violation) · Observability → Orchestrator: Service-impact event (loss violation) |
+| D7 | Link event | Observability: Event (link problem) | Observability: raise link event · Observability → Fault Management: Event (link problem) · Observability → Orchestrator: Event (link problem) |
+| D8 | Ticket | Orchestrator: Repair request (CPH01–ODE01) | Orchestrator → ITSM: Repair request (CPH01–ODE01) |
+| D9 | Evaluate | Observability: Service state (10:46) | Observability: evaluate SLI against SLO · Observability → Portal: Service state (10:46) |
+| D10 | Raise event | Observability: Event (loss violation) | Observability: raise event · Observability → Fault Management: Event (loss violation) · Observability → Orchestrator: Event (loss violation) |
 
 ### Remediate
 
@@ -172,8 +174,8 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 | R11 | Enrich | Collector: Enriched observations (after reroute) | Collector: enrich · Collector → Observability: Enriched observations (after reroute) |
 | R12 | Compute SLI | Observability: SLI (0.00%) | Observability: compute SLI |
 | R13 | Evaluate | Observability: Service state (10:49) | Observability: evaluate SLI against SLO |
-| R14 | Report and clear | Observability: Service-impact event (cleared) | Observability → Portal: Service state (10:49) · Observability → Orchestrator: Service state (10:49) · Observability: clear event · Observability → Fault Management: Service-impact event (cleared) |
-| R15 | Closing | Orchestrator: Repair request | Orchestrator → ITSM: Repair request · Orchestrator: complete workflow · Workflow record (remediation) completed |
+| R14 | Report and clear | Observability: Event (cleared) | Observability → Portal: Service state (10:49) · Observability → Orchestrator: Service state (10:49) · Observability: clear event · Observability → Fault Management: Event (cleared) · Orchestrator: complete workflow · Workflow record (remediation) completed |
+| R15 | Closing | none | none |
 
 **Key lineage:**
 - service state ← SLI + SLO rule;
@@ -185,9 +187,10 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 - config change vN ← desired state vN;
 - observed vN ← read-back;
 - cleared event ← violation event + HEALTHY service state;
-- repair request ← decision + HEALTHY service state (ADR 0004).
+- link event ← evidence;
+- repair request ← link event (ADR 0004).
 
-**Fault Management during R12:** it still shows ✕ VIOLATED, because HEALTHY hasn't reached Presentation yet. From R13 on, no surface shows VIOLATED (`07`).
+**Fault Management during R12:** it still shows ✕ VIOLATED, because HEALTHY hasn't reached Presentation yet. From R14 on, no surface shows VIOLATED (`07`).
 
 ## 6. Simple vs Technical
 
@@ -308,7 +311,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 ```
 src/
   scenario/types.ts        types from §4.1
-  scenario/scenario.ts     catalogs + 38 steps (the only story content)
+  scenario/scenario.ts     catalogs + 40 steps (the only story content)
   model/state.ts           stateAt, linesOf
   model/timeline.ts        timeline + timing constants
   model/inspect.ts         inspector content
@@ -329,13 +332,13 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
   - *assurance onboarded* before the first apply;
   - Orchestrator never names a path it wasn't told.
   
-  Also tested over the data: the pacing rule, lineage ordering, the status sequences, surface routing, "not proof" in both views, non-empty captions and bodies, and no surface showing VIOLATED from R13 on.
+  Also tested over the data: the pacing rule, lineage ordering, the status sequences, surface routing, "not proof" in both views, non-empty captions and bodies, and no surface showing VIOLATED once HEALTHY reaches Presentation (R14).
 - **Unit tests over the derived model:**
   - `timeline` ordering and pulse completion for every step;
   - `stateAt` monotonic visibility;
   - token contrast.
 - **Browser tests:**
-  - **walkthrough:** forward through all 38 beats and back;
+  - **walkthrough:** forward through all 40 beats and back;
   - **jumps and Replay;**
   - **rapid presses:** they land on exactly N and settle;
   - **mid-animation:** switching views keeps the step, selection and animation;
@@ -344,7 +347,7 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
   - **reduced motion:** the DOM snapshot matches the animated end state in every beat;
   - **layout, per beat and view:** no clipped text (`scrollHeight > clientHeight` or `scrollWidth > clientWidth` on any card fails), no overlapping cards, cards inside their region, no label over a card, line endpoints inside their source and target, the SLO route outside Orchestrator and Presentation, every line labelled, no `UP` chip, and no chip in a provenance colour;
   - **fit:** no scrollbars at 1280×720 and 1920×1080;
-  - **axe:** no serious or critical violations at P1, D8 and R14 in both views, and with About open;
+  - **axe:** no serious or critical violations at P1, D10 and R14 in both views, and with About open;
   - **About:** opens on load and refresh, reopen, ✕, Esc and click outside, focus return, and arrow keys blocked.
 - **Mutation check (lesson 25):** each new semantic test is shown failing once, by temporarily breaking the data, before it is accepted.
 
@@ -386,3 +389,4 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
 - **rev 10 (plan 4):** the inspector, from `inspect(target, n, view)`; cards and surfaces are buttons; the selection ring is a dashed outline; hover states and a first-run hint make inspectables discoverable. See §7 "As built". The visual design (§10) and the inspector's presentation are extended by `docs/specs/2026-10-12-design-uplift.md` (plan 5).
 - **rev 11 (plan 5):** design uplift: Source Sans 3 and Source Code Pro; NAF colour on documents, handoff and work lines, and the inspector (ADR 0003); caption bar 100px and row gaps 24px; Start over on the last beat; line legend. See `docs/specs/2026-10-12-design-uplift.md` "As built".
 - **rev 12 (plan 6a):** Orchestrator's repair request to ITSM replaces Observability's repair-needed event (ADR 0004); The Network is active on the fault beat. See `docs/plans/2026-10-13-plan-6a-story-fixes.md`.
+- **rev 13 (plan 6b):** Observability raises a link event in Detect (D7) and Orchestrator opens the repair request in ITSM straight away (D8); the remediation workflow completes in R14 again and R15 is the closing only. "Service-impact event" becomes "Event" (link problem, loss violation, cleared). 40 beats (ADR 0004).

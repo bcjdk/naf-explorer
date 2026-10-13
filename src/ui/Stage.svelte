@@ -85,7 +85,12 @@
         {/each}
         {#if received}
           <span class="mini" style:--accent="var(--{kind(received.kind).producer})">
-            <span class="type">{kind(received.kind).name}</span>
+            <!-- Events differ by version (link problem, loss violation, cleared), so an Event says which. -->
+            <span class="type"
+              >{kind(received.kind).name}{received.kind === 'event'
+                ? ` · ${received.label}`
+                : ''}</span
+            >
             {#if received.status}<span class="chip {received.status.toLowerCase()}"
                 >{statusText(received.status)}</span
               >{/if}

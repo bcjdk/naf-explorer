@@ -17,7 +17,7 @@ test('arrow keys do not move the story while About is open', async ({ page }) =>
   await page.goto('/');
   await page.keyboard.press('ArrowRight');
   await page.keyboard.press('Escape');
-  await expect(page.getByTestId('counter')).toHaveText('1 / 38');
+  await expect(page.getByTestId('counter')).toHaveText('1 / 40');
 });
 
 test('the About button reopens it; ✕ and a click outside close it, and focus returns', async ({

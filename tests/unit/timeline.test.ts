@@ -106,8 +106,8 @@ describe('timeline (spec §8)', () => {
         .filter((s) => s.kind === 'pulse')
         .map((s) => s.target);
     expect(targets('D1')).toEqual(['link']);
-    expect(targets('D7')).toEqual(expect.arrayContaining(['ss2', 'surface:portal']));
-    expect(targets('D8')).toEqual(expect.arrayContaining(['ev-viol', 'surface:faultMgmt']));
+    expect(targets('D9')).toEqual(expect.arrayContaining(['ss2', 'surface:portal']));
+    expect(targets('D10')).toEqual(expect.arrayContaining(['ev-viol', 'surface:faultMgmt']));
   });
 
   it('a receiver gains the result when the handoff line arrives', () => {

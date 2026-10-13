@@ -32,13 +32,14 @@ The demo is done when every item holds. Items marked **[auto]** must be automate
   - path B health is HEALTHY;
   - only the loss-violation event is VIOLATED;
   - the cleared event is CLEARED;
-  - evidence, the repair request and Collector artifacts have no status.
+  - evidence, the link event, the repair request and Collector artifacts have no status.
 - [ ] The correlation step says "not proof" in both views.
 - [ ] Every Presentation handoff names exactly one surface:
   - the request comes from Portal;
   - the violation goes to Fault Management;
   - its clear goes to Fault Management;
-  - Orchestrator's repair request goes to ITSM (ADR 0004).
+  - the link event goes to Fault Management;
+  - Orchestrator's repair request, made from the link event in Detect, goes to ITSM (ADR 0004).
 - [ ] At most one new artifact per responsibility per step.
 - [ ] Every apply is ordered in its own step by Orchestrator → Executor *apply request* (ADR 0002). The apply step ends with Executor ⇢ Orchestrator *applied* for the same version, and is followed immediately by two verify steps:
   - **read back:** Orchestrator ⇢ Collector *read back applied state*, observed state → Intent, then Collector ⇢ Orchestrator *read back done*;

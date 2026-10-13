@@ -58,8 +58,10 @@ Each line is one causal change. "→" is an artifact handoff; "⇢" is a coordin
 4. **Enrich.** Collector tags each measurement from its cached intent: `Hu0/0/0/1` → link CPH01–ODE01 → path A → ACME. Collector → Observability.
 5. **Compute SLI.** Observability computes ACME's SLI: 0.4% loss in the last minute (worst direction AAR01→CPH01).
 6. **Correlate.** Observability correlates the SLI with the light and error signals on path A in the same window. The result is consistent with optical degradation: a strong clue, **not proof**.
-7. **Evaluate.** Observability evaluates the SLI against the SLO rule. 0.4% breaches the < 0.1% objective, so service state is **DEGRADED**, even though the interface is UP and routing is established. Observability → Portal. (No workflow is running, so Orchestrator has no subscription to service state; it acts on the event in the next step.)
-8. **Raise event.** Observability raises a **service-impact event** (SLO **VIOLATED**), carrying the implicated link CPH01–ODE01 and ACME's current path A from the evidence, and sends it to Fault Management and to Orchestrator. Lesson: UP does not mean healthy; device state is not service state.
+7. **Link event.** The evidence points at a backbone link, whatever it carries. Observability raises a **link event** (CPH01–ODE01, suspected optical degradation, no service named, no status) and sends it to Fault Management and to Orchestrator (ADR 0004).
+8. **Ticket.** Orchestrator sends ITSM a **repair request** for the link. Only people can repair the fibre; the request needs no answer.
+9. **Evaluate.** Observability evaluates the SLI against the SLO rule. 0.4% breaches the < 0.1% objective, so service state is **DEGRADED**, even though the interface is UP and routing is established. Observability → Portal. (No workflow is running, so Orchestrator has no subscription to service state; it acts on the event in the next step.)
+10. **Raise event.** Observability raises a **service-impact event** (SLO **VIOLATED**), carrying the implicated link CPH01–ODE01 and ACME's current path A from the evidence, and sends it to Fault Management and to Orchestrator. Lesson: UP does not mean healthy; device state is not service state.
 
 ### Remediate: change the network, restore the service, keep the repair visible
 
@@ -76,8 +78,8 @@ Each line is one causal change. "→" is an artifact handoff; "⇢" is a coordin
 11. **Enrich.** Collector tags them from its updated cached intent: the ACME probe is now on path B, and CPH01–ODE01 no longer carries ACME. Collector → Observability.
 12. **Compute SLI.** 0.00% loss in the last minute.
 13. **Evaluate.** Against the same, unchanged SLO rule, service state is **HEALTHY**.
-14. **Report and clear.** Observability → Portal and Orchestrator (*service state HEALTHY*; the remediation workflow has been waiting for it). Observability **clears** the service-impact event in Fault Management (**CLEARED**).
-15. **Closing.** The fibre is still faulty. Orchestrator sends ITSM a repair request for the link, noting ACME was auto-remediated and is healthy, and completes the remediation workflow (ADR 0004). The service is healthy while the link is degraded: device state is not service state, in both directions. "Here the remediation policy was pre-approved, so the loop closes automatically. Another deployment could pause here for operator approval."
+14. **Report and clear.** Observability → Portal and Orchestrator (*service state HEALTHY*; the remediation workflow has been waiting for it). Observability **clears** the service-impact event in Fault Management (**CLEARED**). Orchestrator completes the remediation workflow.
+15. **Closing.** The fibre is still faulty, and its repair request from Detect is still open in ITSM (ADR 0004). The service is healthy while the link is degraded: device state is not service state, in both directions. "Here the remediation policy was pre-approved, so the loop closes automatically. Another deployment could pause here for operator approval."
 
 ## Artifacts
 
@@ -93,7 +95,7 @@ Each line is one causal change. "→" is an artifact handoff; "⇢" is a coordin
 | Workflow record: provision / remediation | Orchestrator | — | running · completed |
 | Remediation decision | Orchestrator | Intent | exclude CPH01–ODE01 |
 | Apply request (ADR 0002) | Orchestrator | Executor | v1 · v2 (each names a desired-state version only) |
-| Repair request (ADR 0004) | Orchestrator | ITSM | CPH01–ODE01 (no status) |
+| Repair request (ADR 0004) | Orchestrator | ITSM | CPH01–ODE01, from the link event (no status) |
 | Configuration change (per device) | Executor | The Network | v1 · v2 |
 | Raw signals | The Network | Collector | config read-back A · baseline telemetry · degraded · config read-back B · after reroute |
 | Observed device state | Collector | Intent | v1 · v2 |
@@ -102,7 +104,7 @@ Each line is one causal change. "→" is an artifact handoff; "⇢" is a coordin
 | SLI | Observability | — | 0.00% · 0.4% · 0.00% |
 | Correlated evidence | Observability | — | suspected optical degradation (no status) |
 | Service state | Observability | Portal, Orchestrator | HEALTHY · DEGRADED · HEALTHY |
-| Service-impact event | Observability | Fault Management, Orchestrator | loss violation (VIOLATED; carries implicated link and current path) · cleared (CLEARED) |
+| Event | Observability | Fault Management, Orchestrator | link problem (link event; no status) · loss violation (service-impact, VIOLATED; carries implicated link and current path) · cleared (CLEARED) |
 | Path B health | Observability | Orchestrator | HEALTHY |
 
 Notes:
