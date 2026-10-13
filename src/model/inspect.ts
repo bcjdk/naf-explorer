@@ -82,17 +82,11 @@ const sec = (heading: string, items: Item[], look: Look = 'list'): Section[] =>
   items.length ? [{ heading, items, look }] : [];
 const stepId = (match: (e: Event) => boolean) => STEPS.find((s: Step) => s.events.some(match))?.id;
 
-/** The Presentation surfaces the story hands a kind to, in story order. */
-const surfacesFor = (k: KindId) => [
-  ...new Set(
-    STEPS.flatMap((s) =>
-      s.events.flatMap((e) =>
-        e.t === 'handoff' && e.to === 'presentation' && e.surface && version(e.version).kind === k
-          ? [SURFACES[e.surface]]
-          : [],
-      ),
-    ),
-  ),
+/** Where the story hands this version: its receivers, and the Presentation surfaces among them, in story order. */
+const handoffsOf = (id: string) =>
+  STEPS.flatMap((s) => s.events.flatMap((e) => (e.t === 'handoff' && e.version === id ? [e] : [])));
+const surfacesFor = (id: string) => [
+  ...new Set(handoffsOf(id).flatMap((e) => (e.surface ? [SURFACES[e.surface]] : []))),
 ];
 
 const involves = (e: Event, p: Party) =>
@@ -112,6 +106,7 @@ export function inspect(target: Target, n: number, view: View): Inspection {
       const v = version(target.version);
       const k = kind(v.kind);
       const marker = state.markers[v.id];
+      const receivers = k.consumers.filter((c) => handoffsOf(v.id).some((e) => e.to === c));
       return {
         kind: 'Artifact',
         title: artifactName(v.id),
@@ -128,12 +123,13 @@ export function inspect(target: Target, n: number, view: View): Inspection {
           ...sec('Meaning', [text(v.meaning)], 'text'),
           ...sec(
             'Handed to',
-            k.consumers.length
-              ? k.consumers.map((c) =>
+            // Per version: the remediation workflow record, unlike the provisioning one, goes nowhere (ADR 0005).
+            receivers.length
+              ? receivers.map((c) =>
                   party(
                     c,
                     c === 'presentation'
-                      ? `${RESPONSIBILITIES.presentation.name} (${surfacesFor(k.id).join(', ')})`
+                      ? `${RESPONSIBILITIES.presentation.name} (${surfacesFor(v.id).join(', ')})`
                       : RESPONSIBILITIES[c].name,
                     k.uses?.[c],
                   ),

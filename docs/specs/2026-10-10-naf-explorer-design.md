@@ -361,7 +361,6 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
 
 ## 15. Deferred
 
-- An "order completed" handoff to the Portal (see `docs/deferred-work.md`).
 - An in-app reduced-motion toggle.
 - An operator-approval variant of remediation.
 - Showing how Collector's cached intent stays in sync.

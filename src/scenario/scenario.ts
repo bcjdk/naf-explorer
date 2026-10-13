@@ -205,7 +205,7 @@ export const SURFACE_ROLES: Record<Surface, string> = {
     'The NOC’s single pane of glass for faults. Here it shows Observability’s events, a link problem and then service impact, as they are raised and cleared, so operators see which services are affected. It displays them; it does not decide what to do.',
   itsm: 'The IT service management system, where incidents and changes are tracked as tickets. Here it receives Orchestrator’s repair request as soon as the link problem is detected, so the faulty link’s repair can be ticketed and followed up by people.',
   portal:
-    'Where customers and operators request services and follow their state. Here ACME’s service request starts from it, and it shows the service state Observability sends.',
+    'Where customers and operators request services and follow their state. Here ACME’s service request starts from it, it shows the service state Observability sends, and Orchestrator tells it when the order is complete.',
   perfMgmt:
     'Performance dashboards that chart SLIs and other measurements over time. Nothing is sent to it in this story.',
   api: 'How other systems, such as a customer’s own tools or an OSS/BSS, request services and read their state programmatically. Nothing is sent to it in this story, but it could carry the same service request as the Portal.',

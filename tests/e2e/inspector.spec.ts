@@ -293,3 +293,15 @@ test('the inspector moves opposite its target when the target appears in a later
   await tick(page, at('P10')).click();
   await expect(panel).toHaveClass(/\bleft\b/);
 });
+
+test('the Portal shows the order completed beside the service state from P15 on', async ({
+  page,
+}) => {
+  const portal = page.locator('.surface[data-surface="portal"]');
+  await tick(page, at('P14')).click();
+  await expect(portal).not.toContainText('completed');
+  await tick(page, at('P15')).click();
+  await expect(portal).toContainText('Service request · completed');
+  await expect(portal).toContainText('HEALTHY');
+  await expect(portal).toHaveAttribute('aria-label', /, order completed$/);
+});

@@ -47,8 +47,8 @@ export const LANES = {
 /** One fixed slot per artifact kind, relative to its producer's region. */
 export const SLOTS: Partial<Record<KindId, Rect>> = {
   // Cards start at y 28, under the 17px header and the work pill.
-  // Observability: the column facing Orchestrator holds everything it exchanges with Orchestrator. The 20px
-  // gap between the columns leaves room for a work line's arrowhead (P14).
+  // Observability: the column facing Orchestrator holds everything it exchanges with Orchestrator. The 14px
+  // slot gap (20px between the cards' drawn edges) leaves room for a work line's arrowhead (P14).
   sloRule: { x: 8, y: 28, w: 229, h: 100 },
   evidence: { x: 8, y: 128, w: 229, h: 114 },
   sli: { x: 8, y: 242, w: 229, h: 107 },
@@ -135,6 +135,16 @@ export const WAYPOINTS: Record<string, [number, number][]> = {
     [LANES.left, LANES.top],
     [440, LANES.top],
   ],
+  // The completed workflow record leaves Orchestrator's right side and climbs the free right lane to the
+  // Portal, clear of Orchestrator's header and work pill.
+  'orchestrator>presentation:workflow@portal': [
+    [LANES.right, 230],
+    [LANES.right, LANES.top],
+    [840, LANES.top],
+  ],
+  // Raw signals leave their card's top right of "The Network" title, so a line to Collector's left-hand
+  // card never runs up through the title.
+  'network>collector:rawSignals': [[250, 736]],
   // The service request enters Orchestrator right of its header.
   'presentation>orchestrator:serviceRequest@portal': [[812, 151]],
   // Read-back goes from Collector along the gutter above The Network and up the right lane to Intent.
