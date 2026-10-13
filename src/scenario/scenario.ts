@@ -111,8 +111,8 @@ export const RESPONSIBILITIES: Record<Party, ResponsibilityInfo> = {
     role: 'sequences workflows',
     does: [
       'Coordinates workflows across responsibilities using signals, and waits for each job it starts to be answered.',
-      'Turns service requests into its own intent requests to Intent, and hands Executor its own apply requests.',
-      'Its remediation workflow evaluates a pre-approved policy and produces the remediation decision.',
+      'Turns service requests into intent requests to Intent, and hands Executor apply requests.',
+      'Its remediation workflow evaluates a pre-approved policy, produces the remediation decision, and asks ITSM for the repair that automation cannot do.',
     ],
     doesNot: [
       'Configure the network.',
@@ -199,7 +199,7 @@ export const WORKFLOW_STEPS: Record<string, { label: string; from: string }[]> =
 export const SURFACE_ROLES: Record<Surface, string> = {
   faultMgmt:
     'The NOC’s single pane of glass for faults. Here it shows Observability’s service-impact events as they are raised and cleared, so operators see which services are affected. It displays them; it does not decide what to do.',
-  itsm: 'The IT service management system, where incidents and changes are tracked as tickets. Here it receives Observability’s repair-needed event, so the faulty link’s repair can be ticketed and followed up by people.',
+  itsm: 'The IT service management system, where incidents and changes are tracked as tickets. Here it receives Orchestrator’s repair request, so the faulty link’s repair can be ticketed and followed up by people.',
   portal:
     'Where customers and operators request services and follow their state. Here ACME’s service request starts from it, and it shows the service state Observability sends.',
   perfMgmt:
@@ -216,9 +216,10 @@ export const KINDS: ArtifactKind[] = [
     consumers: ['orchestrator'],
     uses: {
       orchestrator:
-        'It starts a provisioning workflow and relays the request to Intent as its own intent request.',
+        'It chooses and starts the provisioning workflow. The service details travel on to Intent in Orchestrator’s intent request, because Intent, not Orchestrator, keeps what ACME should get.',
     },
-    whatItIs: 'A customer’s request for a service, made through the Portal.',
+    whatItIs:
+      'ACME’s request for a service, made through the Portal. Its job is to start the right workflow: an L3VPN request starts Orchestrator’s provisioning workflow.',
   },
   {
     id: 'intentRequest',
@@ -230,7 +231,7 @@ export const KINDS: ArtifactKind[] = [
         'It records the requested service as service intent, the source of truth for what ACME should get.',
     },
     answeredBy: 'desiredStateReady',
-    whatItIs: 'Orchestrator’s own request asking Intent to create a service.',
+    whatItIs: 'Orchestrator’s request asking Intent to create a service.',
   },
   {
     id: 'serviceIntent',
@@ -293,7 +294,19 @@ export const KINDS: ArtifactKind[] = [
     },
     answeredBy: 'applied',
     whatItIs:
-      'Orchestrator’s own work order asking Executor to apply a named desired-state version. It names the version only; Executor takes the content directly from Intent (ADR 0002).',
+      'Orchestrator’s work order asking Executor to apply a named desired-state version. It carries the version name, not the configuration.',
+  },
+  {
+    id: 'repairRequest',
+    name: 'Repair request',
+    producer: 'orchestrator',
+    consumers: ['presentation'],
+    uses: {
+      presentation:
+        'It opens a ticket in ITSM, so people repair the faulty link. Automation has done what it can.',
+    },
+    whatItIs:
+      'Orchestrator’s request, at the end of its remediation workflow, to repair the link the service was moved away from.',
   },
   {
     id: 'remediationDecision',
@@ -388,11 +401,10 @@ export const KINDS: ArtifactKind[] = [
     producer: 'observability',
     consumers: ['presentation', 'orchestrator'],
     uses: {
-      presentation:
-        'It displays the event: service impact in fault management, repair work in ITSM.',
+      presentation: 'It displays the event in Fault Management, where the NOC sees service impact.',
       orchestrator: 'An event, not raw service state, is what starts its remediation workflow.',
     },
-    whatItIs: 'A raised, cleared or follow-up event about impact on a service.',
+    whatItIs: 'A raised or cleared event about impact on a service.',
   },
   {
     id: 'pathHealth',
@@ -869,16 +881,12 @@ export const VERSIONS: ArtifactVersion[] = [
     technical: ['event: acme-loss-violation', 'state: cleared 10:49'],
   },
   {
-    id: 'ev-repair',
-    kind: 'serviceEvent',
-    label: 'repair needed',
-    lineage: ['evid', 'enr-after'],
-    meaning: 'ACME was auto-remediated onto path B; link CPH01–ODE01 still needs repair.',
-    technical: [
-      'repair CPH01–ODE01',
-      'Rx −10.9 dBm, CRC ≈1,240/min',
-      'ACME auto-remediated: path B',
-    ],
+    id: 'rr',
+    kind: 'repairRequest',
+    label: 'CPH01–ODE01',
+    lineage: ['dec', 'ss3'],
+    meaning: 'Fix link CPH01–ODE01; ACME is on path B.',
+    technical: ['link CPH01–ODE01 · ACME on path B'],
   },
 ];
 
@@ -927,7 +935,7 @@ export const STEPS: Step[] = [
     chapter: 'provision',
     title: 'Record',
     caption: T(
-      'Orchestrator relays the request to Intent as its own intent request. Intent records the service intent in ACME’s terms: what ACME wants, not how the network delivers it.',
+      'Orchestrator relays the request to Intent as an intent request. Intent records the service intent in ACME’s terms: what ACME wants, not how the network delivers it.',
       'Orchestrator → Intent: intent request create-service ACME-L3VPN-001. Intent records service intent v1: L3VPN, VRF ACME, endpoints CPH01 and AAR01, SLO loss < 0.1%.',
     ),
     events: [
@@ -983,8 +991,8 @@ export const STEPS: Step[] = [
     chapter: 'provision',
     title: 'Order apply',
     caption: T(
-      'With desired state v1 ready and assurance onboarded, Orchestrator hands Executor its own work order: apply desired state v1. The order names the version; the configuration itself stays with Intent.',
-      'Orchestrator → Executor: apply request (desired state v1, workflow provision/ACME-L3VPN-001). It names the version only: Executor takes desired state v1 directly from Intent, never via Orchestrator (ADR 0002).',
+      'With desired state v1 ready and assurance onboarded, Orchestrator hands Executor a work order: apply desired state v1. The order names the version; the configuration itself stays with Intent.',
+      'Orchestrator → Executor: apply request (desired state v1, workflow provision/ACME-L3VPN-001). It names the version only: Executor takes desired state v1 directly from Intent, never via Orchestrator.',
     ),
     events: [appear('ar1'), hand('ar1', 'orchestrator', 'executor')],
   },
@@ -1284,7 +1292,7 @@ export const STEPS: Step[] = [
     title: 'Order apply',
     caption: T(
       'With desired state v2 ready, Orchestrator hands Executor a new work order: apply desired state v2.',
-      'Orchestrator → Executor: apply request (desired state v2, workflow remediation/acme-loss-violation). Executor takes desired state v2 directly from Intent (ADR 0002).',
+      'Orchestrator → Executor: apply request (desired state v2, workflow remediation/acme-loss-violation). Executor takes desired state v2 directly from Intent.',
     ),
     events: [appear('ar2'), hand('ar2', 'orchestrator', 'executor')],
   },
@@ -1384,8 +1392,8 @@ export const STEPS: Step[] = [
     chapter: 'remediate',
     title: 'Evaluate',
     caption: T(
-      'Against the same, unchanged SLO rule, ACME’s service is healthy again. Fault Management still shows the violation, because nothing has told it otherwise yet.',
-      'Rule acme-loss (unchanged): 0.00% < 0.1% → service state HEALTHY. Presentation surfaces show only what they have received.',
+      'Observability checks the new SLI against the same SLO rule as before. Nothing is lost, so ACME’s service is healthy again. The rule didn’t change; the network did.',
+      'Rule acme-loss (unchanged): SLI 0.00% < 0.1% → service state HEALTHY.',
     ),
     events: [work('observability', 'evaluate', 'evaluate SLI against SLO'), appear('ss3')],
   },
@@ -1394,8 +1402,8 @@ export const STEPS: Step[] = [
     chapter: 'remediate',
     title: 'Report and clear',
     caption: T(
-      'Observability sends the healthy state to the Portal and to Orchestrator, and clears the service-impact event in Fault Management. Orchestrator completes the remediation workflow.',
-      'Observability → Portal, Orchestrator: service state HEALTHY. Observability → Fault Management: acme-loss-violation CLEARED. remediation/acme-loss-violation = COMPLETED.',
+      'Observability sends the healthy state to the Portal and to Orchestrator, whose workflow has been waiting for it, and clears the service-impact event in Fault Management.',
+      'Observability → Portal, Orchestrator: service state HEALTHY; the workflow’s wait-for-HEALTHY subscription is satisfied. Observability → Fault Management: acme-loss-violation CLEARED.',
     ),
     events: [
       hand('ss3', 'observability', 'presentation', 'portal'),
@@ -1403,8 +1411,6 @@ export const STEPS: Step[] = [
       work('observability', 'clearEvent', 'clear event'),
       appear('ev-clear'),
       hand('ev-clear', 'observability', 'presentation', 'faultMgmt'),
-      work('orchestrator', 'completeWorkflow', 'complete workflow'),
-      mark('wf-rem', 'COMPLETED'),
     ],
   },
   {
@@ -1412,13 +1418,14 @@ export const STEPS: Step[] = [
     chapter: 'remediate',
     title: 'Closing',
     caption: T(
-      'The fibre is still faulty. Observability tells ITSM that ACME was auto-remediated onto path B and the link needs repair. The service is healthy while the link is degraded: device state is not service state, in both directions. Here the policy was pre-approved, so the loop closed automatically; another deployment could pause for operator approval.',
-      'Observability → ITSM: link-repair-needed CPH01–ODE01 (ODE01→CPH01 Rx −10.9 dBm, CRC/FCS ≈1,240/min); ACME-L3VPN-001 auto-remediated onto path B. Closed-loop remediation is one pattern; an approval gate is another.',
+      'The fibre is still faulty, so Orchestrator asks ITSM for the link’s repair and completes the remediation workflow. The service is healthy while the link is degraded: device state is not service state, in both directions. Here the policy was pre-approved, so the loop closed automatically; another deployment could pause for operator approval.',
+      'Orchestrator → ITSM: repair request CPH01–ODE01 (suspect in acme-loss-violation); ACME-L3VPN-001 auto-remediated onto path B. remediation/acme-loss-violation = COMPLETED. Closed-loop remediation is one pattern; an approval gate is another.',
     ),
     events: [
-      work('observability', 'raiseEvent', 'raise repair event'),
-      appear('ev-repair'),
-      hand('ev-repair', 'observability', 'presentation', 'itsm'),
+      appear('rr'),
+      hand('rr', 'orchestrator', 'presentation', 'itsm'),
+      work('orchestrator', 'completeWorkflow', 'complete workflow'),
+      mark('wf-rem', 'COMPLETED'),
     ],
   },
 ];

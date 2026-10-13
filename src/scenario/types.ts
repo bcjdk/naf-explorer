@@ -19,6 +19,7 @@ export type KindId =
   | 'workflow'
   | 'remediationDecision'
   | 'applyRequest'
+  | 'repairRequest'
   | 'configChange'
   | 'rawSignals'
   | 'observedState'

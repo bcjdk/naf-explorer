@@ -52,6 +52,7 @@ describe('stateAt', () => {
       surfaces: {},
       slots: {},
       linkDegraded: false,
+      faultNow: false,
       acmePath: null,
       work: {},
       waiting: null,
@@ -91,6 +92,9 @@ describe('stateAt', () => {
     expect(s.markers).toEqual({ a: 'IN_SYNC' });
     expect(s.acmePath).toBe('A');
     expect(s.linkDegraded).toBe(true);
+    // The fault lights up The Network only in the step it happens.
+    expect(s.faultNow).toBe(true);
+    expect(at(2).faultNow).toBe(false);
   });
 
   it('reports work for the current step only', () => {

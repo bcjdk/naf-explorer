@@ -24,6 +24,8 @@ export interface StageState {
   surfaces: Partial<Record<Surface, string>>;
   slots: Partial<Record<Party, Slot[]>>;
   linkDegraded: boolean;
+  /** The link degrades in this step: The Network is where something happens, though it does no work. */
+  faultNow: boolean;
   acmePath: 'A' | 'B' | null;
   work: Partial<Record<Party, Text[]>>;
   /** The answer Orchestrator is still waiting for at the end of this step, and from whom (ADR 0001). */
@@ -57,6 +59,7 @@ export function stateAt(
     surfaces: {},
     slots: {},
     linkDegraded: false,
+    faultNow: false,
     acmePath: null,
     work: {},
     waiting: null,
@@ -92,6 +95,7 @@ export function stateAt(
         }
         case 'network':
           if (e.link) s.linkDegraded = true;
+          if (e.link && current) s.faultNow = true;
           if (e.acmePath) s.acmePath = e.acmePath;
           break;
         case 'work':

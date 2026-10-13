@@ -114,6 +114,7 @@ describe('lineage (spec §5 key lineage)', () => {
     serviceState: ['sli', 'sloRule'],
     pathHealth: ['enriched'],
     remediationDecision: ['serviceEvent', 'pathHealth'],
+    repairRequest: ['remediationDecision', 'serviceState'],
   };
 
   it('derives every version from the inputs its kind requires', () => {
@@ -146,7 +147,7 @@ describe('lineage (spec §5 key lineage)', () => {
       expect(version(id).lineage, id).toEqual(expect.arrayContaining(parents));
     has('ev-viol', ['ss2', 'evid']);
     has('ev-clear', ['ev-viol', 'ss3']);
-    has('ev-repair', ['evid', 'enr-after']);
+    has('rr', ['dec', 'ss3']);
     has('dec', ['ev-viol', 'pathB']);
     has('ni2', ['dec', 'si']);
     has('wf-prov', ['sr']);
@@ -223,7 +224,7 @@ describe('handoffs and signals (brief 02; checklist 07)', () => {
     expect(route('sr')).toEqual(['portal']);
     expect(route('ev-viol')).toEqual(['faultMgmt']);
     expect(route('ev-clear')).toEqual(['faultMgmt']);
-    expect(route('ev-repair')).toEqual(['itsm']);
+    expect(route('rr')).toEqual(['itsm']);
     for (const v of ['ss1', 'ss2', 'ss3']) expect(route(v)).toEqual(['portal']);
   });
 
@@ -478,7 +479,7 @@ describe('status semantics (checklist 07)', () => {
     const none = VERSIONS.filter(
       (v) =>
         v.kind === 'evidence' ||
-        v.id === 'ev-repair' ||
+        v.kind === 'repairRequest' ||
         ['collector', 'network'].includes(producerOf(v.id)),
     );
     expect(none.length).toBeGreaterThan(0);

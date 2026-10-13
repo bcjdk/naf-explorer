@@ -1,6 +1,6 @@
 # ADR 0002: Orchestrator orders the apply with its own work order
 
-- **Status:** accepted, 2026-10-11
+- **Status:** accepted, 2026-10-11; amended by ADR 0004 (repair request)
 - **Amends:** `CLAUDE.md`, `docs/brief/02-domain-and-semantics.md`, `03-story-and-scenario.md`, `07-acceptance-checklist.md`, ADR 0001
 
 ## Context

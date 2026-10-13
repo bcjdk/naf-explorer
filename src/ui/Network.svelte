@@ -45,7 +45,7 @@
 
 <section
   class="region network"
-  class:active={work !== ''}
+  class:active={work !== '' || stage.faultNow}
   class:selected={isSelected}
   aria-current={isSelected ? 'true' : undefined}
   data-party="network"

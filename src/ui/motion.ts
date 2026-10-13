@@ -65,12 +65,15 @@ function targets(s: MotionSlot): Target[] {
     case 'mark':
       return each(`.card[data-version="${t}"] .marker`, FADE);
     case 'network':
-      return each(
-        t === 'link'
-          ? '[data-party="network"] .topology :is(.degraded, .direction), [data-fact="link"]'
-          : '[data-party="network"] .topology .acme, [data-fact="path"]',
-        FADE,
-      );
+      return [
+        ...(t === 'link' ? each(place('network'), LIGHT_UP) : []),
+        ...each(
+          t === 'link'
+            ? '[data-party="network"] .topology :is(.degraded, .direction), [data-fact="link"]'
+            : '[data-party="network"] .topology .acme, [data-fact="path"]',
+          FADE,
+        ),
+      ];
     case 'gain':
       return each(place(t), GAIN);
     case 'pulse': {
