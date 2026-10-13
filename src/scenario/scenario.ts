@@ -304,7 +304,7 @@ export const KINDS: ArtifactKind[] = [
     consumers: ['presentation'],
     uses: {
       presentation:
-        'It opens a ticket in ITSM, so people repair the faulty link. Automation has done what it can.',
+        'It shows the request in ITSM as a ticket, so people can repair the faulty link. Automation has done what it can.',
     },
     whatItIs:
       'Orchestrator’s request, at the end of its remediation workflow, to repair the link the service was moved away from.',
@@ -886,8 +886,8 @@ export const VERSIONS: ArtifactVersion[] = [
     kind: 'repairRequest',
     label: 'CPH01–ODE01',
     lineage: ['dec', 'ss3'],
-    meaning: 'Fix link CPH01–ODE01; ACME is on path B.',
-    technical: ['link CPH01–ODE01 · ACME on path B'],
+    meaning: 'Fix link CPH01–ODE01; ACME is healthy.',
+    technical: ['link CPH01–ODE01 · ACME HEALTHY'],
   },
 ];
 
@@ -1420,7 +1420,7 @@ export const STEPS: Step[] = [
     title: 'Closing',
     caption: T(
       'The fibre is still faulty, so Orchestrator asks ITSM for the link’s repair and completes the remediation workflow. The service is healthy while the link is degraded: device state is not service state, in both directions. Here the policy was pre-approved, so the loop closed automatically; another deployment could pause for operator approval.',
-      'Orchestrator → ITSM: repair request CPH01–ODE01 (suspect in acme-loss-violation); ACME-L3VPN-001 auto-remediated onto path B. remediation/acme-loss-violation = COMPLETED. Closed-loop remediation is one pattern; an approval gate is another.',
+      'Orchestrator → ITSM: repair request CPH01–ODE01 (suspect in acme-loss-violation); ACME-L3VPN-001 auto-remediated, HEALTHY. remediation/acme-loss-violation = COMPLETED. Closed-loop remediation is one pattern; an approval gate is another.',
     ),
     events: [
       appear('rr'),

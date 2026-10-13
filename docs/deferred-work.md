@@ -9,7 +9,7 @@
 - **Plan 6: Live region.** The caption is announced, but the chapter, counter and title are not.
 - **Plan 6: Storage-blocking e2e test** should first assert that storage is actually blocked.
 - **Plan 6: Chapter buttons.** Add `aria-current` to the current chapter.
-- **Plan 6: Copy trimmed to fit (plan 2), for review.** Shortened to fit fixed card slots: ev-viol (meaning, Technical), evid (meaning, Technical), pathB (meaning, Technical), ev-repair (Technical), norm-deg (Technical), enr-base/enr-deg/enr-after (Technical, and enr-deg's meaning), obs1 (Technical). The test-required substrings are kept.
+- **Plan 6: Copy trimmed to fit (plan 2), for review.** Shortened to fit fixed card slots: ev-viol (meaning, Technical), evid (meaning, Technical), pathB (meaning, Technical), norm-deg (Technical), enr-base/enr-deg/enr-after (Technical, and enr-deg's meaning), obs1 (Technical). The test-required substrings are kept.
 - **Plan 6: Probe line in R7.** In Technical view, the dotted probe line switches from ODE01 to KOL01 at the start of R7 instead of fading in with the path change (`.probe` in `Network.svelte` is not in the `path` motion target).
 - **Plan 6: Impeccable flags (after plan 5).** The 3–6px provenance edges are deliberate (ADR 0003), and the About top edge and quote rule are now neutral. Still open: the hard offset `box-shadow` of stacked earlier versions (`.card.stack-1/-2`) and the "About" eyebrow above the About title.
 - **Plan 6: Hover drops a new card's tint.** `.card:hover` sets `background: var(--card-hover)` in `src/app.css`, which wipes the 12% provenance tint on a `.card.new`. Cosmetic.

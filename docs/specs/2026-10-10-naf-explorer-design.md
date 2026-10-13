@@ -93,7 +93,7 @@ interface Step { id: string; chapter: 'provision' | 'detect' | 'remediate'; titl
 ```
 
 - **`WorkVerb`** is a closed union, and each owner has its own allowed verbs as listed in `07`.
-- **The signal vocabulary** is the amended list in `02`. Each request signal declares what answers it (`answeredBy`), for example `check drift → in sync` and `query alternate-path health → path B health`; Orchestrator's own requests (intent request, remediation decision, apply request) declare theirs too. Both the inspector and the request/answer test use this.
+- **The signal vocabulary** is the amended list in `02`. Each request signal declares what answers it (`answeredBy`), for example `check drift → in sync` and `query alternate-path health → path B health`; Orchestrator's own requests (intent request, remediation decision, apply request) declare theirs too; the repair request, handed to people through ITSM, has none (ADR 0004). Both the inspector and the request/answer test use this.
 - **State changes are not artifacts.** IN SYNC, UNCHANGED and workflow COMPLETED are `mark` events and don't count toward the pacing rule. Status values (HEALTHY → DEGRADED → HEALTHY) are separate **versions**.
 - **The event order within a step is the causal order**, and therefore the motion order.
 

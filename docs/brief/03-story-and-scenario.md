@@ -77,7 +77,7 @@ Each line is one causal change. "→" is an artifact handoff; "⇢" is a coordin
 12. **Compute SLI.** 0.00% loss in the last minute.
 13. **Evaluate.** Against the same, unchanged SLO rule, service state is **HEALTHY**.
 14. **Report and clear.** Observability → Portal and Orchestrator (*service state HEALTHY*; the remediation workflow has been waiting for it). Observability **clears** the service-impact event in Fault Management (**CLEARED**).
-15. **Closing.** The fibre is still faulty. Orchestrator sends ITSM a repair request for the link, noting ACME was auto-remediated onto path B, and completes the remediation workflow (ADR 0004). The service is healthy while the link is degraded: device state is not service state, in both directions. "Here the remediation policy was pre-approved, so the loop closes automatically. Another deployment could pause here for operator approval."
+15. **Closing.** The fibre is still faulty. Orchestrator sends ITSM a repair request for the link, noting ACME was auto-remediated and is healthy, and completes the remediation workflow (ADR 0004). The service is healthy while the link is degraded: device state is not service state, in both directions. "Here the remediation policy was pre-approved, so the loop closes automatically. Another deployment could pause here for operator approval."
 
 ## Artifacts
 

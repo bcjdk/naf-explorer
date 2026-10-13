@@ -9,10 +9,10 @@ In the owner's walk-through of the Simple view, R15 had Observability send ITSM 
 
 ## Decision
 
-- Orchestrator hands over a fourth artifact of its own: a **repair request**, sent to ITSM at the end of the remediation workflow. It names the implicated link and that the service is on path B, both of which Observability told Orchestrator. It derives from the remediation decision and the HEALTHY service state.
+- Orchestrator hands over a fourth artifact of its own: a **repair request**, sent to ITSM at the end of the remediation workflow. It names the implicated link (from the violation event, via the remediation decision) and that the service is healthy (from Observability's service state). It does not name the new path: Intent chose it, and nobody told Orchestrator. It derives from the remediation decision and the HEALTHY service state.
 - Orchestrator completes the remediation workflow in R15, after the repair request, not in R14.
 - Observability no longer produces a repair-needed event. Its service-impact events (raised, cleared) go to Fault Management and Orchestrator.
-- The repair request needs no answer. ADR 0001's pairing covers jobs Orchestrator gives responsibilities; Presentation never acts, and the repair itself happens outside automation.
+- The repair request needs no answer: an exception to ADR 0001. It asks no automation responsibility to do work. ITSM only displays it as a ticket, and people do the repair outside automation, so nothing in the story could answer it.
 
 ## Consequences
 

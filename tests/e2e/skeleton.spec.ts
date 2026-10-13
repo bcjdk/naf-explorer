@@ -492,3 +492,16 @@ test('colour shows who made it: bands on new cards, edges on used ones, coloured
     '4px',
   );
 });
+
+test('The Network is active on the beat its link degrades, and only then', async ({ page }) => {
+  const network = page.locator('.region[data-party="network"]');
+  for (const [id, active] of [
+    ['D1', true],
+    ['D2', false],
+    ['R7', false],
+  ] as const) {
+    await tick(page, stepIndex(id)).click();
+    if (active) await expect(network).toHaveClass(/\bactive\b/);
+    else await expect(network).not.toHaveClass(/\bactive\b/);
+  }
+});
