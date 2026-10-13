@@ -36,7 +36,7 @@ The stage is fixed at 1440×952 (rev 7; about 1440×900) and scaled uniformly to
 | Caption bar | 860–944 | Full width. Chapter · n/N · step title · 2–3 caption lines · Back / Next on the right; Technical adds the scope note under them |
 
 - **The read path is on the left and the write path on the right.** Altitude comes from the chains inside each region: Intent's derivation descends and Observability's understanding rises.
-- **Observability** has two columns: the column facing Orchestrator holds what it exchanges with Orchestrator (service state, service-impact event, path B health); the other holds the SLO rule, evidence and the SLI. **Intent's** cards all face Orchestrator. **Orchestrator** shows the workflow record, with its steps, the current step and what it is waiting for, and then its own requests in the order they are made.
+- **Observability** has two columns: the column facing Orchestrator holds what it exchanges with Orchestrator (service state, events, path B health); the other holds the SLO rule, evidence and the SLI. **Intent's** cards all face Orchestrator. **Orchestrator** shows the workflow record, with its steps, the current step and what it is waiting for, and then its own requests in the order they are made.
 - **Each region** shows its name and a one-line role subtitle when idle. When active, the subtitle is replaced by the current work label (for example "● normalize").
 - **The Network** is drawn as a stretched diamond: CPH01 at the left point, AAR01 at the right point, ODE01 at the top and KOL01 at the bottom. Path A runs over the top and path B along the bottom.
   - ACME's current path is the thick line.
@@ -190,7 +190,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 - link event ← evidence;
 - repair request ← link event (ADR 0004).
 
-**Fault Management during R12:** it still shows ✕ VIOLATED, because HEALTHY hasn't reached Presentation yet. From R13 on, no surface shows VIOLATED (`07`).
+**Fault Management during R12:** it still shows ✕ VIOLATED, because HEALTHY hasn't reached Presentation yet. From R14 on, no surface shows VIOLATED (`07`).
 
 ## 6. Simple vs Technical
 
@@ -332,7 +332,7 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
   - *assurance onboarded* before the first apply;
   - Orchestrator never names a path it wasn't told.
   
-  Also tested over the data: the pacing rule, lineage ordering, the status sequences, surface routing, "not proof" in both views, non-empty captions and bodies, and no surface showing VIOLATED from R13 on.
+  Also tested over the data: the pacing rule, lineage ordering, the status sequences, surface routing, "not proof" in both views, non-empty captions and bodies, and no surface showing VIOLATED once HEALTHY reaches Presentation (R14).
 - **Unit tests over the derived model:**
   - `timeline` ordering and pulse completion for every step;
   - `stateAt` monotonic visibility;
@@ -347,7 +347,7 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
   - **reduced motion:** the DOM snapshot matches the animated end state in every beat;
   - **layout, per beat and view:** no clipped text (`scrollHeight > clientHeight` or `scrollWidth > clientWidth` on any card fails), no overlapping cards, cards inside their region, no label over a card, line endpoints inside their source and target, the SLO route outside Orchestrator and Presentation, every line labelled, no `UP` chip, and no chip in a provenance colour;
   - **fit:** no scrollbars at 1280×720 and 1920×1080;
-  - **axe:** no serious or critical violations at P1, D8 and R14 in both views, and with About open;
+  - **axe:** no serious or critical violations at P1, D10 and R14 in both views, and with About open;
   - **About:** opens on load and refresh, reopen, ✕, Esc and click outside, focus return, and arrow keys blocked.
 - **Mutation check (lesson 25):** each new semantic test is shown failing once, by temporarily breaking the data, before it is accepted.
 

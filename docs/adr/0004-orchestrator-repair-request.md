@@ -5,6 +5,8 @@
 
 ## Context
 
+_The amendment at the end supersedes where and when the request is made; the Context and Decision below record the first version._
+
 In the owner's walk-through of the Simple view, R15 had Observability send ITSM a repair-needed event. The owner pointed out that Observability doesn't interface with ITSM for this: only Orchestrator knows that ACME was auto-remediated onto path B, because it ran that workflow, and opening a repair ticket is a workflow action, not an observation.
 
 ## Decision

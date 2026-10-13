@@ -158,7 +158,7 @@ describe('lineage (spec §5 key lineage)', () => {
     has('ev-viol', ['ss2', 'evid']);
     has('ev-clear', ['ev-viol', 'ss3']);
     has('ev-link', ['evid']);
-    has('rr', ['ev-link']);
+    expect(version('rr').lineage).toEqual(['ev-link']);
     has('dec', ['ev-viol', 'pathB']);
     has('ni2', ['dec', 'si']);
     has('wf-prov', ['sr']);
@@ -540,6 +540,7 @@ describe('the link repair (ADR 0004, plan 6b)', () => {
     const ticket = appearAt('rr');
     expect(STEPS[ticket.si]!.chapter).toBe('detect');
     expect(before(link, ticket)).toBe(true);
+    expect(before(ticket, appearAt('ss2'))).toBe(true);
     expect(before(ticket, appearAt('ev-viol'))).toBe(true);
     // The link event names no service; the ticket names only what Orchestrator was told.
     expect(textOf('ev-link')).not.toMatch(/ACME|path [AB]/);

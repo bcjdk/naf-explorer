@@ -307,7 +307,7 @@ export const KINDS: ArtifactKind[] = [
     consumers: ['presentation'],
     uses: {
       presentation:
-        'It shows the request in ITSM as a ticket, so people can repair the faulty link. Automation has done what it can.',
+        'It shows the request in ITSM as a ticket, so people can check and repair the suspect link. Automation can route around a link, but not repair it.',
     },
     whatItIs:
       'Orchestrator’s request, prompted by Observability’s link event, to repair a suspect link. No service needs to be affected for it.',
@@ -1224,7 +1224,7 @@ export const STEPS: Step[] = [
     chapter: 'detect',
     title: 'Ticket',
     caption: T(
-      'Orchestrator asks ITSM for the link’s repair, so people can fix the fibre. Automation can route around a faulty link, but only people can repair it.',
+      'Orchestrator asks ITSM for the suspect link to be checked and repaired. Automation can route around a link, but only people can repair the fibre.',
       'Orchestrator → ITSM: repair request CPH01–ODE01 (from link-degradation). It needs no answer: the repair happens outside automation.',
     ),
     events: [appear('rr'), hand('rr', 'orchestrator', 'presentation', 'itsm')],

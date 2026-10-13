@@ -42,7 +42,7 @@ The rules:
   - correlate signals (a strong clue, not proof of root cause);
   - evaluate the SLI against the SLO rule;
   - set the service state;
-  - raise or clear service-impact events.
+  - raise link events and raise or clear service-impact events.
 
 ## Two kinds of verification
 
