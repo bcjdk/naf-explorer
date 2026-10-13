@@ -38,7 +38,10 @@ export const ABOUT = {
   howTo: [
     { keys: ['→', '←'], text: 'step through the story' },
     { keys: ['Simple', 'Technical'], text: 'choose the depth' },
-    { keys: ['click', 'Enter'], text: 'any card, line label or responsibility name to inspect it' },
+    {
+      keys: ['click', 'Enter'],
+      text: 'any card, surface, line label or responsibility name to inspect it',
+    },
   ],
   naf: {
     label: 'Network Automation Forum Automation Framework',
@@ -205,7 +208,7 @@ export const SURFACE_ROLES: Record<Surface, string> = {
     'Where customers and operators request services and follow their state. Here ACME’s service request starts from it, and it shows the service state Observability sends.',
   perfMgmt:
     'Performance dashboards that chart SLIs and other measurements over time. Nothing is sent to it in this story.',
-  api: 'How other systems, such as a customer’s own tools or an OSS/BSS, request services and read their state programmatically. Nothing is sent to it in this story.',
+  api: 'How other systems, such as a customer’s own tools or an OSS/BSS, request services and read their state programmatically. Nothing is sent to it in this story, but it could carry the same service request as the Portal.',
 };
 
 export const KINDS: ArtifactKind[] = [
@@ -255,7 +258,7 @@ export const KINDS: ArtifactKind[] = [
     consumers: ['executor'],
     uses: {
       executor:
-        'It renders and applies the configuration that Orchestrator’s apply request names. Executor takes it directly from Intent.',
+        'It renders and applies the desired-state version that Orchestrator’s apply request names. Executor takes it directly from Intent.',
     },
     whatItIs: 'The per-device configuration intent derived from network intent.',
   },
@@ -550,7 +553,7 @@ export const VERSIONS: ArtifactVersion[] = [
     technical: [
       'CPH01, AAR01: vrf ACME, rd/rt 65000:101',
       'sr-policy colour 100 → path A',
-      'twamp-light CPH01 → AAR01 (stateful reflector), vrf ACME',
+      'twamp-light CPH01 ↔ AAR01 (CPH01 sender, AAR01 stateful reflector)',
     ],
   },
   {
@@ -668,7 +671,7 @@ export const VERSIONS: ArtifactVersion[] = [
     meaning:
       'Light falling and errors rising at CPH01; ACME’s probe losing packets; links still UP.',
     technical: [
-      'CPH01 Hu0/0/0/1: Rx −10.9, CRC 1,240/min',
+      'CPH01: Rx −10.9 dBm, CRC 1,240/min',
       'other links: Rx −2.1 to −2.6 dBm, CRC 0',
       'oper UP, IS-IS UP · probe loss 0.4%',
     ],
@@ -680,7 +683,12 @@ export const VERSIONS: ArtifactVersion[] = [
     lineage: ['raw-deg'],
     meaning:
       'The same signals in one shape: light down, errors up, probe losing packets, everything UP.',
-    technical: ['rx_power −10.9 dBm', 'crc_errors 1,240/min', 'oper, isis: UP', 'probe_loss 0.4%'],
+    technical: [
+      'rx_power −10.9 dBm',
+      'crc_errors 1,240/min',
+      'oper, isis: UP',
+      'probe_loss AAR01→CPH01 0.4%',
+    ],
   },
   {
     id: 'enr-deg',
@@ -714,7 +722,7 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'path A, 10:46',
     lineage: ['sli2', 'enr-deg'],
     meaning:
-      'Loss lines up with low light and errors on CPH01–ODE01: it points to optics, a strong clue, not proof.',
+      'Loss lines up with low light and errors on CPH01–ODE01: likely optical degradation, a strong clue, not proof.',
     technical: [
       'path A · sli 0.4%',
       'Rx −10.9 dBm, CRC ≈1,240/min',
@@ -754,7 +762,7 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'path B',
     status: 'HEALTHY',
     lineage: ['enr-deg'],
-    meaning: 'Path B’s links look healthy; ACME is not yet measured there.',
+    meaning: 'Path B’s links look healthy; ACME itself is not yet measured there.',
     technical: ['Rx −2.1 to −2.6 dBm', 'CRC 0, UP, 10:45–10:46', 'link telemetry only'],
   },
   {
@@ -829,7 +837,10 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'after reroute',
     lineage: [],
     meaning: 'Fresh telemetry: errors continue on the faulty fibre, and ACME’s probe is clean.',
-    technical: ['CPH01 Hu0/0/0/1: Rx −10.9, CRC 1,240/min', 'oper UP, IS-IS UP · twamp loss 0.00%'],
+    technical: [
+      'CPH01 Hu0/0/0/1: Rx −10.9 dBm, CRC 1,240/min',
+      'oper UP, IS-IS UP · twamp loss 0.00%',
+    ],
   },
   {
     id: 'norm-after',

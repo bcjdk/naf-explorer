@@ -27,6 +27,18 @@ group('describe', () => {
     );
   });
 
+  it('writes the network ground truth in each view', () => {
+    const link = { t: 'network', link: { id: 'CPH01-ODE01', status: 'DEGRADED' } } as const;
+    expect(describe(link, 'simple')).toBe('Link CPH01–ODE01 ▲ DEGRADED');
+    expect(describe(link, 'technical')).toBe('Link CPH01–ODE01 ▲ DEGRADED');
+    expect(describe({ t: 'network', acmePath: 'B' }, 'simple')).toBe(
+      'ACME traffic: path B via KOL01',
+    );
+    expect(describe({ t: 'network', acmePath: 'B' }, 'technical')).toBe(
+      'ACME (colour 100) · path B CPH01–KOL01–AAR01',
+    );
+  });
+
   it('uses the view for work labels', () => {
     const e = {
       t: 'work',
@@ -54,7 +66,7 @@ group('beatTable', () => {
     expect(rows[0]).toBe('| P1 | Orientation | none | none |');
     const p9 = rows.find((r) => r.startsWith('| P9 |'))!;
     expect(p9).toContain('Collector: Observed device state (v1)');
-    expect(p9.indexOf('read back applied state')).toBeLessThan(p9.indexOf('read back done'));
+    expect(p9).toMatch(/read back applied state.*read back done/);
     expect(rows.find((r) => r.startsWith('| P2 |'))).toContain(
       'Portal → Orchestrator: Service request (submitted)',
     );

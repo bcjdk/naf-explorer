@@ -77,9 +77,11 @@ describe('colour tokens meet WCAG AA (spec §10; design uplift §2.2)', () => {
   it('text and muted text on every tinted card body and inspector header', () => {
     for (const p of PRODUCERS) {
       const body = mix(TOKENS[p], TOKENS.card, 0.12);
+      const hover = mix(TOKENS[p], TOKENS['card-hover'], 0.12);
       const header = mix(TOKENS[p], TOKENS.panel, 0.14);
       for (const fg of ['text', 'muted']) {
         expect(contrast(fg, body), `${fg} on ${p} card tint`).toBeGreaterThanOrEqual(4.5);
+        expect(contrast(fg, hover), `${fg} on ${p} hovered tint`).toBeGreaterThanOrEqual(4.5);
         expect(contrast(fg, header), `${fg} on ${p} inspector tint`).toBeGreaterThanOrEqual(4.5);
       }
     }

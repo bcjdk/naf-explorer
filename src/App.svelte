@@ -48,16 +48,19 @@
     selected = t;
     inspected = true;
     await tick();
-    const ring = document.querySelector('.stage .selected');
-    const stageEl = document.querySelector('.stage');
-    // Nothing is ringed when the target isn't drawn in this beat: keep the side.
-    if (ring && stageEl) {
-      const a = ring.getBoundingClientRect();
-      const b = stageEl.getBoundingClientRect();
-      side = a.left + a.width / 2 > b.left + b.width / 2 ? 'left' : 'right';
-    }
+    placeSide();
     await tick();
     document.getElementById('inspector-title')?.focus();
+  }
+
+  /** Sides the inspector opposite the ring. Nothing is ringed when the target isn't drawn in this beat: keep the side. */
+  function placeSide() {
+    const ring = document.querySelector('.stage .selected');
+    const stageEl = document.querySelector('.stage');
+    if (!ring || !stageEl) return;
+    const a = ring.getBoundingClientRect();
+    const b = stageEl.getBoundingClientRect();
+    side = a.left + a.width / 2 > b.left + b.width / 2 ? 'left' : 'right';
   }
 
   async function closeInspector() {
@@ -82,6 +85,8 @@
     const from = step;
     step = target;
     await tick();
+    // A target that wasn't drawn may appear in this beat: side the open inspector against it.
+    if (selected) placeSide();
     // Rapid presses: only the latest navigation plays, once its beat is rendered.
     if (animate && step === target && target === from + 1 && !prefersReducedMotion())
       play(timeline(target));

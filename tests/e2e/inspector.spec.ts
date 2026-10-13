@@ -31,6 +31,8 @@ test('clicking a card rings it; selection is not focus styling', async ({ page }
   await page.keyboard.press('Tab');
   await card(page, 'ds1').focus();
   await page.keyboard.press('Enter');
+  await expect(page.locator('#inspector-title')).toBeFocused();
+  await expect(card(page, 'ds1')).toHaveClass(/\bselected\b/);
   // Enter moves focus to the inspector heading; return it to the ringed card.
   await card(page, 'ds1').focus();
   await expect(card(page, 'ds1')).toHaveCSS('outline-style', 'solid');
@@ -273,4 +275,22 @@ test('a handoff line shows a strip: who to whom, in the producer colour', async 
   const line = strip.locator('.strip-line');
   await expect(line).toHaveCSS('border-top-style', 'solid');
   await expect(line).toHaveCSS('border-top-color', 'rgb(245, 197, 24)');
+});
+
+test('the inspector moves opposite its target when the target appears in a later beat', async ({
+  page,
+}) => {
+  const panel = page.locator('.inspector');
+  await tick(page, at('P10')).click();
+  await card(page, 'slorule').click();
+  await expect(panel).toHaveClass(/\bright\b/);
+  // Back to the start: nothing is drawn, so picking the (right-hand) SLO definition keeps the side.
+  await tick(page, 0).click();
+  await panel
+    .getByRole('button', { name: /SLO definition/ })
+    .first()
+    .click();
+  await expect(panel).toHaveClass(/\bright\b/);
+  await tick(page, at('P10')).click();
+  await expect(panel).toHaveClass(/\bleft\b/);
 });

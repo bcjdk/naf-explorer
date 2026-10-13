@@ -96,6 +96,16 @@ describe('artifact lifecycle', () => {
   });
 });
 
+describe('appearance', () => {
+  it('has every version appear in exactly one step, so the inspector can say where', () => {
+    for (const v of VERSIONS)
+      expect(
+        of('appear').filter((f) => f.e.version === v.id),
+        v.id,
+      ).toHaveLength(1);
+  });
+});
+
 describe('lineage (spec §5 key lineage)', () => {
   // What each kind must be derived from. Telemetry has no inputs; a read-back derives from the change it reads.
   const REQUIRED: Partial<Record<KindId, KindId[]>> = {
@@ -369,7 +379,7 @@ describe('workflow control (ADR 0001, ADR 0002)', () => {
   });
 
   it('has Orchestrator name only paths Observability told it, and the decision name none', () => {
-    const PATH = /\bpath [AB]\b|CPH01–(?:ODE|KOL)01–AAR01/;
+    const PATH = /\bpath:? [AB]\b|\bvia (?:ODE|KOL)01\b|CPH01–(?:ODE|KOL)01–AAR01/;
     const PATHS = new RegExp(PATH, 'g'); // for match(); toMatch() needs the non-global form
     const told = new Set<string>();
     for (const { e } of flat) {
