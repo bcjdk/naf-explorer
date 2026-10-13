@@ -6,10 +6,16 @@ group('describe', () => {
   it('writes signals, handoffs, work and marks as one line each', () => {
     expect(
       describe(
-        { t: 'signal', signal: 'checkDrift', from: 'orchestrator', to: 'intent', version: 'ds1' },
+        {
+          t: 'signal',
+          signal: 'checkConformance',
+          from: 'orchestrator',
+          to: 'observability',
+          version: 'ds1',
+        },
         'simple',
       ),
-    ).toBe('Orchestrator ⇢ Intent: check drift v1');
+    ).toBe('Orchestrator ⇢ Observability: check config v1');
     expect(
       describe(
         {
@@ -22,8 +28,8 @@ group('describe', () => {
         'simple',
       ),
     ).toBe('Portal → Orchestrator: Service request (submitted)');
-    expect(describe({ t: 'mark', version: 'ds1', marker: 'IN_SYNC' }, 'simple')).toBe(
-      'Desired network state (v1) = IN SYNC',
+    expect(describe({ t: 'mark', version: 'si', marker: 'UNCHANGED' }, 'simple')).toBe(
+      'Service intent (v1) = UNCHANGED',
     );
   });
 

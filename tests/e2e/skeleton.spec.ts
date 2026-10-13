@@ -172,7 +172,7 @@ test('Portal shows what it received and keeps its own request', async ({ page })
 
 test('earlier versions read as spaced text', async ({ page }) => {
   await tick(page, stepIndex('R14')).click();
-  await expect(page.locator('[data-version="ds1"]')).toHaveText('earlier version: v1 = IN SYNC');
+  await expect(page.locator('[data-version="ds1"]')).toHaveText('earlier version: v1');
   await expect(page.locator('[data-version="wf-prov"]')).toHaveText(
     'earlier version: provision completed',
   );

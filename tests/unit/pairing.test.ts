@@ -7,11 +7,13 @@ const sig = (signal: SignalId, from: Party, to: Party, version?: string): Event 
 const story = (...events: Event[]): Step[] => [
   { id: 'S1', chapter: 'provision', title: 's', caption: { simple: 's', technical: 's' }, events },
 ];
-const check = sig('checkDrift', 'orchestrator', 'intent', 'ds1');
+const check = sig('checkConformance', 'orchestrator', 'observability', 'ds1');
 
 describe('pairingErrors', () => {
   it('accepts a request answered by the party asked, for the same version', () => {
-    expect(pairingErrors(story(check, sig('inSync', 'intent', 'orchestrator', 'ds1')))).toEqual([]);
+    expect(
+      pairingErrors(story(check, sig('inSync', 'observability', 'orchestrator', 'ds1'))),
+    ).toEqual([]);
   });
 
   it('rejects an answer from the wrong party', () => {
@@ -22,20 +24,20 @@ describe('pairingErrors', () => {
 
   it('rejects an answer for the wrong version', () => {
     expect(
-      pairingErrors(story(check, sig('inSync', 'intent', 'orchestrator', 'ds2'))),
+      pairingErrors(story(check, sig('inSync', 'observability', 'orchestrator', 'ds2'))),
     ).toHaveLength(2);
   });
 
   it('rejects the wrong answer', () => {
     expect(
-      pairingErrors(story(check, sig('readBackDone', 'intent', 'orchestrator', 'ds1'))),
+      pairingErrors(story(check, sig('readBackDone', 'observability', 'orchestrator', 'ds1'))),
     ).toHaveLength(2);
   });
 
   it('rejects a duplicate answer', () => {
-    const inSync = sig('inSync', 'intent', 'orchestrator', 'ds1');
+    const inSync = sig('inSync', 'observability', 'orchestrator', 'ds1');
     expect(pairingErrors(story(check, inSync, inSync))).toEqual([
-      'S1: unsolicited inSync from intent for ds1',
+      'S1: unsolicited inSync from observability for ds1',
     ]);
   });
 
@@ -57,7 +59,7 @@ describe('pairingErrors', () => {
 
   it('rejects a missing answer, before the next request and at the end', () => {
     expect(pairingErrors(story(check, sig('readBack', 'orchestrator', 'collector')))).toEqual([
-      'S1: new request while waiting for inSync from intent for ds1',
+      'S1: new request while waiting for inSync from observability for ds1',
       'end: missing readBackDone from collector',
     ]);
   });

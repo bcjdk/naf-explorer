@@ -147,11 +147,13 @@ export const WAYPOINTS: Record<string, [number, number][]> = {
   'network>collector:rawSignals': [[250, 736]],
   // The service request enters Orchestrator right of its header.
   'presentation>orchestrator:serviceRequest@portal': [[812, 151]],
-  // Read-back goes from Collector along the gutter above The Network and up the right lane to Intent.
-  'collector>intent:observedState': [
-    [420, 714],
-    [LANES.right, 714],
-    [LANES.right, 460],
+  // Desired state reaches Observability for the conformance check up the stage's right margin and along the
+  // upper track of the top lane, well clear of Orchestrator, so neither line nor label reads as passing
+  // through it.
+  'intent>observability:desiredState': [
+    [1434, 460],
+    [1434, LANES.topHigh],
+    [470, LANES.topHigh],
   ],
 };
 

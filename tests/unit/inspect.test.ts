@@ -81,8 +81,11 @@ describe('inspect: artifacts (spec §7)', () => {
   });
 
   it('shows the status as a chip and the marker as text', () => {
+    const si = inspect({ t: 'artifact', version: 'si' }, at('R15'), 'simple');
+    expect(texts(si, 'Status')).toEqual(['= UNCHANGED']);
+    // Intent no longer judges conformance, so desired state carries no in-sync marker.
     const ds = inspect({ t: 'artifact', version: 'ds1' }, at('P10'), 'simple');
-    expect(texts(ds, 'Status')).toEqual(['= IN SYNC']);
+    expect(section(ds, 'Status')).toEqual([]);
     const ss = inspect({ t: 'artifact', version: 'ss1' }, at('P15'), 'simple');
     expect(section(ss, 'Status')[0]?.status).toBe(version('ss1').status);
   });
@@ -207,7 +210,7 @@ describe('inspect: surfaces', () => {
 
 describe('accessible names (spec §11)', () => {
   it('cards say what, which version, by whom, and their status, marker and earlier versions', () => {
-    expect(cardName('ds1', 'IN_SYNC')).toBe('Desired network state v1, by Intent, in sync');
+    expect(cardName('si', 'UNCHANGED')).toBe('Service intent v1, by Intent, unchanged');
     expect(cardName('ss2', undefined, 1)).toBe(
       'Service state 10:46, by Observability, degraded, 1 earlier version',
     );

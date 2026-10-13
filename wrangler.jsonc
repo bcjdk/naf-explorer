@@ -1,0 +1,10 @@
+{
+  // The existing Worker: a static-assets-only deploy of the Vite build. `name` must match the Worker in Cloudflare.
+  "name": "naf-explorer",
+  "compatibility_date": "2026-10-13",
+  "assets": {
+    "directory": "./dist",
+  },
+  // Required by `npx wrangler preview` (Worker Previews); empty because previews need no separate settings.
+  "previews": {},
+}

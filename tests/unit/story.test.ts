@@ -289,7 +289,7 @@ describe('workflow control (ADR 0001, ADR 0002)', () => {
       v ? { t: 'signal', signal, from, to, version: v } : { t: 'signal', signal, from, to },
     );
 
-  it('orders each apply in its own beat, then applies, reads back and checks drift for one version', () => {
+  it('orders each apply in its own beat, then applies, reads back and checks conformance for one version', () => {
     expect(applies).toHaveLength(2);
     expect(orders).toHaveLength(2);
     applies.forEach(({ e, si }, k) => {
@@ -301,7 +301,7 @@ describe('workflow control (ADR 0001, ADR 0002)', () => {
       // The order names exactly the version Executor then takes from Intent and reports applied.
       expect(version(order.e.version).names).toBe(d);
       expect(version(d).kind).toBe('desiredState');
-      const [applyStep, readStep, driftStep] = [STEPS[si]!, STEPS[si + 1]!, STEPS[si + 2]!];
+      const [applyStep, readStep, checkStep] = [STEPS[si]!, STEPS[si + 1]!, STEPS[si + 2]!];
 
       // Apply: Executor takes this version from Intent, and the change it makes derives from it.
       expect(applyStep.events).toContainEqual({
@@ -316,21 +316,33 @@ describe('workflow control (ADR 0001, ADR 0002)', () => {
       expect(version(change).lineage).toEqual([d]);
       isSignal(applyStep.events.at(-1), 'applied', 'executor', 'orchestrator', d);
 
-      // Read back: the observed state handed to Intent is a read-back of that change.
+      // Read back: the observed state goes to Observability, which owns actual state, never to Intent.
       isSignal(readStep.events[0], 'readBack', 'orchestrator', 'collector');
       const observed = of('handoff').find(
         (f) =>
-          f.si === si + 1 && f.e.to === 'intent' && version(f.e.version).kind === 'observedState',
+          f.si === si + 1 &&
+          f.e.to === 'observability' &&
+          version(f.e.version).kind === 'observedState',
       );
       expect(observed, readStep.id).toBeDefined();
       const readBack = version(observed!.e.version).lineage[0]!;
       expect(version(readBack).lineage, readStep.id).toEqual([change]);
       isSignal(readStep.events.at(-1), 'readBackDone', 'collector', 'orchestrator');
 
-      // Check drift: the same desired-state version is compared and marked in sync.
-      isSignal(driftStep.events[0], 'checkDrift', 'orchestrator', 'intent', d);
-      expect(driftStep.events).toContainEqual({ t: 'mark', version: d, marker: 'IN_SYNC' });
-      isSignal(driftStep.events.at(-1), 'inSync', 'intent', 'orchestrator', d);
+      // Check conformance: Observability gets the same version straight from Intent, compares, and
+      // answers the job it was given. Intent judges nothing.
+      isSignal(checkStep.events[0], 'checkConformance', 'orchestrator', 'observability', d);
+      expect(checkStep.events).toContainEqual({
+        t: 'handoff',
+        version: d,
+        from: 'intent',
+        to: 'observability',
+      });
+      expect(checkStep.events).toContainEqual(
+        expect.objectContaining({ t: 'work', owner: 'observability', verb: 'checkConformance' }),
+      );
+      expect(checkStep.events.some((e) => e.t === 'mark' && e.version === d)).toBe(false);
+      isSignal(checkStep.events.at(-1), 'inSync', 'observability', 'orchestrator', d);
     });
   });
 
@@ -355,7 +367,7 @@ describe('workflow control (ADR 0001, ADR 0002)', () => {
     expect(pairingErrors(STEPS)).toEqual([]);
   });
 
-  it('completes each workflow only after its drift check passed and a later HEALTHY service state reached Orchestrator', () => {
+  it('completes each workflow only after its conformance check passed and a later HEALTHY service state reached Orchestrator', () => {
     const starts = of('work').filter((f) => f.e.verb === 'startWorkflow');
     const ends = of('work').filter((f) => f.e.verb === 'completeWorkflow');
     expect(starts).toHaveLength(2);

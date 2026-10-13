@@ -1,6 +1,6 @@
 # Story and scenario (decided)
 
-The causal flow below is decided. How it maps to individual on-screen steps ("beats") is for the new build, under the pacing rule at the end of this document. The earlier build used 33 beats: Provision 13, Detect 8, Remediate 12. Revision 2026-10-10 (ADR 0001) added completion signals so Orchestrator controls every job it starts, and split verification into *read back* and *check drift*. Revision 2026-10-11 (ADR 0002) made the apply an Orchestrator work order (*apply request*) in its own step.
+The causal flow below is decided. How it maps to individual on-screen steps ("beats") is for the new build, under the pacing rule at the end of this document. The earlier build used 33 beats: Provision 13, Detect 8, Remediate 12. Revision 2026-10-10 (ADR 0001) added completion signals so Orchestrator controls every job it starts, and split verification into *read back* and *check drift*. Revision 2026-10-13 (ADR 0006) moved the check to Observability as *check config*. Revision 2026-10-11 (ADR 0002) made the apply an Orchestrator work order (*apply request*) in its own step.
 
 ## Scenario facts
 
@@ -42,8 +42,8 @@ Each line is one causal change. "→" is an artifact handoff; "⇢" is a coordin
 6. **Onboard assurance.** Orchestrator ⇢ Observability: *onboard service assurance*. Intent publishes the **SLO definition** from the service intent; Intent → Observability (*SLO definition*, direct). Observability creates its **SLO rule**. Observability ⇢ Orchestrator: *assurance onboarded*.
 7. **Order apply.** Orchestrator → Executor (*apply request*: its own work order naming desired state v1; ADR 0002).
 8. **Apply.** Intent → Executor (*desired state v1*, direct). Executor renders and applies the **configuration change** to CPH01 and AAR01, including the TWAMP-Light probe → The Network. ACME's traffic now uses path A. Executor ⇢ Orchestrator: *applied v1* (the commit succeeded; that is not verification).
-9. **Read back.** Orchestrator ⇢ Collector: *read back applied state*. The Network → Collector (configuration read back via gNMI Get). Collector → Intent (*observed device state*, direct). Collector ⇢ Orchestrator: *read back done*.
-10. **Check drift.** Orchestrator ⇢ Intent: *check drift v1*. Intent's drift check finds **no drift**, so desired state is marked IN SYNC. Intent ⇢ Orchestrator: *in sync*. A mismatch would lead the workflow to roll back.
+9. **Read back.** Orchestrator ⇢ Collector: *read back applied state*. The Network → Collector (configuration read back via gNMI Get). Collector → Observability (*observed device state*). Collector ⇢ Orchestrator: *read back done*.
+10. **Check conformance.** Orchestrator ⇢ Observability: *check config v1*. Intent → Observability (*desired state v1*, direct). Observability finds the observed state conforms. Observability ⇢ Orchestrator: *in sync* (ADR 0006). A mismatch would lead the workflow to roll back.
 11. **Collect.** "Configured as intended is not yet a working service." The Network → Collector (raw signals); Collector **normalizes** them.
 12. **Enrich.** Collector tags the measurements with service IDs from its cached intent. Collector → Observability (*enriched observations*).
 13. **Compute SLI.** Observability computes ACME's SLI: 0.00% loss in the last minute.
@@ -72,8 +72,8 @@ Each line is one causal change. "→" is an artifact handoff; "⇢" is a coordin
 5. **Derive.** Intent derives **desired state v2**. Intent ⇢ Orchestrator: *desired state v2 ready*.
 6. **Order apply.** Orchestrator → Executor (*apply request* naming desired state v2; ADR 0002).
 7. **Apply.** Intent → Executor (*desired state v2*, direct). Executor applies the **configuration change v2** → The Network. ACME's traffic moves to path B via KOL01; the probe follows, because it is steered by colour 100. Executor ⇢ Orchestrator: *applied v2*.
-8. **Read back.** Orchestrator ⇢ Collector: *read back applied state*. The Network → Collector (read back). Collector → Intent (*observed device state v2*). Collector ⇢ Orchestrator: *read back done*.
-9. **Check drift.** Orchestrator ⇢ Intent: *check drift v2*. No drift (IN SYNC). Intent ⇢ Orchestrator: *in sync*.
+8. **Read back.** Orchestrator ⇢ Collector: *read back applied state*. The Network → Collector (read back). Collector → Observability (*observed device state v2*). Collector ⇢ Orchestrator: *read back done*.
+9. **Check conformance.** Orchestrator ⇢ Observability: *check config v2*. Intent → Observability (*desired state v2*, direct). It conforms. Observability ⇢ Orchestrator: *in sync*.
 10. **Collect.** Collector collects and normalizes fresh measurements.
 11. **Enrich.** Collector tags them from its updated cached intent: the ACME probe is now on path B, and CPH01–ODE01 no longer carries ACME. Collector → Observability.
 12. **Compute SLI.** 0.00% loss in the last minute.
@@ -89,7 +89,7 @@ Each line is one causal change. "→" is an artifact handoff; "⇢" is a coordin
 | Intent request | Orchestrator | Intent | create service |
 | Service intent (includes the SLO) | Intent | — | one version; **never changes** |
 | Derived network intent | Intent | — | v1 (path A preferred) · v2 (exclude CPH01–ODE01, path B) |
-| Desired network state (per device) | Intent | Executor | v1 · v2 |
+| Desired network state (per device) | Intent | Executor, Observability | v1 · v2 |
 | SLO definition | Intent | Observability | one version |
 | SLO rule | Observability | — | one version |
 | Workflow record: provision / remediation | Orchestrator | Portal (provision, once completed; ADR 0005) | running · completed |
@@ -98,7 +98,7 @@ Each line is one causal change. "→" is an artifact handoff; "⇢" is a coordin
 | Repair request (ADR 0004) | Orchestrator | ITSM | CPH01–ODE01, from the link event (no status) |
 | Configuration change (per device) | Executor | The Network | v1 · v2 |
 | Raw signals | The Network | Collector | config read-back A · baseline telemetry · degraded · config read-back B · after reroute |
-| Observed device state | Collector | Intent | v1 · v2 |
+| Observed device state | Collector | Observability | v1 · v2 |
 | Normalized observations | Collector | — (internal) | baseline · degraded · after reroute |
 | Enriched observations | Collector | Observability | baseline · degraded · after reroute |
 | SLI | Observability | — | 0.00% · 0.4% · 0.00% |
@@ -121,7 +121,7 @@ Notes:
 | ▲ DEGRADED | service state degraded; also the physical link (ground truth) | achromatic or patterned |
 | ✕ VIOLATED | SLO breached (on the service-impact event only) | one distinct status hue that no responsibility uses; AA contrast |
 | ✓ CLEARED | a raised event has been resolved | neutral, distinct from HEALTHY by its word |
-| = UNCHANGED / = IN SYNC | markers, not statuses | neutral |
+| = UNCHANGED / completed | markers, not statuses | neutral |
 
 Device values such as `UP` are plain text, **never** a status chip.
 
