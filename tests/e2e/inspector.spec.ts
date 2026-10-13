@@ -170,25 +170,19 @@ test('the panel never covers the selected card or the caption bar', async ({ pag
   }
 });
 
-test('inspectables respond to hover, and the caption hint goes after the first inspection', async ({
+test('inspectables respond to hover; the caption shows the line legend, not a hint', async ({
   page,
 }) => {
   await tick(page, at('P10')).click();
-  await expect(page.locator('.caption .hint')).toBeVisible();
   const portal = page.getByRole('button', { name: /^Portal$/ });
   await expect(portal).toHaveCSS('border-top-color', 'rgb(44, 52, 63)');
   await portal.hover();
   await expect(portal).toHaveCSS('border-top-color', 'rgb(139, 151, 168)');
-  await card(page, 'ds1').click();
-  await page.keyboard.press('Escape');
-  await expect(page.locator('.caption .hint')).toHaveCount(0);
-  // The line legend takes the hint's place.
   const legend = page.locator('.caption .legend');
   await expect(legend).toContainText('artifact handoff');
   await expect(legend).toContainText('coordination signal');
   await expect(legend).toContainText('work inside a responsibility');
-  await tick(page, at('P11')).click();
-  await expect(page.locator('.caption .hint')).toHaveCount(0);
+  await expect(page.locator('.caption')).not.toContainText('Click any');
 });
 
 test('stepping from an inspector link that goes away keeps focus in the panel', async ({

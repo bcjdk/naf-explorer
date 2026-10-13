@@ -288,7 +288,7 @@ test('the caption never runs under the buttons, the scope note or the top-right 
         range.selectNodeContents(document.querySelector('.caption p.text')!);
         const lines = [...range.getClientRects()];
         const others = [
-          ...document.querySelectorAll('.caption :is(.scope, .nav, .hint, .legend, .ending)'),
+          ...document.querySelectorAll('.caption :is(.scope, .nav, .legend, .ending)'),
         ].map((e) => ({ name: e.className, r: e.getBoundingClientRect() }));
         const hit = (a: DOMRect, b: DOMRect) =>
           a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
