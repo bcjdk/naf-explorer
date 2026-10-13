@@ -13,7 +13,11 @@
 - The stacked earlier-version shadow stays: it is the "v2 stacked over v1" look brief 03 asks for, not decoration.
 - P14's short work line stays: the 8px column gap sets its length; a minimum length would overlap the cards.
 
+## Copy review (E), applied
+
+The owner decided all 35 strings on the review page (2026-10-13). Applied: ds1 probe line names sender and reflector; the desired-state `uses` names the version; the how-to line and hint include surfaces; the API surface says it could carry the same service request as the Portal; evidence says "likely optical degradation"; path B says "ACME itself"; normalized degraded keeps the probe direction; raw signals get "dBm" back (degraded drops the interface name to fit). Kept as is: R2 Simple, the path-health `uses`, the other surface texts, the completion line, the P1 caption, the work labels and the other card cuts. The violation event's Technical restore didn't fit; the owner kept the two lines.
+
 ## Still to do
 
-- **E. Copy review.** The owner decides each string on the review page; Claude applies the choices, re-fits the cards, and updates `docs/deferred-work.md`. The plan 6 content fixes (R2 Simple parity, ds1 probe line, two `uses` sentences, surfaces in the how-to and hint) ride on the same page.
+- **Repair request rework.** The owner wants the link repair ticket raised from the Detect chapter's link problem, not tied to ACME. Design to be agreed before building.
 - One review of the whole branch, then merge and push.

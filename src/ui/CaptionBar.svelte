@@ -44,7 +44,7 @@
   {#if atEnd}
     <p class="ending">{ENDING}</p>
   {:else if hint}
-    <p class="hint">Click any card, line label or responsibility name to inspect it.</p>
+    <p class="hint">Click any card, surface, line label or responsibility name to inspect it.</p>
   {:else}
     <p class="legend">
       <span
