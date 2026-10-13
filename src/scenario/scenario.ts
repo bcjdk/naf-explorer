@@ -192,6 +192,7 @@ export const WORKFLOW_STEPS: Record<string, { label: string; from: string }[]> =
     { label: 'apply', from: 'R6' },
     { label: 'verify config', from: 'R8' },
     { label: 'verify service', from: 'R10' },
+    { label: 'request repair', from: 'R15' },
   ],
 };
 
@@ -745,7 +746,7 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'remediation',
     lineage: ['ev-viol'],
     meaning: 'The remediation workflow for the loss violation.',
-    technical: ['remediate acme-loss-violation', 'policy pol-loss-reroute, pre-approved'],
+    technical: ['policy pol-loss-reroute, pre-approved'],
   },
   {
     id: 'pathB',

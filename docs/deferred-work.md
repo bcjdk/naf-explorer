@@ -15,6 +15,7 @@
 - **Plan 6: Hover drops a new card's tint.** `.card:hover` sets `background: var(--card-hover)` in `src/app.css`, which wipes the 12% provenance tint on a `.card.new`. Cosmetic.
 - **Plan 6: Three loose `uses` sentences.** pathHealth: "policy moves the service" should read "decides to move". desiredState: "configuration that the apply request names" should read "the desired-state version that the apply request names". serviceRequest (Orchestrator): "relays the request to Intent" blurs ADR 0002; suggested: "It starts a provisioning workflow and asks Intent, with its own intent request, to create the service."
 - **Plan 6: Inspect copy omits surfaces.** The About how-to line and the caption hint say "any card, line label or responsibility name"; Presentation surfaces are inspectable too.
+- **Plan 6: Make inspectables look clickable.** The owner kept the caption-bar hint ("Click any card, line label…") for now (2026-10-13) because it reads as a stray navigator note; replace it with styling that shows what can be inspected (cards, line labels, responsibility names, surfaces), then retire or relocate the hint.
 - **Plan 6: Latent "Appears in undefined".** `inspect.ts` assumes every version has an `appear` event; add a unit assertion.
 - **Plan 6: Selection ring at region bottoms.** `.region { overflow: hidden }` may clip the ring on bottom-row cards, and the full-width Presentation and Network rings are partly covered by design. Check once plan 5 has re-tuned the geometry.
 - **Plan 6: Inspector side after a target appears.** The panel side isn't recomputed when a target that wasn't drawn later appears in a beat.
@@ -32,7 +33,7 @@ Shortened so the cards fit at the plan 5 type scale. Multi-line Technical payloa
 - pathB meaning: "Path B’s links via KOL01 look healthy: normal light, no errors, UP. ACME is not yet measured there." → "Path B’s links look healthy; ACME is not yet measured there."
 - pathB technical: "path B: CPH01–KOL01–AAR01 / Rx −2.1 to −2.6 dBm, CRC 0, UP / link telemetry only, 10:45–10:46" → "Rx −2.1 to −2.6 dBm / CRC 0, UP, 10:45–10:46 / link telemetry only"
 - evid technical: "10:45–10:46 · path A / sli 0.4% · Rx −10.9 dBm · CRC ≈1,240/min / suspect ODE01→CPH01, not proof" → "path A · sli 0.4% / Rx −10.9 dBm, CRC ≈1,240/min / suspect ODE01→CPH01, not proof"
-- ev-repair technical: "repair CPH01–ODE01 (ODE01→CPH01) / Rx −10.9 dBm, CRC ≈1,240/min / ACME auto-remediated to path B" → "repair CPH01–ODE01 / Rx −10.9 dBm, CRC ≈1,240/min / ACME auto-remediated: path B"
+- wf-rem technical (plan 6a, to fit the "request repair" step): "remediate acme-loss-violation / policy pol-loss-reroute, pre-approved" → "policy pol-loss-reroute, pre-approved"
 - norm-deg technical: "probe_loss 0.4% AAR01→CPH01" → "probe_loss 0.4%"
 - raw-base technical: "all links: oper UP, IS-IS UP / twamp-light loss 0.00% both directions" → "oper UP, IS-IS UP · twamp loss 0.00%"
 - raw-deg technical: "CPH01 Hu0/0/0/1 Rx −10.9 dBm, CRC 1,240/min / other links: Rx −2.1 to −2.6 dBm, CRC 0 / all links: oper UP, IS-IS UP / twamp-light AAR01→CPH01 loss 0.4%" → "CPH01 Hu0/0/0/1: Rx −10.9, CRC 1,240/min / other links: Rx −2.1 to −2.6 dBm, CRC 0 / oper UP, IS-IS UP · probe loss 0.4%"
