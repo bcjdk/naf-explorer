@@ -33,10 +33,16 @@
   <h2 id="caption-heading" tabindex="-1">
     {CHAPTERS[s.chapter]} · <span data-testid="counter">{step + 1} / {STEPS.length}</span> · {s.title}
   </h2>
-  <p aria-live="polite">{s.caption[view]}</p>
+  <p class="text">{s.caption[view]}</p>
+  <!-- One announcement per beat: where we are, then what happens (and, last, that the story is complete). -->
+  <p class="sr-only" aria-live="polite">
+    {CHAPTERS[s.chapter]}, step {step + 1} of {STEPS.length}: {s.title}. {s.caption[view]}{atEnd
+      ? ` ${ENDING}`
+      : ''}
+  </p>
   <!-- One slot at the top right: the hint until the first inspection, then the legend; the ending on the last beat. -->
   {#if atEnd}
-    <p class="ending" role="status">{ENDING}</p>
+    <p class="ending">{ENDING}</p>
   {:else if hint}
     <p class="hint">Click any card, line label or responsibility name to inspect it.</p>
   {:else}

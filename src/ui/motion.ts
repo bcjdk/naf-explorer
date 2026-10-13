@@ -70,7 +70,7 @@ function targets(s: MotionSlot): Target[] {
         ...each(
           t === 'link'
             ? '[data-party="network"] .topology :is(.degraded, .direction), [data-fact="link"]'
-            : '[data-party="network"] .topology .acme, [data-fact="path"]',
+            : '[data-party="network"] .topology :is(.acme, .probe), [data-fact="path"]',
           FADE,
         ),
       ];

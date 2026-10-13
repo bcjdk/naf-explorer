@@ -30,6 +30,7 @@
         <button
           class="chapter-name"
           class:current={STEPS[step]?.chapter === ch}
+          aria-current={STEPS[step]?.chapter === ch ? 'true' : undefined}
           onclick={() => onJump(STEPS.findIndex((s) => s.chapter === ch))}>{CHAPTERS[ch]}</button
         >
         {#each indexed.filter(({ s }) => s.chapter === ch) as { s, i } (s.id)}

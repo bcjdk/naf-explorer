@@ -14,7 +14,6 @@
 >
   <div class="about-body">
     <button class="about-close" aria-label="Close About" onclick={() => dialog?.close()}>✕</button>
-    <p class="about-eyebrow">About</p>
     <h2 id="about-title">{ABOUT.title}</h2>
     <p class="about-lead">{ABOUT.intro}</p>
 

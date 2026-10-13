@@ -270,7 +270,7 @@ test('the caption never runs under the buttons, the scope note or the top-right 
       await tick(page, n).click();
       const clash = await page.evaluate(() => {
         const range = document.createRange();
-        range.selectNodeContents(document.querySelector('.caption p[aria-live]')!);
+        range.selectNodeContents(document.querySelector('.caption p.text')!);
         const lines = [...range.getClientRects()];
         const others = [
           ...document.querySelectorAll('.caption :is(.scope, .nav, .hint, .legend, .ending)'),
@@ -388,6 +388,17 @@ for (const [name, block] of Object.entries(blockers)) {
     page.on('pageerror', (e) => errors.push(e.message));
     await page.addInitScript(block);
     await page.goto('/');
+    // The block is real: storage throws in this page.
+    expect(
+      await page.evaluate(() => {
+        try {
+          localStorage.setItem('probe', '1');
+          return localStorage.getItem('probe') !== '1';
+        } catch {
+          return true;
+        }
+      }),
+    ).toBe(true);
     await page.keyboard.press('Escape');
     await page.getByRole('button', { name: 'Technical' }).click();
     await expect(page.getByRole('button', { name: 'Technical' })).toHaveAttribute(
@@ -504,4 +515,18 @@ test('The Network is active on the beat its link degrades, and only then', async
     if (active) await expect(network).toHaveClass(/\bactive\b/);
     else await expect(network).not.toHaveClass(/\bactive\b/);
   }
+});
+
+test('each beat announces where it is and what happens; the chapter is marked current', async ({
+  page,
+}) => {
+  const live = page.locator('.caption [aria-live="polite"]');
+  await tick(page, stepIndex('D1')).click();
+  await expect(live).toHaveText(
+    new RegExp(`^Detect, step 16 of ${STEPS.length}: Fault\\. The ODE01`),
+  );
+  await expect(page.locator('.chapter-name[aria-current="true"]')).toHaveText('Detect');
+  await expect(page.locator('.chapter-name[aria-current]')).toHaveCount(1);
+  await tick(page, STEPS.length - 1).click();
+  await expect(live).toContainText(ENDING);
 });

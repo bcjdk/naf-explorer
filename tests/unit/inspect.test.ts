@@ -131,12 +131,13 @@ describe('inspect: lines', () => {
         if (e.t === 'signal') {
           expect(i.kind).toBe('Signal');
           const a = SIGNALS[e.signal].answeredBy;
-          if (a)
-            expect(texts(i, 'Answered by')[0]).toBe(
-              a in SIGNALS
+          expect(texts(i, 'Answered by')[0]).toBe(
+            a
+              ? a in SIGNALS
                 ? SIGNALS[a as keyof typeof SIGNALS].label
-                : kind(a as (typeof KINDS)[number]['id']).name,
-            );
+                : kind(a as (typeof KINDS)[number]['id']).name
+              : 'Nothing: it answers an earlier request.',
+          );
         } else {
           expect(i.kind).toBe('Handoff');
           expect(texts(i, 'Why the receiver needs it')[0]).toBe(
@@ -145,6 +146,23 @@ describe('inspect: lines', () => {
         }
       }
     });
+  });
+
+  it('names answers in plain words, not by mirroring the catalog', () => {
+    const p6 = STEPS.findIndex((s) => s.id === 'P6');
+    const p8 = STEPS.findIndex((s) => s.id === 'P8');
+    const onboard = inspect(
+      { t: 'line', step: p6, key: 'orchestrator>observability:onboard' },
+      p6,
+      'simple',
+    );
+    expect(texts(onboard, 'Answered by')).toEqual(['assurance onboarded']);
+    const applied = inspect(
+      { t: 'line', step: p8, key: 'executor>orchestrator:applied' },
+      p8,
+      'simple',
+    );
+    expect(texts(applied, 'Answered by')).toEqual(['Nothing: it answers an earlier request.']);
   });
 
   it('says when a line belongs to another beat', () => {
