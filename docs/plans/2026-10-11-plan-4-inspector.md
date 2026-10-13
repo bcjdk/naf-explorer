@@ -12,7 +12,7 @@
 
 **Spec:** `docs/specs/2026-10-10-naf-explorer-design.md` §7 (inspector), §3 (panel placement), §11 (keyboard, focus, semantics). Task 4 makes it rev 10.
 
-**Builds on:** `main` at 49392ae (plans 1–3). Work on branch `plan-4-inspector`.
+**Builds on:** `main` at 49392ae (plans 1-3). Work on branch `plan-4-inspector`.
 
 ## Decisions (controller, for the user's review)
 
@@ -30,7 +30,7 @@
 - **Views:** Artifact (name and version, what it is, produced by, used by with surface names, meaning, status or marker, lineage links, other versions, Technical payload); Responsibility (role, does, does not, in this step, produced so far); Signal (from, to, what it asks, what answers it); Handoff (the artifact version, from, to with surface, why the receiver needs it); Surface (latest received artifact and its sender).
 - **Step changes never close the panel or move focus.** The panel updates. A target not drawn in the current beat says so: "Appears in P5", "Handed over in P7", "Signalled in P7".
 - **Focus:** opening moves focus to the panel heading. Esc or ✕ closes it and returns focus to the element that opened it (the caption heading if that element is gone). Back with the inspector open keeps focus on Back. → / ← still step the story from anywhere except inside About.
-- **Placement:** the panel is 400px wide over y 52–760, on the side opposite the selection. It never covers the selected element or the caption bar.
+- **Placement:** the panel is 400px wide over y 52-760, on the side opposite the selection. It never covers the selected element or the caption bar.
 - **Selection and activity are separate visual systems**, and neither uses provenance colour.
 - **Simple and Technical** change text only. Technical adds the payload section.
 - Never weaken a test. Each new semantic test is shown failing once before it is accepted (lesson 25).
@@ -1028,7 +1028,7 @@ git commit -m "Plan 4: the inspector panel"
 
 - [ ] **Step 1: Look at it** at 1440×900 in both views: a card, an earlier version through Lineage, a region title, a surface, a signal label and a handoff label. Check that the panel text is readable, that the ring is distinct from focus and from activity, and that the panel covers nothing it shouldn't. Show the user, and record cosmetic findings in `docs/deferred-work.md` (tag **Plan 5**).
 
-- [ ] **Step 2: Spec rev 10.** Under §7 add an "As built (rev 10)" paragraph naming decisions D1–D6 from this plan in one sentence each. Add `model/inspect.ts` and `ui/Inspector.svelte` to the §12 tree if missing. Add a revision-log line: "**rev 10 (plan 4):** the inspector, from `inspect(target, n, view)`; cards and surfaces are buttons; the selection ring is a dashed outline. See §7 "As built"."
+- [ ] **Step 2: Spec rev 10.** Under §7 add an "As built (rev 10)" paragraph naming decisions D1-D6 from this plan in one sentence each. Add `model/inspect.ts` and `ui/Inspector.svelte` to the §12 tree if missing. Add a revision-log line: "**rev 10 (plan 4):** the inspector, from `inspect(target, n, view)`; cards and surfaces are buttons; the selection ring is a dashed outline. See §7 "As built"."
 
 - [ ] **Step 3: Deferred items.** Remove the **Plan 4** items that are done:
   - inspector and earlier versions (D3);

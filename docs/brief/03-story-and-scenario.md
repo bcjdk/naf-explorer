@@ -11,7 +11,7 @@ All protocol choices and values are **illustrative**. NAF does not require SR-MP
 | Customer / service | ACME, service `ACME-L3VPN-001`, L3VPN |
 | Sites (PE routers) | `CPH01`, `AAR01` |
 | Other routers | `ODE01`, `KOL01` |
-| Topology | Path A: CPH01 — ODE01 — AAR01 (preferred). Path B: CPH01 — KOL01 — AAR01 (alternate). |
+| Topology | Path A: CPH01-ODE01-AAR01 (preferred). Path B: CPH01-KOL01-AAR01 (alternate). |
 | SLO (part of the service intent) | packet loss < 0.1% |
 | SLI | **Defined in Intent** (part of the SLO definition): ACME probe loss, worst direction, per 1-minute interval. **Measured and computed in Observability.** |
 | Steering | SR-MPLS policies with colour 100, one per direction; ACME VRF routes coloured 100 |
@@ -22,9 +22,9 @@ All protocol choices and values are **illustrative**. NAF does not require SR-MP
 | Rx power at CPH01 `Hu0/0/0/1` | baseline −2.4 dBm; degraded −10.9 dBm; low-warning threshold −9.0 dBm |
 | CRC/FCS receive errors | baseline 0; degraded ≈1,240/min; they continue after the reroute because the fibre is still faulty |
 | Interface oper-status and IS-IS adjacency | **UP the whole time** |
-| ACME probe loss | 0.00% (09:12–09:13) · rising but below 0.1% across 10:41–10:45 · **0.4% AAR01→CPH01 (10:45–10:46)** · 0.00% after reroute (10:48–10:49) |
+| ACME probe loss | 0.00% (09:12-09:13) · rising but below 0.1% across 10:41-10:45 · **0.4% AAR01→CPH01 (10:45-10:46)** · 0.00% after reroute (10:48-10:49) |
 | Remediation policy | `pol-loss-reroute`, **pre-approved**: when an SLO is violated, the evidence implicates a link on the service's current path, and a healthy alternate path exists, request that the service's derived network intent exclude that link |
-| Times | Provision 09:10–09:13 · Detect 10:41–10:46 · Remediate 10:47–10:49 |
+| Times | Provision 09:10-09:13 · Detect 10:41-10:46 · Remediate 10:47-10:49 |
 
 Direction matters. Low Rx at CPH01 means the **ODE01→CPH01** strand is degraded, so the loss shows up on **AAR01→CPH01** traffic. A one-way CPH01→AAR01 probe would not see it.
 
@@ -55,27 +55,27 @@ Each line is one causal change. "→" is an artifact handoff; "⇢" is a coordin
 1. **Fault (ground truth).** The ODE01→CPH01 fibre strand starts to lose light. CPH01 still sees a signal, so the link stays UP and IS-IS stays up, but frames arrive with bit errors. The automation system doesn't know yet. Show on the topology what fails.
 2. **Collect.** Raw signals, each in its own format: falling Rx and rising CRC/FCS from CPH01, loss from ACME's probe, oper-status and IS-IS state from all links. The Network → Collector.
 3. **Normalize.** Collector puts the signals into one common shape. The light has dropped, errors are rising and ACME's probe is losing packets, while the interface and routing still say UP.
-4. **Enrich.** Collector tags each measurement from its cached intent: `Hu0/0/0/1` → link CPH01–ODE01 → path A → ACME. Collector → Observability.
+4. **Enrich.** Collector tags each measurement from its cached intent: `Hu0/0/0/1` → link CPH01-ODE01 → path A → ACME. Collector → Observability.
 5. **Compute SLI.** Observability computes ACME's SLI: 0.4% loss in the last minute (worst direction AAR01→CPH01).
 6. **Correlate.** Observability correlates the SLI with the light and error signals on path A in the same window. The result is consistent with optical degradation: a strong clue, **not proof**.
-7. **Link event.** The evidence points at a backbone link, whatever it carries. Observability raises a **link event** (CPH01–ODE01, suspected optical degradation, no service named, no status) and sends it to Fault Management and to Orchestrator (ADR 0004).
+7. **Link event.** The evidence points at a backbone link, whatever it carries. Observability raises a **link event** (CPH01-ODE01, suspected optical degradation, no service named, no status) and sends it to Fault Management and to Orchestrator (ADR 0004).
 8. **Ticket.** Orchestrator sends ITSM a **repair request** for the link. Only people can repair the fibre; the request needs no answer.
 9. **Evaluate.** Observability evaluates the SLI against the SLO rule. 0.4% breaches the < 0.1% objective, so service state is **DEGRADED**, even though the interface is UP and routing is established. Observability → Portal. (No workflow is running, so Orchestrator has no subscription to service state; it acts on the event in the next step.)
-10. **Raise event.** Observability raises a **service-impact event** (SLO **VIOLATED**), carrying the implicated link CPH01–ODE01 and ACME's current path A from the evidence, and sends it to Fault Management and to Orchestrator. Lesson: UP does not mean healthy; device state is not service state.
+10. **Raise event.** Observability raises a **service-impact event** (SLO **VIOLATED**), carrying the implicated link CPH01-ODE01 and ACME's current path A from the evidence, and sends it to Fault Management and to Orchestrator. Lesson: UP does not mean healthy; device state is not service state.
 
 ### Remediate: change the network, restore the service, keep the repair visible
 
 1. **Start workflow.** Orchestrator starts a remediation workflow for the event, under the pre-approved policy.
-2. **Query alternate path.** The event names the implicated link (CPH01–ODE01) and ACME's current path (A). Orchestrator ⇢ Observability: *query alternate-path health* for ACME. Observability identifies the alternate (path B) from Collector's enrichment tags, assesses it from link telemetry (normal Rx, no errors, UP) and sends Observability → Orchestrator (*path B health: HEALTHY*).
-3. **Evaluate policy.** The workflow evaluates the policy and sends Orchestrator → Intent (*remediation decision*: exclude CPH01–ODE01 for ACME). The decision names only what to exclude; Intent selects the path. In this scenario the workflow evaluates the policy; other designs may evaluate policy elsewhere.
-4. **Record.** **Service intent is UNCHANGED.** Intent records **derived network intent v2**: exclude CPH01–ODE01, select path B.
+2. **Query alternate path.** The event names the implicated link (CPH01-ODE01) and ACME's current path (A). Orchestrator ⇢ Observability: *query alternate-path health* for ACME. Observability identifies the alternate (path B) from Collector's enrichment tags, assesses it from link telemetry (normal Rx, no errors, UP) and sends Observability → Orchestrator (*path B health: HEALTHY*).
+3. **Evaluate policy.** The workflow evaluates the policy and sends Orchestrator → Intent (*remediation decision*: exclude CPH01-ODE01 for ACME). The decision names only what to exclude; Intent selects the path. In this scenario the workflow evaluates the policy; other designs may evaluate policy elsewhere.
+4. **Record.** **Service intent is UNCHANGED.** Intent records **derived network intent v2**: exclude CPH01-ODE01, select path B.
 5. **Derive.** Intent derives **desired state v2**. Intent ⇢ Orchestrator: *desired state v2 ready*.
 6. **Order apply.** Orchestrator → Executor (*apply request* naming desired state v2; ADR 0002).
 7. **Apply.** Intent → Executor (*desired state v2*, direct). Executor applies the **configuration change v2** → The Network. ACME's traffic moves to path B via KOL01; the probe follows, because it is steered by colour 100. Executor ⇢ Orchestrator: *applied v2*.
 8. **Read back.** Orchestrator ⇢ Collector: *read back applied state*. The Network → Collector (read back). Collector → Observability (*observed device state v2*). Collector ⇢ Orchestrator: *read back done*.
 9. **Check conformance.** Orchestrator ⇢ Observability: *check config v2*. Intent → Observability (*desired state v2*, direct). It conforms. Observability ⇢ Orchestrator: *in sync*.
 10. **Collect.** Collector collects and normalizes fresh measurements.
-11. **Enrich.** Collector tags them from its updated cached intent: the ACME probe is now on path B, and CPH01–ODE01 no longer carries ACME. Collector → Observability.
+11. **Enrich.** Collector tags them from its updated cached intent: the ACME probe is now on path B, and CPH01-ODE01 no longer carries ACME. Collector → Observability.
 12. **Compute SLI.** 0.00% loss in the last minute.
 13. **Evaluate.** Against the same, unchanged SLO rule, service state is **HEALTHY**.
 14. **Report and clear.** Observability → Portal and Orchestrator (*service state HEALTHY*; the remediation workflow has been waiting for it). Observability **clears** the service-impact event in Fault Management (**CLEARED**). Orchestrator completes the remediation workflow.
@@ -87,22 +87,22 @@ Each line is one causal change. "→" is an artifact handoff; "⇢" is a coordin
 |---|---|---|---|
 | Service request | Presentation (Portal) | Orchestrator | submitted |
 | Intent request | Orchestrator | Intent | create service |
-| Service intent (includes the SLO) | Intent | — | one version; **never changes** |
-| Derived network intent | Intent | — | v1 (path A preferred) · v2 (exclude CPH01–ODE01, path B) |
+| Service intent (includes the SLO) | Intent | none | one version; **never changes** |
+| Derived network intent | Intent | none | v1 (path A preferred) · v2 (exclude CPH01-ODE01, path B) |
 | Desired network state (per device) | Intent | Executor, Observability | v1 · v2 |
 | SLO definition | Intent | Observability | one version |
-| SLO rule | Observability | — | one version |
+| SLO rule | Observability | none | one version |
 | Workflow record: provision / remediation | Orchestrator | Portal (provision, once completed; ADR 0005) | running · completed |
-| Remediation decision | Orchestrator | Intent | exclude CPH01–ODE01 |
+| Remediation decision | Orchestrator | Intent | exclude CPH01-ODE01 |
 | Apply request (ADR 0002) | Orchestrator | Executor | v1 · v2 (each names a desired-state version only) |
-| Repair request (ADR 0004) | Orchestrator | ITSM | CPH01–ODE01, from the link event (no status) |
+| Repair request (ADR 0004) | Orchestrator | ITSM | CPH01-ODE01, from the link event (no status) |
 | Configuration change (per device) | Executor | The Network | v1 · v2 |
 | Raw signals | The Network | Collector | config read-back A · baseline telemetry · degraded · config read-back B · after reroute |
 | Observed device state | Collector | Observability | v1 · v2 |
-| Normalized observations | Collector | — (internal) | baseline · degraded · after reroute |
+| Normalized observations | Collector | none (internal) | baseline · degraded · after reroute |
 | Enriched observations | Collector | Observability | baseline · degraded · after reroute |
-| SLI | Observability | — | 0.00% · 0.4% · 0.00% |
-| Correlated evidence | Observability | — | suspected optical degradation (no status) |
+| SLI | Observability | none | 0.00% · 0.4% · 0.00% |
+| Correlated evidence | Observability | none | suspected optical degradation (no status) |
 | Service state | Observability | Portal, Orchestrator | HEALTHY · DEGRADED · HEALTHY |
 | Event | Observability | Fault Management, Orchestrator | link problem (link event; no status) · loss violation (service-impact, VIOLATED; carries implicated link and current path) · cleared (CLEARED) |
 | Path B health | Observability | Orchestrator | HEALTHY |

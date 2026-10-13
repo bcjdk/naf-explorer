@@ -203,7 +203,8 @@ export function inspect(target: Target, n: number, view: View): Inspection {
           dashed: true,
           strip: { from: e.from, to: e.to },
           sections: [
-            ...sec('Asks', [text(info.asks)], 'text'),
+            // A request asks; an answer tells.
+            ...sec(info.answeredBy ? 'Asks' : 'Tells', [text(info.asks)], 'text'),
             ...sec('About', e.version ? [link(e.version)] : [], 'cards'),
             ...sec(
               'Answered by',

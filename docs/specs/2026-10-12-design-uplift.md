@@ -4,7 +4,7 @@
 - **Status:** built (plan 5, 2026-10-12). See "As built" at the end.
 - **Extends:** `docs/specs/2026-10-10-naf-explorer-design.md`. This spec replaces its §10 (Visual design) and the presentation parts of §7 (Inspector). Every other section, and every NAF semantic invariant in `CLAUDE.md`, stands unchanged.
 - **Decision record:** `docs/adr/0003-visual-uplift.md` (typefaces as project assets; how far NAF colour reaches).
-- **Evidence:** the Impeccable critique of 2026-10-12 (`.impeccable/critique/`, 29/40). Its findings were that provenance colour was too timid to carry identity, the inspector was an untyped bulleted form, type was flat and 10–12px, and activity and "new this step" barely registered.
+- **Evidence:** the Impeccable critique of 2026-10-12 (`.impeccable/critique/`, 29/40). Its findings were that provenance colour was too timid to carry identity, the inspector was an untyped bulleted form, type was flat and 10-12px, and activity and "new this step" barely registered.
 
 ## 1. Intent
 

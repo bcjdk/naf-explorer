@@ -11,7 +11,7 @@ A desktop-first, self-guided explainer. A reader who knows networking steps thro
 
 **Success:** every item in `07-acceptance-checklist.md` holds. The semantic items are tested over the scenario data, not over the rendering.
 
-**Usage mode:** self-guided, so the reader sets the pace. There is no autoplay. Captions can run to 2–3 full lines. The design target is 1440×900, and the stage must also fit 1280×720 and 1920×1080.
+**Usage mode:** self-guided, so the reader sets the pace. There is no autoplay. Captions can run to 2-3 full lines. The design target is 1440×900, and the stage must also fit 1280×720 and 1920×1080.
 
 ## 2. User experience
 
@@ -27,13 +27,13 @@ The stage is fixed at 1440×952 (rev 7; about 1440×900) and scaled uniformly to
 
 | Band | y (px) | Content |
 |---|---|---|
-| Header | 0–36 | Title · chapters with step ticks · Simple \| Technical · About · Replay |
-| Presentation | 52–136 | Full width. Surfaces left to right, each with a role: Fault Management, ITSM, Portal, Performance Management (idle), API (idle) |
-| Top lane | 136–166 | Under Presentation, across the full width: the SLO definition, the service request, and Observability → Presentation |
-| Responsibilities | 166–514 | Observability (x 12–500) · left lane · Orchestrator (x 572–868, y 166–708, full height) · right lane · Intent (x 940–1428) |
-| Collector, Executor | 544–708 | As wide as Observability and Intent above them. Their exchanges with Orchestrator cross the same side lanes |
-| The Network | 738–844 | Full width. Name top-left, role top-right; raw signals on the left, facts on the right, the topology centred between them |
-| Caption bar | 860–944 | Full width. Chapter · n/N · step title · 2–3 caption lines · Back / Next on the right; Technical adds the scope note under them |
+| Header | 0-36 | Title · chapters with step ticks · Simple \| Technical · About · Replay |
+| Presentation | 52-136 | Full width. Surfaces left to right, each with a role: Fault Management, ITSM, Portal, Performance Management (idle), API (idle) |
+| Top lane | 136-166 | Under Presentation, across the full width: the SLO definition, the service request, and Observability → Presentation |
+| Responsibilities | 166-514 | Observability (x 12-500) · left lane · Orchestrator (x 572-868, y 166-708, full height) · right lane · Intent (x 940-1428) |
+| Collector, Executor | 544-708 | As wide as Observability and Intent above them. Their exchanges with Orchestrator cross the same side lanes |
+| The Network | 738-844 | Full width. Name top-left, role top-right; raw signals on the left, facts on the right, the topology centred between them |
+| Caption bar | 860-944 | Full width. Chapter · n/N · step title · 2-3 caption lines · Back / Next on the right; Technical adds the scope note under them |
 
 - **The read path is on the left and the write path on the right.** Altitude comes from the chains inside each region: Intent's derivation descends and Observability's understanding rises.
 - **Observability** has two columns: the column facing Orchestrator holds what it exchanges with Orchestrator (service state, events, path B health); the other holds the SLO rule, evidence and the SLI. **Intent's** cards all face Orchestrator. **Orchestrator** shows the workflow record, with its steps, the current step and what it is waiting for, and then its own requests in the order they are made.
@@ -49,7 +49,7 @@ The stage is fixed at 1440×952 (rev 7; about 1440×900) and scaled uniformly to
   - **One fixed slot per artifact kind** in its producer's region (`SLOTS` in `layout.ts`). The card shows the kind's newest version: type and label, "by <producer>", status or marker, and its body (meaning or Technical lines) in every step. Earlier versions sit **stacked behind** it as offset edges, generalising "v2 stacked over v1"; their label, status and marker stay in the DOM for screen readers.
   - Slots are fixed and sized for the larger of the two bodies, so nothing moves between beats or views (§6, §8).
   - Nothing on the stage scrolls or clips: regions, cards, surfaces and the caption must fit their content in every beat and both views.
-- **The inspector** is a 400px panel that overlays the responsibilities zone (y 52–760) on the side **opposite the selection**. It opens on the left when the selection is in Intent, Executor or the right half of Presentation and The Network, and on the right otherwise. It never covers the selected element or the caption bar.
+- **The inspector** is a 400px panel that overlays the responsibilities zone (y 52-760) on the side **opposite the selection**. It opens on the left when the selection is in Intent, Executor or the right half of Presentation and The Network, and on the right otherwise. It never covers the selected element or the caption bar.
 
 ## 4. Scenario data model
 
@@ -76,7 +76,7 @@ interface ArtifactKind {
 interface ArtifactVersion {
   id: VersionId; kind: KindId; label: string;       // "v2", "degraded", "0.4%"
   status?: Status; lineage: VersionId[];
-  meaning: string; technical: string[];             // Simple body; 1–4 Technical lines
+  meaning: string; technical: string[];             // Simple body; 1-4 Technical lines
 }
 
 interface SignalInfo { id: SignalId; label: string; asks: string; answeredBy?: SignalId | KindId }
@@ -120,7 +120,7 @@ interface Step { id: string; chapter: 'provision' | 'detect' | 'remediate'; titl
 
 "New" lists each party's new artifact (at most one per party). Exchanges are in causal order: ⇢ is a signal, → is a handoff. *mark* changes an existing version.
 
-Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift from the data. Times: Provision 09:10–09:13 · Detect 10:41–10:46 · Remediate 10:47–10:49.
+Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift from the data. Times: Provision 09:10-09:13 · Detect 10:41-10:46 · Remediate 10:47-10:49.
 
 ### Provision
 
@@ -146,14 +146,14 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 
 | # | Title | New | Events in order |
 |---|---|---|---|
-| D1 | Fault | none | Link CPH01–ODE01 ▲ DEGRADED |
+| D1 | Fault | none | Link CPH01-ODE01 ▲ DEGRADED |
 | D2 | Collect | The Network: Raw signals (degraded) | The Network → Collector: Raw signals (degraded) · Collector: collect |
 | D3 | Normalize | Collector: Normalized observations (degraded) | Collector: normalize |
 | D4 | Enrich | Collector: Enriched observations (degraded) | Collector: enrich · Collector → Observability: Enriched observations (degraded) |
 | D5 | Compute SLI | Observability: SLI (0.4%) | Observability: compute SLI |
 | D6 | Correlate | Observability: Correlated evidence (path A, 10:46) | Observability: correlate |
 | D7 | Link event | Observability: Event (link problem) | Observability: raise link event · Observability → Fault Management: Event (link problem) · Observability → Orchestrator: Event (link problem) |
-| D8 | Ticket | Orchestrator: Repair request (CPH01–ODE01) | Orchestrator → ITSM: Repair request (CPH01–ODE01) |
+| D8 | Ticket | Orchestrator: Repair request (CPH01-ODE01) | Orchestrator → ITSM: Repair request (CPH01-ODE01) |
 | D9 | Evaluate | Observability: Service state (10:46) | Observability: evaluate SLI against SLO · Observability → Portal: Service state (10:46) |
 | D10 | Raise event | Observability: Event (loss violation) | Observability: raise event · Observability → Fault Management: Event (loss violation) · Observability → Orchestrator: Event (loss violation) |
 
@@ -163,7 +163,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 |---|---|---|---|
 | R1 | Start workflow | Orchestrator: Workflow record (remediation) | Orchestrator: start workflow |
 | R2 | Query alternate path | Observability: Path health (path B) | Orchestrator ⇢ Observability: query alternate-path health · Observability: assess alternate path · Observability → Orchestrator: Path health (path B) |
-| R3 | Evaluate policy | Orchestrator: Remediation decision (exclude CPH01–ODE01) | Orchestrator: evaluate policy · Orchestrator → Intent: Remediation decision (exclude CPH01–ODE01) |
+| R3 | Evaluate policy | Orchestrator: Remediation decision (exclude CPH01-ODE01) | Orchestrator: evaluate policy · Orchestrator → Intent: Remediation decision (exclude CPH01-ODE01) |
 | R4 | Record | Intent: Derived network intent (v2) | Intent: record network intent v2 · Service intent (v1) = UNCHANGED |
 | R5 | Derive | Intent: Desired network state (v2) | Intent: derive desired state · Intent ⇢ Orchestrator: desired state ready v2 |
 | R6 | Order apply | Orchestrator: Apply request (desired state v2) | Orchestrator → Executor: Apply request (desired state v2) |

@@ -35,13 +35,13 @@ group('describe', () => {
 
   it('writes the network ground truth in each view', () => {
     const link = { t: 'network', link: { id: 'CPH01-ODE01', status: 'DEGRADED' } } as const;
-    expect(describe(link, 'simple')).toBe('Link CPH01–ODE01 ▲ DEGRADED');
-    expect(describe(link, 'technical')).toBe('Link CPH01–ODE01 ▲ DEGRADED');
+    expect(describe(link, 'simple')).toBe('Link CPH01-ODE01 ▲ DEGRADED');
+    expect(describe(link, 'technical')).toBe('Link CPH01-ODE01 ▲ DEGRADED');
     expect(describe({ t: 'network', acmePath: 'B' }, 'simple')).toBe(
       'ACME traffic: path B via KOL01',
     );
     expect(describe({ t: 'network', acmePath: 'B' }, 'technical')).toBe(
-      'ACME (colour 100) · path B CPH01–KOL01–AAR01',
+      'ACME (colour 100) · path B CPH01-KOL01-AAR01',
     );
   });
 

@@ -37,7 +37,7 @@ It followed the NAF reference diagram arrangement:
 
 ## Cards and colour
 
-- **Cards look like documents:** type label, "by <producer>", a short meaning (Simple) or 1–4 machine-readable lines (Technical).
+- **Cards look like documents:** type label, "by <producer>", a short meaning (Simple) or 1-4 machine-readable lines (Technical).
 - **Provenance colour:** a thin accent per responsibility (block top edge, swatch, card left bar), never fills or text colour. The NAF brand colours worked: Presentation `#f5c518`, Observability `#00e676`, Orchestrator `#00d4ff`, Intent `#ff6d2e`, Collector `#F43F5E`, Executor `#6366F1`, Infrastructure `#64748b`.
 - **Status never reuses a provenance colour.** Collector is red-ish and Observability green-ish, so red/green status would mislead. See `03` for the status treatment.
 - **Subdued ancestors** must still meet text contrast. Use a muted text colour rather than transparency.

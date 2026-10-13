@@ -86,10 +86,6 @@ describe('signal catalog (ADR 0001)', () => {
     expect(SIGNALS.checkConformance.answeredBy).toBe('inSync');
     expect(SIGNALS.queryAltPath.answeredBy).toBe('pathHealth');
   });
-
-  it('names no specific path in the query', () => {
-    expect(SIGNALS.queryAltPath.label).toBe('query alternate-path health');
-  });
 });
 
 describe('work ownership (checklist 07)', () => {

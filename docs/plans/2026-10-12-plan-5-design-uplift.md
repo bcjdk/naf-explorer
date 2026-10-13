@@ -22,7 +22,7 @@
 
 **Spec:** `docs/specs/2026-10-12-design-uplift.md`. It extends `docs/specs/2026-10-10-naf-explorer-design.md`; this plan makes that spec rev 11 (Task 7). The decision record is `docs/adr/0003-visual-uplift.md`.
 
-**Builds on:** `main` at 84d692e (plans 1–4). Work on branch `plan-5-design`, which is already cut.
+**Builds on:** `main` at 84d692e (plans 1-4). Work on branch `plan-5-design`, which is already cut.
 
 ## Decisions (controller, for the owner's review)
 
@@ -53,7 +53,7 @@
 
   None borrows another's styling or a provenance colour.
 - **Hover and press** stay neutral and instant, with no transitions (plan 4).
-- **Type faces:** Source Sans 3 (400–700) and Source Code Pro (400, 500), Latin-subset WOFF2 under `src/assets/fonts/` with `OFL.txt`, loaded with `font-display: swap`. The fallbacks are `system-ui` and `ui-monospace`.
+- **Type faces:** Source Sans 3 (400-700) and Source Code Pro (400, 500), Latin-subset WOFF2 under `src/assets/fonts/` with `OFL.txt`, loaded with `font-display: swap`. The fallbacks are `system-ui` and `ui-monospace`.
 - **Type scale** (px at stage scale 1), verbatim from spec §2.1:
 
   | Use | Size / weight | Case |
@@ -132,7 +132,7 @@ curl -s https://raw.githubusercontent.com/adobe-fonts/source-code-pro/release/LI
 file src/assets/fonts/*.woff2 && ls -l src/assets/fonts
 ```
 
-Expected: two files reported as `Web Open Font Format (Version 2)`, each 20–120 KB, and an `OFL.txt` that contains "SIL OPEN FONT LICENSE" twice.
+Expected: two files reported as `Web Open Font Format (Version 2)`, each 20-120 KB, and an `OFL.txt` that contains "SIL OPEN FONT LICENSE" twice.
 
 If the awk picks a `latin-ext` URL, or the two URLs are the same, open `$CSS` and copy the URL from the right `/* latin */` block by hand. Read the CSS to check that the Source Sans `@font-face` blocks for different weights share one URL (a variable font). If they don't, download the 400, 500, 600 and 700 files separately, and write one `@font-face` rule per weight in Step 5.
 
@@ -1151,7 +1151,7 @@ export const CAPTION: Rect = { x: 12, y: 844, w: 1416, h: 100 };
 ```
 
 - Update the doc comment above `REGIONS`: the blocks are now 30px apart under Presentation and 24px elsewhere, and the caption bar hugs at 12px (plan 5 D2).
-- In `WAYPOINTS['collector>intent:observedState']`, the gutter y becomes `714`, the middle of 702–726. That is `[420, 714], [LANES.right, 714]`; the last point stays.
+- In `WAYPOINTS['collector>intent:observedState']`, the gutter y becomes `714`, the middle of 702-726. That is `[420, 714], [LANES.right, 714]`; the last point stays.
 - In `src/app.css`, `.caption` gets `top: 844px; height: 100px;`.
 - Run `npx vitest run tests/unit/routes.test.ts`. It must stay green; if a route now crosses a region, fix its waypoint.
 
@@ -1190,7 +1190,7 @@ git commit -m "Plan 5: geometry re-tuned for the larger type; caption bar 100px 
 
 - [ ] **Step 7: STOP for the owner's visual check-in (spec §5, step 5)**
 
-The controller shows the owner the screenshots, the D1–D5 rulings and the shortenings list, and asks the owner to look at `npm run dev`. Type size is confirmed or changed here, and so is the completion-line copy (D3). Any change becomes a fix round of this task before Task 5 starts.
+The controller shows the owner the screenshots, the D1-D5 rulings and the shortenings list, and asks the owner to look at `npm run dev`. Type size is confirmed or changed here, and so is the completion-line copy (D3). Any change becomes a fix round of this task before Task 5 starts.
 
 ---
 
@@ -1874,7 +1874,7 @@ git commit -m "Plan 5: inspector in NAF colour: identity header, consumer blocks
 - Modify: whatever the finish reviewer's material fixes touch (one batch)
 - Create: `DESIGN.md`, `.impeccable/design.json` (by the documenter)
 - Modify: `docs/specs/2026-10-10-naf-explorer-design.md` (rev 11 pointer and log)
-- Modify: `docs/specs/2026-10-12-design-uplift.md` (status "built", with the D1–D8 rulings)
+- Modify: `docs/specs/2026-10-12-design-uplift.md` (status "built", with the D1-D8 rulings)
 - Modify: `docs/adr/0003-visual-uplift.md` (status accepted; D1 under Consequences)
 - Modify: `docs/deferred-work.md`
 - Modify: `.impeccable/config.json` (drop the brainstorm-mockup ignores); add `.impeccable/critique/`
@@ -1883,7 +1883,7 @@ git commit -m "Plan 5: inspector in NAF colour: identity header, consumer blocks
 
 Run `"<impeccable skill dir>/scripts/impeccable" detect --json` on the changed UI files: `src/app.css` and `src/ui/*.svelte`.
 - Fix any finding that isn't one of the deliberate ones, and give each finding a ruling in the ledger.
-- The deliberate ones are the 3–4px provenance edges ("side-tab" and "border-accent-on-rounded"; ADR 0003), and the ✓/▲/✕ status glyphs, which are status words, not icons.
+- The deliberate ones are the 3-4px provenance edges ("side-tab" and "border-accent-on-rounded"; ADR 0003), and the ✓/▲/✕ status glyphs, which are status words, not icons.
 
 - [ ] **Step 2: Finish reviewer**
 
@@ -1904,7 +1904,7 @@ Dispatch `impeccable:impeccable-documenter` to write `DESIGN.md` and `.impeccabl
 - **Main spec:**
   - §10 gets a one-line pointer: "Replaced by `docs/specs/2026-10-12-design-uplift.md` (plan 5) and ADR 0003; the D2 band numbers are in `src/layout.ts`".
   - Add a revision-log line, rev 11: plan 5 design uplift; caption bar 100px; row gaps 24px.
-- **Uplift spec:** set the status to "built (plan 5)". Add an "As built" list with D1–D8, the final type size from the check-in, and the approved completion line.
+- **Uplift spec:** set the status to "built (plan 5)". Add an "As built" list with D1-D8, the final type size from the check-in, and the approved completion line.
 - **ADR 0003:** set the status to "accepted, 2026-10-12". Under Consequences, add the Executor band shade (D1).
 - **`docs/deferred-work.md`:**
   - remove the Impeccable flags that plan 5 resolved (3px edges stay deliberate; the About top edge is neutral now);

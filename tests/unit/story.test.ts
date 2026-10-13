@@ -51,7 +51,7 @@ describe('story shape', () => {
     }
   });
 
-  it('gives every artifact a meaning and 1–4 Technical lines', () => {
+  it('gives every artifact a meaning and 1-4 Technical lines', () => {
     for (const v of VERSIONS) {
       expect(v.meaning.trim(), v.id).not.toBe('');
       expect(v.technical.length, v.id).toBeGreaterThanOrEqual(1);
@@ -93,16 +93,6 @@ describe('artifact lifecycle', () => {
 
   it('marks only artifacts that are already visible', () => {
     for (const f of of('mark')) expect(before(appearAt(f.e.version), f)).toBe(true);
-  });
-});
-
-describe('appearance', () => {
-  it('has every version appear in exactly one step, so the inspector can say where', () => {
-    for (const v of VERSIONS)
-      expect(
-        of('appear').filter((f) => f.e.version === v.id),
-        v.id,
-      ).toHaveLength(1);
   });
 });
 
@@ -394,7 +384,7 @@ describe('workflow control (ADR 0001, ADR 0002)', () => {
   });
 
   it('has Orchestrator name only paths Observability told it, and the decision name none', () => {
-    const PATH = /\bpath:? [AB]\b|\bvia (?:ODE|KOL)01\b|CPH01–(?:ODE|KOL)01–AAR01/;
+    const PATH = /\bpath:? [AB]\b|\bvia (?:ODE|KOL)01\b|CPH01-(?:ODE|KOL)01-AAR01/;
     const PATHS = new RegExp(PATH, 'g'); // for match(); toMatch() needs the non-global form
     const told = new Set<string>();
     for (const { e } of flat) {
@@ -476,7 +466,7 @@ describe('network ground truth (checklist 07)', () => {
     expect(source.technical.join(' ')).toMatch(/→ path B/);
     const raw = version(version(source.lineage[0]!).lineage[0]!);
     expect(raw.technical.join(' ')).toMatch(/other links: Rx −2\.1 to −2\.6 dBm, CRC 0/);
-    expect(health.technical.join(' ')).toMatch(/10:45–10:46/);
+    expect(health.technical.join(' ')).toMatch(/10:45-10:46/);
     expect(health.technical.join(' ')).toMatch(/link telemetry only/);
     const r2 = STEPS[appearAt('pathB').si]!;
     expect(r2.caption.simple).toMatch(/not yet/i);

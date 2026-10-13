@@ -95,7 +95,7 @@ function path(from: Rect, to: Rect, via: Pt[] | undefined): Pt[] {
 
 const sameRect = (a: Rect, b: Rect) => a.x === b.x && a.y === b.y && a.w === b.w && a.h === b.h;
 
-/** Whether the segment a–b passes through the inside of r. */
+/** Whether the segment a-b passes through the inside of r. */
 function segmentHits(r: Rect, [ax, ay]: Pt, [bx, by]: Pt): boolean {
   for (let t = 0.02; t < 1; t += 0.02) {
     const x = ax + (bx - ax) * t;
