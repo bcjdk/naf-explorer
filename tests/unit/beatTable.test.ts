@@ -28,8 +28,8 @@ group('describe', () => {
         'simple',
       ),
     ).toBe('Portal → Orchestrator: Service request (submitted)');
-    expect(describe({ t: 'mark', version: 'ds1', marker: 'IN_SYNC' }, 'simple')).toBe(
-      'Desired network state (v1) = IN SYNC',
+    expect(describe({ t: 'mark', version: 'si', marker: 'UNCHANGED' }, 'simple')).toBe(
+      'Service intent (v1) = UNCHANGED',
     );
   });
 

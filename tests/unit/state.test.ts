@@ -31,7 +31,7 @@ const fixture: Step[] = [
     caption: T('two'),
     events: [
       { t: 'appear', version: 'b' },
-      { t: 'mark', version: 'a', marker: 'IN_SYNC' },
+      { t: 'mark', version: 'a', marker: 'UNCHANGED' },
       { t: 'network', acmePath: 'A' },
       { t: 'network', link: { id: 'CPH01-ODE01', status: 'DEGRADED' } },
       { t: 'handoff', version: 'b', from: 'presentation', to: 'orchestrator', surface: 'portal' },
@@ -96,7 +96,7 @@ describe('stateAt', () => {
 
   it('keeps markers and network ground truth', () => {
     const s = at(1);
-    expect(s.markers).toEqual({ a: 'IN_SYNC' });
+    expect(s.markers).toEqual({ a: 'UNCHANGED' });
     expect(s.acmePath).toBe('A');
     expect(s.linkDegraded).toBe(true);
     // The fault lights up The Network only in the step it happens.

@@ -62,7 +62,7 @@ type Responsibility = 'presentation' | 'intent' | 'orchestrator' | 'executor' | 
 type Party = Responsibility | 'network';
 type Surface = 'faultMgmt' | 'itsm' | 'portal' | 'perfMgmt' | 'api';
 type Status = 'HEALTHY' | 'DEGRADED' | 'VIOLATED' | 'CLEARED';
-type Marker = 'IN_SYNC' | 'UNCHANGED' | 'COMPLETED';
+type Marker = 'UNCHANGED' | 'COMPLETED';
 type View = 'simple' | 'technical';
 type Text = Record<View, string>;
 
@@ -235,7 +235,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
   6. each status chip whose value changed pulses three times.
   
   The step's length is the end of its last slot. Cards never move across the canvas. All durations are in one constants table.
-- **As built (rev 9):** events play one after another in their causal order, so a work slot (region highlight and work label) comes where the step's work event is, not always first. A party's later work in the same beat takes time but doesn't animate again. A `mark` (IN SYNC, COMPLETED) and a `network` change fade in at their place in the order. A chip pulses when its value at that place (card slot, surface or link) differs from the previous beat, including when it first appears. Slots live in `src/model/timeline.ts`; `src/ui/motion.ts` applies them. Lines are keyed by `lineKey` in `src/model/state.ts`, shared with `routes.ts`. The app has no CSS transitions or animations, so the overlay is the only motion.
+- **As built (rev 9):** events play one after another in their causal order, so a work slot (region highlight and work label) comes where the step's work event is, not always first. A party's later work in the same beat takes time but doesn't animate again. A `mark` (UNCHANGED, COMPLETED) and a `network` change fade in at their place in the order. A chip pulses when its value at that place (card slot, surface or link) differs from the previous beat, including when it first appears. Slots live in `src/model/timeline.ts`; `src/ui/motion.ts` applies them. Lines are keyed by `lineKey` in `src/model/state.ts`, shared with `routes.ts`. The app has no CSS transitions or animations, so the overlay is the only motion.
 - **Ordering guarantee (unit-tested):** an `appear` slot starts only after every signal and handoff addressed to its producer earlier in the step has finished. A Network-produced artifact appears just before its own handoff. Pulses finish within the step's length.
 - **Navigation:** every navigation first calls `finish()` on all running animations, then renders the target step. This means:
   - **Next** renders step n+1 and starts its timeline;
@@ -272,7 +272,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
   | ▲ DEGRADED | achromatic with a pattern |
   | ✕ VIOLATED | one magenta hue, used by no responsibility, with dark text |
   | ✓ CLEARED | neutral; distinguished from HEALTHY by its word |
-  | = UNCHANGED / = COMPLETED | neutral markers, not chips |
+  | = UNCHANGED / completed | neutral markers, not chips |
 
   `UP` never appears in a chip.
 - **Colour tokens** are defined once in `src/theme.ts` and applied as CSS custom properties. A unit test checks the WCAG AA contrast of every text/background token pair, including subdued text and the VIOLATED chip.

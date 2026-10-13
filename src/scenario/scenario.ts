@@ -1131,7 +1131,7 @@ export const STEPS: Step[] = [
     title: 'Evaluate',
     caption: T(
       'Observability evaluates the SLI against its SLO rule. It is within the objective, so ACME’s service is healthy. This is service verification, separate from the configuration check.',
-      'Rule acme-loss: 0.00% < 0.1% → service state HEALTHY for ACME-L3VPN-001. Service verification (SLO) is separate from configuration verification (drift check).',
+      'Rule acme-loss: 0.00% < 0.1% → service state HEALTHY for ACME-L3VPN-001. Service verification (SLO) is separate from configuration verification (conformance check).',
     ),
     events: [work('observability', 'evaluate', 'evaluate SLI against SLO'), appear('ss1')],
   },

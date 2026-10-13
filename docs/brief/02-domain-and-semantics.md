@@ -13,7 +13,7 @@ The NAF framework names six responsibilities. In this demo they are **roles**, n
 | **Orchestrator** | Coordinates workflows across responsibilities using signals. In this scenario it relays requests to Intent, and its remediation workflow evaluates a pre-approved policy and produces the remediation decision; on a link event it asks ITSM for the link's repair. | Configure the network; own service intent, derived network intent or desired state. |
 | **Executor** | Renders and applies configuration changes. In this scenario it takes desired state from Intent, which is one common pattern, not a NAF requirement. | Decide what the network should be; verify the outcome. |
 | **Collector** | Gathers and normalizes live network state, tags it with service IDs from a locally cached copy of intent, and reads back applied configuration for Observability's conformance check. | Interpret service impact. |
-| **Observability** | Turns SLO definitions into SLO rules, computes SLIs, correlates observations and evaluates SLIs against SLOs to understand service state, and raises and clears events., and checks configuration conformance (observed against desired state) | Change the network. |
+| **Observability** | Turns SLO definitions into SLO rules, computes SLIs, correlates observations and evaluates SLIs against SLOs to understand service state, raises and clears events, and checks configuration conformance (observed against desired state). | Change the network. |
 
 **The Network** (infrastructure) sits beneath the six responsibilities and is not one of them. Only Executor writes to it, and only Collector reads from it.
 

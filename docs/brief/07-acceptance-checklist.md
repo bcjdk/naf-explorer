@@ -8,7 +8,7 @@ The demo is done when every item holds. Items marked **[auto]** must be automate
 - [ ] Every coordination signal has Orchestrator as exactly one endpoint.
 - [ ] Only Executor sends to The Network (configuration change only), and The Network sends only raw signals, only to Collector.
 - [ ] Executor receives only desired state from Intent and apply requests from Orchestrator (ADR 0002), and sends only configuration changes to The Network.
-- [ ] Collector receives only raw signals from The Network, sends only enriched observations to Observability and observed device state to Observability, and never produces a status.
+- [ ] Collector receives only raw signals from The Network, sends only enriched observations and observed device state, both to Observability, and never produces a status.
 - [ ] Every piece of work is done by its owner:
   - **Intent:** record, derive;
   - **Executor:** render, apply;

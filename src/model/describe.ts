@@ -18,7 +18,6 @@ export const STATUS_ICON: Record<Status, string> = {
 export const statusText = (s: Status): string => `${STATUS_ICON[s]} ${s}`;
 
 export const MARKER_TEXT: Record<Marker, string> = {
-  IN_SYNC: '= IN SYNC',
   UNCHANGED: '= UNCHANGED',
   COMPLETED: 'completed',
 };
@@ -27,12 +26,11 @@ const end = (p: Party, surface?: Surface) =>
   p === 'presentation' && surface ? SURFACES[surface] : RESPONSIBILITIES[p].name;
 
 const MARKER_WORDS: Record<Marker, string> = {
-  IN_SYNC: 'in sync',
   UNCHANGED: 'unchanged',
   COMPLETED: 'completed',
 };
 
-/** A card's accessible name (spec §11): "Desired network state v2, by Intent, in sync, 1 earlier version". */
+/** A card's accessible name (spec §11): "Service intent v1, by Intent, unchanged". */
 export function cardName(id: string, marker?: Marker, earlier = 0): string {
   const v = version(id);
   const k = kind(v.kind);
