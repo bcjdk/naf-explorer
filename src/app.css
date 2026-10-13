@@ -369,6 +369,10 @@ code {
 :is(.card, .surface).selected {
   outline-offset: -4px;
 }
+/* Surfaces have no spare height below their last item, so their ring sits a pixel nearer the edge. */
+.surface.selected {
+  outline-offset: -3px;
+}
 /* Focus stays visible on the selected element itself; the open inspector still shows what is selected. */
 .selected:focus-visible {
   outline: 2px solid #ffffff;
@@ -444,7 +448,7 @@ code {
   border-right-color: var(--border-new);
   border-bottom-color: var(--border-new);
 }
-.card.new:hover {
+.card.new:hover:not(:active) {
   /* Keeps the provenance tint, on the lighter hover fill. */
   background: color-mix(in srgb, var(--accent) 12%, var(--card-hover));
 }

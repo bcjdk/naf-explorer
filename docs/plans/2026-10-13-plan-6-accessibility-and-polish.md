@@ -19,5 +19,6 @@ The owner decided all 35 strings on the review page (2026-10-13). Applied: ds1 p
 
 ## Still to do
 
+- **Make inspectables look clickable** (separate design round; the hint stays until then).
 - **Repair request rework.** The owner wants the link repair ticket raised from the Detect chapter's link problem, not tied to ACME. Design to be agreed before building.
 - One review of the whole branch, then merge and push.

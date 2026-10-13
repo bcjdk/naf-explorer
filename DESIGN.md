@@ -206,7 +206,7 @@ Flat and tonal. Depth is a one-step lift in fill (card, then card-hover, panel t
 
 ### Four visual systems (never share styling)
 
-- **Selection:** a 2px dashed ink ring: outside a region (offset 3px), just inside a card or surface (offset −4px), because cards sit flush with their region's clipped edges.
+- **Selection:** a 2px dashed ink ring: outside a region or line label (offset 3px), just inside a card (offset −4px) or surface (−3px), because cards sit flush with their region's clipped edges.
 - **Focus:** a 2px solid white ring inside the element (offset -2px); 2px outside for text-like controls.
 - **Activity:** a lifted panel (#1d2631) with a brighter border; the provenance edge stays.
 - **Gain:** a brief 1px inset shadow in the bright border colour, animated only.
