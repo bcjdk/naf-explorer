@@ -5,5 +5,29 @@
       "maxFindings": 5,
       "maxChars": 8000
     }
+  },
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "src/app.css"
+        ],
+        "createdAt": "2026-10-13T06:13:49.685Z",
+        "reason": "owner: ADR 0003 accepted the 3-7px provenance edges on cards, inspector blocks and payloads"
+      },
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "src/app.css"
+        ],
+        "createdAt": "2026-10-13T06:13:49.702Z",
+        "reason": "owner: ADR 0003 accepted the 3-6px provenance top edges on regions, About and the inspector header"
+      }
+    ]
   }
 }

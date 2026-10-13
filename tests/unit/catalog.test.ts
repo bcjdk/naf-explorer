@@ -67,10 +67,11 @@ describe('artifact catalog (brief 02, 03; checklist 07)', () => {
     expect(kind('serviceRequest').producerSurface).toBe('portal');
   });
 
-  it('has every Orchestrator request declare what answers it, except the repair request', () => {
-    // The repair request hands work to people through ITSM; nothing in automation answers it (ADR 0004).
+  it('has every Orchestrator request declare what answers it, except what it hands people', () => {
+    // The repair request (ADR 0004) and the completed workflow record (ADR 0005) go to people through
+    // Presentation; nothing in automation answers them.
     for (const k of producedBy('orchestrator').filter(
-      (k) => k.consumers.length > 0 && k.id !== 'repairRequest',
+      (k) => k.consumers.length > 0 && !['repairRequest', 'workflow'].includes(k.id),
     )) {
       expect(k.answeredBy, k.id).toBeDefined();
     }

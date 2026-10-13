@@ -233,6 +233,7 @@ describe('handoffs and signals (brief 02; checklist 07)', () => {
         )
         .map((f) => f.e.surface);
     expect(route('sr')).toEqual(['portal']);
+    expect(route('wf-prov')).toEqual(['portal']);
     expect(route('ev-viol')).toEqual(['faultMgmt']);
     expect(route('ev-clear')).toEqual(['faultMgmt']);
     expect(route('ev-link')).toEqual(['faultMgmt']);

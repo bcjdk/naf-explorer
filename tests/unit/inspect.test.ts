@@ -204,6 +204,9 @@ describe('accessible names (spec §11)', () => {
       'Portal, showing Service state 09:13, by Observability, healthy',
     );
     expect(surfaceName('api')).toBe('API');
+    expect(surfaceName('portal', 'ss1', 'wf-prov')).toBe(
+      'Portal, showing Service state 09:13, by Observability, healthy, order completed',
+    );
   });
 });
 

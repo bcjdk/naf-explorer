@@ -35,7 +35,7 @@ The demo is done when every item holds. Items marked **[auto]** must be automate
   - evidence, the link event, the repair request and Collector artifacts have no status.
 - [ ] The correlation step says "not proof" in both views.
 - [ ] Every Presentation handoff names exactly one surface:
-  - the request comes from Portal;
+  - the request comes from Portal, and the completed provisioning workflow record goes back to it (ADR 0005);
   - the violation goes to Fault Management;
   - its clear goes to Fault Management;
   - the link event goes to Fault Management;

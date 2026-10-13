@@ -48,7 +48,7 @@ Each line is one causal change. "→" is an artifact handoff; "⇢" is a coordin
 12. **Enrich.** Collector tags the measurements with service IDs from its cached intent. Collector → Observability (*enriched observations*).
 13. **Compute SLI.** Observability computes ACME's SLI: 0.00% loss in the last minute.
 14. **Evaluate.** Observability evaluates the SLI against the SLO rule: within objective, so service state is **HEALTHY**.
-15. **Report.** Observability → Portal and Orchestrator (*service state HEALTHY*; the provisioning workflow has been waiting for it). Orchestrator completes the provisioning workflow.
+15. **Report.** Observability → Portal and Orchestrator (*service state HEALTHY*; the provisioning workflow has been waiting for it). Orchestrator completes the provisioning workflow and hands the completed workflow record to the Portal, so ACME's order shows as completed (ADR 0005).
 
 ### Detect: network signals become service understanding
 
@@ -92,7 +92,7 @@ Each line is one causal change. "→" is an artifact handoff; "⇢" is a coordin
 | Desired network state (per device) | Intent | Executor | v1 · v2 |
 | SLO definition | Intent | Observability | one version |
 | SLO rule | Observability | — | one version |
-| Workflow record: provision / remediation | Orchestrator | — | running · completed |
+| Workflow record: provision / remediation | Orchestrator | Portal (provision, once completed; ADR 0005) | running · completed |
 | Remediation decision | Orchestrator | Intent | exclude CPH01–ODE01 |
 | Apply request (ADR 0002) | Orchestrator | Executor | v1 · v2 (each names a desired-state version only) |
 | Repair request (ADR 0004) | Orchestrator | ITSM | CPH01–ODE01, from the link event (no status) |

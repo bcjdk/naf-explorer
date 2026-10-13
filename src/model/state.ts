@@ -22,6 +22,8 @@ export interface StageState {
   touched: string[];
   markers: Record<string, Marker>;
   surfaces: Partial<Record<Surface, string>>;
+  /** The workflow record a surface has been told about: its own request's order status, kept apart from what it shows. */
+  orders: Partial<Record<Surface, string>>;
   slots: Partial<Record<Party, Slot[]>>;
   linkDegraded: boolean;
   /** The link degrades in this step: The Network is where something happens, though it does no work. */
@@ -57,6 +59,7 @@ export function stateAt(
     touched: [],
     markers: {},
     surfaces: {},
+    orders: {},
     slots: {},
     linkDegraded: false,
     faultNow: false,
@@ -90,7 +93,10 @@ export function stateAt(
           if (asks) s.waiting = { answer: asks, from: e.to };
           else if (e.to === 'orchestrator' && s.waiting?.answer === k) s.waiting = null;
           if (current && !s.touched.includes(e.version)) s.touched.push(e.version);
-          if (e.to === 'presentation' && e.surface) s.surfaces[e.surface] = e.version;
+          if (e.to === 'presentation' && e.surface) {
+            if (k === 'workflow') s.orders[e.surface] = e.version;
+            else s.surfaces[e.surface] = e.version;
+          }
           break;
         }
         case 'network':

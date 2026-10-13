@@ -27,7 +27,12 @@ test('clicking a card rings it; selection is not focus styling', async ({ page }
   await card(page, 'ds1').click();
   await expect(card(page, 'ds1')).toHaveClass(/\bselected\b/);
   await expect(card(page, 'ds1')).toHaveAttribute('aria-current', 'true');
-  await expect(card(page, 'ds1')).toHaveCSS('outline-style', 'dashed');
+  const ring = await card(page, 'ds1').evaluate((el) => {
+    const r = getComputedStyle(el, '::after');
+    return [r.content, r.borderTopStyle, r.position];
+  });
+  expect(ring).toEqual(['""', 'dashed', 'absolute']);
+  await expect(card(page, 'ds1')).toHaveCSS('outline-style', 'none');
   await page.keyboard.press('Tab');
   await card(page, 'ds1').focus();
   await page.keyboard.press('Enter');

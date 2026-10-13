@@ -140,7 +140,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 | P12 | Enrich | Collector: Enriched observations (baseline) | Collector: enrich · Collector → Observability: Enriched observations (baseline) |
 | P13 | Compute SLI | Observability: SLI (0.00%) | Observability: compute SLI |
 | P14 | Evaluate | Observability: Service state (09:13) | Observability: evaluate SLI against SLO |
-| P15 | Report | none | Observability → Portal: Service state (09:13) · Observability → Orchestrator: Service state (09:13) · Orchestrator: complete workflow · Workflow record (provision) completed |
+| P15 | Report | none | Observability → Portal: Service state (09:13) · Observability → Orchestrator: Service state (09:13) · Orchestrator: complete workflow · Workflow record (provision) completed · Orchestrator → Portal: Workflow record (provision) |
 
 ### Detect
 
@@ -391,3 +391,4 @@ tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-mot
 - **rev 12 (plan 6a):** Orchestrator's repair request to ITSM replaces Observability's repair-needed event (ADR 0004); The Network is active on the fault beat. See `docs/plans/2026-10-13-plan-6a-story-fixes.md`.
 - **rev 13 (plan 6b):** Observability raises a link event in Detect (D7) and Orchestrator opens the repair request in ITSM straight away (D8); the remediation workflow completes in R14 again and R15 is the closing only. "Service-impact event" becomes "Event" (link problem, loss violation, cleared). 40 beats (ADR 0004).
 - **rev 14:** the caption-bar hint is retired; P1's caption says inspection exists and About keeps the how-to. The legend holds the top-right slot from the first beat. An axe scan covers P1, D10 and R14 in both views, the inspector and About.
+- **rev 15:** Orchestrator hands the completed provisioning workflow record to the Portal at P15, and the Portal's service request reads "completed" beside the service state (ADR 0005). Observability's columns are 14px apart so P14's work line has a stem. A card's selection ring is a haloed overlay, visible over a bright band. Raw signals (degraded) name `Hu0/0/0/1` again.

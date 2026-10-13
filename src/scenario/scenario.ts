@@ -284,7 +284,11 @@ export const KINDS: ArtifactKind[] = [
     id: 'workflow',
     name: 'Workflow record',
     producer: 'orchestrator',
-    consumers: [],
+    consumers: ['presentation'],
+    uses: {
+      presentation:
+        'The Portal shows the customer’s order as completed once the provisioning workflow has finished.',
+    },
     whatItIs: 'Orchestrator’s record of a running or completed workflow.',
   },
   {
@@ -674,7 +678,7 @@ export const VERSIONS: ArtifactVersion[] = [
     meaning:
       'Light falling and errors rising at CPH01; ACME’s probe losing packets; links still UP.',
     technical: [
-      'CPH01: Rx −10.9 dBm, CRC 1,240/min',
+      'CPH01 Hu0/0/0/1: Rx −10.9, CRC 1,240/min',
       'other links: Rx −2.1 to −2.6 dBm, CRC 0',
       'oper UP, IS-IS UP · probe loss 0.4%',
     ],
@@ -1125,14 +1129,15 @@ export const STEPS: Step[] = [
     chapter: 'provision',
     title: 'Report',
     caption: T(
-      'Observability sends the healthy service state to the Portal and to Orchestrator, whose workflow has been waiting for it. Orchestrator completes the provisioning workflow.',
-      'Observability → Portal, Orchestrator: service state HEALTHY. The workflow’s wait-for-HEALTHY subscription is satisfied and closes; provision/ACME-L3VPN-001 = COMPLETED.',
+      'Observability sends the healthy service state to the Portal and to Orchestrator, whose workflow has been waiting for it. Orchestrator completes the provisioning workflow and tells the Portal that ACME’s order is complete.',
+      'Observability → Portal, Orchestrator: service state HEALTHY. The workflow’s wait-for-HEALTHY subscription is satisfied and closes; provision/ACME-L3VPN-001 = COMPLETED. Orchestrator → Portal: workflow record (order completed).',
     ),
     events: [
       hand('ss1', 'observability', 'presentation', 'portal'),
       hand('ss1', 'observability', 'orchestrator'),
       work('orchestrator', 'completeWorkflow', 'complete workflow'),
       mark('wf-prov', 'COMPLETED'),
+      hand('wf-prov', 'orchestrator', 'presentation', 'portal'),
     ],
   },
   // ── Detect ──

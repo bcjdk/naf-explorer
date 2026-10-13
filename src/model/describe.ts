@@ -46,8 +46,9 @@ export function cardName(id: string, marker?: Marker, earlier = 0): string {
     .join(', ');
 }
 
-export const surfaceName = (s: Surface, received?: string): string =>
-  received ? `${SURFACES[s]}, showing ${cardName(received)}` : SURFACES[s];
+export const surfaceName = (s: Surface, received?: string, order?: string): string =>
+  (received ? `${SURFACES[s]}, showing ${cardName(received)}` : SURFACES[s]) +
+  (order ? ', order completed' : '');
 
 export const artifactName = (id: string) => `${kind(version(id).kind).name} (${version(id).label})`;
 

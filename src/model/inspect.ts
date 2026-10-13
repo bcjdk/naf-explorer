@@ -243,6 +243,7 @@ export function inspect(target: Target, n: number, view: View): Inspection {
     case 'surface': {
       const s = target.surface;
       const shown = state.surfaces[s];
+      const order = state.orders[s];
       return {
         kind: 'Surface',
         title: SURFACES[s],
@@ -261,6 +262,7 @@ export function inspect(target: Target, n: number, view: View): Inspection {
             state.visible.filter((id) => kind(version(id).kind).producerSurface === s).map(link),
             'cards',
           ),
+          ...sec('Order status, from Orchestrator', order ? [link(order)] : [], 'cards'),
         ],
       };
     }

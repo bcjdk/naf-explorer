@@ -69,7 +69,7 @@
       class="surface"
       class:selected={isSurface(s)}
       aria-current={isSurface(s) ? 'true' : undefined}
-      aria-label={surfaceName(s, stage.surfaces[s])}
+      aria-label={surfaceName(s, stage.surfaces[s], stage.orders[s])}
       onclick={() => onSelect({ t: 'surface', surface: s })}
       data-surface={s}
       data-received={stage.surfaces[s] ?? ''}
@@ -80,7 +80,7 @@
         {#each ownRequest(s) as slot (slot.kind)}
           {@const own = version(slot.versions.at(-1)!)}
           <span class="mini own" class:new={stage.newIds.includes(own.id)} data-version={own.id}>
-            <span class="type">{kind(own.kind).name}</span>
+            <span class="type">{kind(own.kind).name}{stage.orders[s] ? ' · completed' : ''}</span>
           </span>
         {/each}
         {#if received}
