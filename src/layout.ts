@@ -122,7 +122,7 @@ export const WAYPOINTS: Record<string, [number, number][]> = {
     [470, LANES.topHigh],
     [700, LANES.topHigh],
   ],
-  // Events climb the gutter inside Observability's right edge, then take the top lane to Fault Management or ITSM.
+  // Events climb the gutter inside Observability's right edge, then take the top lane to Fault Management.
   'observability>presentation:serviceEvent@faultMgmt': [
     [494, 350],
     [494, LANES.top],

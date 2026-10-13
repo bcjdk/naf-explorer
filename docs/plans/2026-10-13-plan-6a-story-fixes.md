@@ -5,7 +5,7 @@
 ## Changes
 
 1. **Service request inspector (P2).** Its "What it is" and Orchestrator's use focus on its job: start the right workflow. The service details reach Intent in Orchestrator's intent request.
-2. **No internal references in shown text.** Drop "(ADR 0002)" from the apply request inspector and the P7 and R6 Technical captions; drop the insider word "own" from shown text. A unit test fails if any shown scenario text contains "ADR", "spec §" or "plan N".
+2. **No internal references in shown text.** Drop "(ADR 0002)" from the apply request inspector and the P7 and R6 Technical captions; drop the insider word "own" where it describes Orchestrator's artifacts (Observability's "own SLO rule" stays: it contrasts with Intent's definition). A unit test fails if any shown scenario text contains "ADR", "spec §" or "plan N".
 3. **D1 catches the eye.** The Network region is active (lifted panel and border) on the beat its link degrades, and the region lights up in motion like any active region. Reduced motion shows the same end state.
 4. **R13 caption.** Simple: "Observability checks the new SLI against the same SLO rule as before. Nothing is lost, so ACME's service is healthy again. The rule didn't change; the network did." Technical: "Rule acme-loss (unchanged): SLI 0.00% < 0.1% → service state HEALTHY."
 5. **Orchestrator asks ITSM for the repair (ADR 0004).** A new Orchestrator artifact, the **repair request** (lineage: remediation decision, HEALTHY service state), goes to ITSM in R15. Orchestrator then completes the remediation workflow there, not in R14. Observability no longer sends a repair-needed event. Brief 02, 03, 07, CLAUDE.md and spec §5 are amended to match.

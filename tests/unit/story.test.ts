@@ -475,7 +475,7 @@ describe('status semantics (checklist 07)', () => {
     expect(version('ev-clear').status).toBe('CLEARED');
   });
 
-  it('gives evidence, the repair event, Collector and Network artifacts no status', () => {
+  it('gives evidence, the repair request, Collector and Network artifacts no status', () => {
     const none = VERSIONS.filter(
       (v) =>
         v.kind === 'evidence' ||
