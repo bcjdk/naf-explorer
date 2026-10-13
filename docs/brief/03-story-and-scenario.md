@@ -1,6 +1,6 @@
 # Story and scenario (decided)
 
-The causal flow below is decided. How it maps to individual on-screen steps ("beats") is for the new build, under the pacing rule at the end of this document. The earlier build used 33 beats: Provision 13, Detect 8, Remediate 12. Revision 2026-10-10 (ADR 0001) added completion signals so Orchestrator controls every job it starts, and split verification into *read back* and *check drift*. Revision 2026-10-13 (ADR 0006) moved the check to Observability as *check config*. Revision 2026-10-11 (ADR 0002) made the apply an Orchestrator work order (*apply request*) in its own step.
+The causal flow below is decided. How it maps to individual on-screen steps ("beats") is for the new build, under the pacing rule at the end of this document. The earlier build used 33 beats: Provision 13, Detect 8, Remediate 12. Revision 2026-10-10 (ADR 0001) added completion signals so Orchestrator controls every job it starts, and split verification into *read back* and *check drift*. Revision 2026-10-11 (ADR 0002) made the apply an Orchestrator work order (*apply request*) in its own step. Revision 2026-10-13 (ADR 0006) moved the check to Observability as *check config*.
 
 ## Scenario facts
 
