@@ -34,11 +34,14 @@ code {
   outline: 2px solid var(--focus);
   outline-offset: -2px;
 }
+/* Hidden by clipping, not by an offset: on tall windows the stage is letterboxed and an off-stage offset
+   would land in view. */
 .skip {
   position: absolute;
   left: 12px;
-  top: -40px;
+  top: 8px;
   z-index: 10;
+  clip-path: inset(50%);
   padding: 6px 12px;
   border-radius: 4px;
   background: var(--text);
@@ -46,7 +49,7 @@ code {
   font-weight: 600;
 }
 .skip:focus-visible {
-  top: 8px;
+  clip-path: none;
 }
 .sr-only {
   position: absolute;
@@ -79,7 +82,7 @@ code {
   height: 36px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   padding: 0 12px;
   box-sizing: border-box;
   border-bottom: 1px solid var(--border);
@@ -92,7 +95,7 @@ code {
 }
 .header nav {
   display: flex;
-  gap: 22px;
+  gap: 16px;
   margin-left: auto;
 }
 .chapter {

@@ -39,16 +39,16 @@ npm install
 npm run dev        # http://localhost:5173
 ```
 
-| Command            | What it does                                                                       |
-| ------------------ | ---------------------------------------------------------------------------------- |
-| `npm run dev`      | Vite dev server                                                                    |
-| `npm run build`    | Production build into `dist/`                                                      |
-| `npm run preview`  | Serves the build                                                                   |
-| `npm test`         | Unit tests (Vitest): the NAF rules and the story as data                           |
-| `npm run test:e2e` | Browser tests (Playwright, Chromium), including an axe accessibility scan          |
-| `npm run check`    | Type and Svelte checks                                                             |
-| `npm run beats`    | Prints the step table from the scenario data                                       |
-| `npm run verify`   | Everything above in one go: formatting, types, unit tests, build and browser tests |
+| Command            | What it does                                                              |
+| ------------------ | ------------------------------------------------------------------------- |
+| `npm run dev`      | Vite dev server                                                           |
+| `npm run build`    | Production build into `dist/`                                             |
+| `npm run preview`  | Serves the build                                                          |
+| `npm test`         | Unit tests (Vitest): the NAF rules and the story as data                  |
+| `npm run test:e2e` | Browser tests (Playwright, Chromium), including an axe accessibility scan |
+| `npm run check`    | Type and Svelte checks                                                    |
+| `npm run beats`    | Prints the step table from the scenario data                              |
+| `npm run verify`   | Formatting, types, unit tests, build and browser tests in one go          |
 
 Run `npm run verify` before committing. The first browser-test run needs `npx playwright install chromium`.
 

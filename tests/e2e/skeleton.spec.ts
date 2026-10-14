@@ -199,7 +199,11 @@ test('nothing overflows, cards stay in their region without overlapping, and lab
       await tick(page, n).click();
       await expect(counter(page)).toHaveText(`${n + 1} / ${STEPS.length}`);
       const over = await page.evaluate(() =>
-        [...document.querySelectorAll<HTMLElement>('.region, .card, .surface, .caption, .label')]
+        [
+          ...document.querySelectorAll<HTMLElement>(
+            'header, .region, .card, .surface, .caption, .label',
+          ),
+        ]
           .filter(
             (el) => el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1,
           )

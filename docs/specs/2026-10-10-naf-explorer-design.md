@@ -49,7 +49,7 @@ The stage is fixed at 1440×952 (about 1440×900) and scaled uniformly to fit th
   - **One fixed slot per artifact kind** in its producer's region (`SLOTS` in `layout.ts`). The card shows the kind's newest version: type and label, "by <producer>", status or marker, and its body (meaning or Technical lines) in every step. Earlier versions sit **stacked behind** it as offset edges, generalising "v2 stacked over v1"; their label, status and marker stay in the DOM for screen readers.
   - Slots are fixed and sized for the larger of the two bodies, so nothing moves between beats or views (§6, §8).
   - Nothing on the stage scrolls or clips: regions, cards, surfaces and the caption must fit their content in every beat and both views.
-- **The inspector** is a 400px panel that overlays the responsibilities zone (y 52-760) on the side **opposite the selection**. It opens on the left when the selection is in Intent, Executor or the right half of Presentation and The Network, and on the right otherwise. It never covers the selected element or the caption bar.
+- **The inspector** is a 400px panel that overlays the responsibilities zone (y 52-760) on the side **opposite the selection**. It opens on the left when the selection is in Intent, Executor or the right half of Presentation and The Network, and on the right otherwise. It never covers the selected element or the caption bar. If keyboard focus moves onto an element under the panel, the panel moves to the other side, so focus is never hidden (WCAG 2.4.11), even if that covers the selection.
 
 ## 4. Scenario data model
 
