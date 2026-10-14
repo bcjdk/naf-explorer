@@ -18,6 +18,8 @@ test('About, as it opens on load, has no serious accessibility violations', asyn
   await page.goto('/');
   await expect(page.getByRole('dialog')).toBeVisible();
   expect(await violations(page)).toEqual([]);
+  await page.getByRole('button', { name: 'Notes and credits →' }).click();
+  expect(await violations(page), 'notes').toEqual([]);
 });
 
 for (const view of ['Simple', 'Technical'] as const) {

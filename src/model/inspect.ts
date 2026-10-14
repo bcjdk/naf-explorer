@@ -5,6 +5,7 @@ import {
   SURFACES,
   SURFACE_ROLES,
   SURFACE_NAF,
+  RESPONSIBILITY_NAF,
   VERSIONS,
   kind,
   producerOf,
@@ -176,6 +177,11 @@ export function inspect(target: Target, n: number, view: View): Inspection {
           ...sec('Role', [text(r.role)], 'text'),
           ...sec('Does', r.does.map(text)),
           ...sec('Does not', r.doesNot.map(text)),
+          ...sec(
+            'In NAF terms',
+            RESPONSIBILITY_NAF[p] ? [text(RESPONSIBILITY_NAF[p])] : [],
+            'text',
+          ),
           ...sec('In this step', now.length ? now : [text('Nothing in this beat.')], 'highlight'),
           ...sec(
             'Produced so far',

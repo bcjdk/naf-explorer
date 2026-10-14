@@ -128,6 +128,14 @@ describe('inspect: responsibilities', () => {
     });
   });
 
+  it('says where Collector differs from NAF: it enriches at the source', () => {
+    const i = inspect({ t: 'responsibility', party: 'collector' }, at('P1'), 'simple');
+    expect(texts(i, 'In NAF terms')[0]).toMatch(/^NAF places enrichment .* in Observability/);
+    expect(
+      texts(inspect({ t: 'responsibility', party: 'intent' }, at('P1'), 'simple'), 'In NAF terms'),
+    ).toEqual([]);
+  });
+
   it('links what the party has produced so far', () => {
     const i = inspect({ t: 'responsibility', party: 'intent' }, at('P5'), 'simple');
     expect(section(i, 'Produced so far').map((x) => x.target)).toEqual(

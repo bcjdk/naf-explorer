@@ -21,35 +21,40 @@ export const TITLE = 'How Network Automation Works';
 /** The About window (brief 06). Links open in a new tab. */
 export const ABOUT = {
   title: 'How Network Automation Works',
-  intro:
-    'An interactive explainer of network automation as separate responsibilities connected by typed handoffs, based on the Network Automation Forum (NAF) framework. It follows one ACME L3VPN service through Provision → Detect → Remediate.',
-  sections: [
-    {
-      heading: 'Who it is for',
-      text: 'Network engineers, architects and senior technical leadership who know networking and want a clear mental model of how automation systems divide the work.',
-    },
-    {
-      heading: 'Why',
-      text: 'Automation is easier to reason about as roles and handoffs than as a list of tools. And “the interface is UP” is not the same as “the service is healthy”.',
-    },
-  ],
-  framing:
-    'This is an example of how good network automation can look when the NAF framework is used as the reference. It is not a prescription for how network automation should look.',
-  /** Where the canvas takes liberties with NAF's Presentation layer, said once here and per surface in the inspector. */
-  liberties:
-    'For one story on one canvas, Presentation also holds ITSM, usually its own platform, and Fault and Performance Management, which may or may not count. Each surface’s inspector says which.',
+  /** The welcome view: what this is, who it is for, how to use it. It opens on every load. */
+  lead: 'Follow one ACME service through Provision → Detect → Remediate, and see how separate automation responsibilities hand work to each other.',
+  who: 'For network engineers, architects and technical leaders who know networking. Based on the Network Automation Forum (NAF) framework.',
   howTo: [
     { keys: ['→', '←'], text: 'step through the story' },
     { keys: ['Simple', 'Technical'], text: 'choose the depth' },
+    { keys: ['click', 'Enter'], text: 'inspect anything on the canvas' },
+  ],
+  /** The notes view: the framing, the liberties taken with NAF and why, and the credits. */
+  framing:
+    'This shows how good network automation can look with the NAF framework as the reference. It is not a prescription for how network automation should look.',
+  liberties: [
     {
-      keys: ['click', 'Enter'],
-      text: 'any card, surface, line label or responsibility name to inspect it',
+      what: 'Presentation holds more than NAF’s Presentation layer.',
+      detail:
+        'ITSM is usually its own platform; Fault and Performance Management may or may not count. Each surface’s inspector says which.',
+      why: 'one band keeps every place people see the story on one canvas, without extra regions that teach nothing new about the handoffs.',
+    },
+    {
+      what: 'Collector enriches observations.',
+      detail:
+        'It tags them with link, path and service from a cached copy of intent. NAF places enrichment with intended-state context in Observability.',
+      why: 'the signal stream is a first-class part of the system. Several consumers may use a signal as it arrives, without storing it, so it is tagged once, at the source, with authoritative IDs such as the service ID.',
     },
   ],
+  author: {
+    before: 'Made by Brian C. Jeggesen. ',
+    label: 'Source on GitHub',
+    href: 'https://github.com/bcjdk/naf-explorer',
+  },
   naf: {
-    label: 'Network Automation Forum Automation Framework',
+    label: 'NAF Automation Framework',
     href: 'https://reference.networkautomation.forum/Framework/Framework/',
-    after: 'The Network Automation Forum reference architecture this story is built on.',
+    after: ' by the Network Automation Forum, the reference this story is built on.',
   },
   credit: {
     before: 'With warm thanks to my good friend Thomas Kjær Aabo, whose ',
@@ -57,7 +62,7 @@ export const ABOUT = {
     href: 'https://tkjaer.github.io/how-the-internet-works/',
     source: 'https://github.com/tkjaer/how-the-internet-works',
     after:
-      ' directly inspired this project. Its explorable, step-by-step picture of a complex system and its switch between simple and technical explanations shaped the approach here.',
+      ' directly inspired this project: its explorable, step-by-step picture of a complex system and its switch between simple and technical explanations.',
   },
 };
 
@@ -201,6 +206,12 @@ export const WORKFLOW_STEPS: Record<string, { label: string; from: string }[]> =
     { label: 'verify config', from: 'R8' },
     { label: 'verify service', from: 'R10' },
   ],
+};
+
+/** Where a responsibility here differs from the NAF reference, said in its inspector (see ABOUT.liberties). */
+export const RESPONSIBILITY_NAF: Partial<Record<Party, string>> = {
+  collector:
+    'NAF places enrichment with intended-state context in Observability. Here Collector tags each signal at the source, so every consumer of the signal stream gets the same authoritative IDs. About’s notes say why.',
 };
 
 /** Whether NAF would usually count each surface as Presentation: the canvas takes liberties (see ABOUT.liberties). */

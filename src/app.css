@@ -177,7 +177,7 @@ code {
   color: var(--text);
 }
 .about {
-  width: min(780px, 92vw);
+  width: min(600px, 92vw);
   max-height: 90vh;
   padding: 0;
   border: 1px solid var(--border);
@@ -187,7 +187,7 @@ code {
   color: var(--text);
   box-shadow: 0 24px 64px rgb(0 0 0 / 0.5);
   font:
-    15px/1.6 'Source Sans 3',
+    15px/1.55 'Source Sans 3',
     system-ui,
     sans-serif;
 }
@@ -196,52 +196,34 @@ code {
 }
 .about-body {
   position: relative;
-  padding: 32px 40px 30px;
+  padding: 30px 34px 26px;
 }
 .about h2 {
-  margin: 0 40px 12px 0;
+  margin: 0 40px 10px 0;
   font-size: 26px;
-  line-height: 1.2;
+  line-height: 1.15;
   letter-spacing: -0.01em;
 }
+/* Headings receive focus when the view switches; the switch itself is the cue, not a ring. */
+.about [tabindex='-1']:focus {
+  outline: none;
+}
 .about-lead {
+  margin: 0 0 6px;
+  font-size: 17px;
+  line-height: 1.5;
+}
+.about-who {
   margin: 0;
-  font-size: 16px;
   color: var(--muted);
-}
-.about h3 {
-  margin: 24px 0 8px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.about p {
-  margin: 0;
-}
-.about-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 32px;
-}
-.about blockquote {
-  margin: 24px 0 0;
-  padding: 14px 18px;
-  border-left: 3px solid var(--border-new);
-  border-radius: 0 6px 6px 0;
-  background: var(--card);
-  font-size: 15.5px;
-}
-.about ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
 }
 .about-keys {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 28px;
+  display: grid;
+  gap: 10px;
+  margin: 20px 0 0;
+  padding: 20px 0 0;
+  border-top: 1px solid var(--border);
+  list-style: none;
 }
 .about-keys li {
   display: flex;
@@ -249,8 +231,7 @@ code {
   gap: 6px;
 }
 .about-keys li > span:last-child {
-  margin-left: 4px;
-  color: var(--muted);
+  margin-left: 6px;
 }
 .about kbd {
   padding: 1px 8px;
@@ -259,27 +240,70 @@ code {
   border-radius: 5px;
   background: var(--card);
   font:
-    600 13px/1.5 'Source Sans 3',
+    600 13.5px/1.5 'Source Sans 3',
     system-ui,
     sans-serif;
 }
 .about-or {
-  color: var(--muted);
+  color: var(--faded);
 }
-.about-refs li {
-  padding: 10px 0;
+.about-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 16px;
   border-top: 1px solid var(--border);
 }
-.about-refs li:first-child {
-  border-top: 0;
-  padding-top: 0;
-}
-.about-refs li > a:first-child {
-  display: block;
-  font-weight: 600;
-}
-.about-refs span {
+.about-hint {
   color: var(--muted);
+  font-size: 13.5px;
+}
+.about-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--border-new);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.about-link:hover {
+  text-decoration-color: currentColor;
+}
+.about h3 {
+  margin: 10px 40px 4px 0;
+  font-size: 24px;
+  line-height: 1.2;
+}
+.about h4 {
+  margin: 16px 0 4px;
+  font-size: 16px;
+}
+.about p {
+  margin: 0;
+}
+.about p + p {
+  margin-top: 8px;
+}
+.about-liberties {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+.about-liberties li + li {
+  margin-top: 10px;
+}
+.about-why {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+}
+.about-why strong {
+  color: var(--text);
+  font-weight: 600;
 }
 .about a {
   color: var(--text);
