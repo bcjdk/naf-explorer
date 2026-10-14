@@ -47,7 +47,7 @@ export const ABOUT = {
     },
   ],
   author: {
-    before: 'Made by Brian C. Jeggesen. ',
+    before: 'Made by Brian Strube Jeggesen. ',
     label: 'Source on GitHub',
     href: 'https://github.com/bcjdk/naf-explorer',
   },

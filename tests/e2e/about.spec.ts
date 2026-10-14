@@ -50,7 +50,7 @@ test('the notes hold the framing, both liberties with their reasons, and the cre
   await expect(about).toContainText('Presentation holds more than NAF’s Presentation layer.');
   await expect(about).toContainText('Collector enriches observations.');
   await expect(about.getByText('Why:')).toHaveCount(2);
-  await expect(about).toContainText('Made by Brian C. Jeggesen.');
+  await expect(about).toContainText('Made by Brian Strube Jeggesen.');
   await expect(about).toContainText('Thomas Kjær Aabo');
   for (const link of await about.getByRole('link').all())
     await expect(link).toHaveAttribute('target', '_blank');

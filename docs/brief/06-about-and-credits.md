@@ -40,7 +40,7 @@ The inspector repeats each liberty where it applies: every surface has an "In NA
 
 **Credits**
 
-- Made by Brian C. Jeggesen. [Source on GitHub](https://github.com/bcjdk/naf-explorer).
+- Made by Brian Strube Jeggesen. [Source on GitHub](https://github.com/bcjdk/naf-explorer).
 - [NAF Automation Framework](https://reference.networkautomation.forum/Framework/Framework/) by the Network Automation Forum, the reference this story is built on.
 - With warm thanks to my good friend Thomas Kjær Aabo, whose [How the Internet Works](https://tkjaer.github.io/how-the-internet-works/) ([source](https://github.com/tkjaer/how-the-internet-works)) directly inspired this project: its explorable, step-by-step picture of a complex system and its switch between simple and technical explanations.
 

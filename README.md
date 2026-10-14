@@ -83,9 +83,9 @@ The site is a static-assets Cloudflare Worker (`wrangler.jsonc`). Cloudflare Wor
 
 ## Credits
 
-**Built by Brian C. Jeggesen.** He set the direction and the story, and made the calls. The code and docs were written with [Claude](https://claude.ai) (Anthropic) in Claude Code, working under his direction, review and occasional colourful feedback, and at a token spend that is best not mentioned in polite company.
+**Built by Brian Strube Jeggesen.** He set the direction and the story, and made the calls. The code and docs were written with [Claude](https://claude.ai) (Anthropic) in Claude Code, working under his direction, review and occasional colourful feedback, and at a token spend that is best not mentioned in polite company.
 
-**Inspired by [How the Internet Works](https://tkjaer.github.io/how-the-internet-works/) by Thomas Kjær Aabo** ([source](https://github.com/tkjaer/how-the-internet-works)). Its explorable, step-by-step picture of a complex system and its switch between simple and technical explanations shaped this project. No code, text or assets from it are used, so its AGPL licence does not apply here; the credit is given because the idea deserves it, and it also appears in the app's About window.
+**Inspired by [How the Internet Works](https://tkjaer.github.io/how-the-internet-works/) by Thomas Kjær Aabo** ([source](https://github.com/tkjaer/how-the-internet-works)). This project grew out of Thomas's explorable, step-by-step picture of a complex system, and his switch between simple and technical explanations. Thank you, Thomas. The same thanks lives in the app's About window.
 
 **Built on the [NAF Automation Framework](https://reference.networkautomation.forum/Framework/Framework/)** by the Network Automation Forum. NAF describes functional responsibilities, not one mandatory design; this explainer is one possible way to show them, and not an official NAF product.
 
