@@ -25,7 +25,7 @@ In the owner's walk-through of the Simple view, R15 had Observability send ITSM 
 
 The owner pointed out that the faulty link is a backbone problem, whatever services it carries, so its ticket should not wait for ACME's remediation.
 
-- In Detect, right after correlating, Observability raises a **link event** (CPH01–ODE01, suspected optical degradation, no service named, no status) to Fault Management and Orchestrator (D7).
+- In Detect, right after correlating, Observability raises a **link event** (CPH01-ODE01, suspected optical degradation, no service named, no status) to Fault Management and Orchestrator (D7).
 - Orchestrator turns it into the **repair request** to ITSM straight away (D8). The request derives from the link event only and names only the suspect link.
 - The remediation workflow no longer has a repair step: it completes in R14, and R15 is the closing.
 - "Service-impact event" becomes **Event**, one kind with three versions stacked in one card: link problem, loss violation, cleared.

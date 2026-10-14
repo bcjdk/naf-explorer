@@ -12,13 +12,13 @@ const TRAVEL: Keyframe[] = [
     offsetDistance: '0%',
     opacity: 1,
     transform: 'scale(2.6)',
-    boxShadow: '0 0 0 0 rgb(230 233 238 / 0.6)',
+    boxShadow: `0 0 0 0 color-mix(in srgb, ${TOKENS.text} 60%, transparent)`,
   },
   {
     offset: 0.18,
     offsetDistance: '0%',
     transform: 'scale(1.6)',
-    boxShadow: '0 0 0 8px rgb(230 233 238 / 0)',
+    boxShadow: `0 0 0 8px color-mix(in srgb, ${TOKENS.text} 0%, transparent)`,
   },
   { offset: 0.28, offsetDistance: '0%', transform: 'scale(1)' },
   { offset: 0.88, opacity: 1 },
@@ -63,7 +63,12 @@ function targets(s: MotionSlot): Target[] {
         : [[card, FADE]];
     }
     case 'mark':
-      return each(`.card[data-version="${t}"] .marker`, FADE);
+      // A completed workflow's step list completes with its marker, not at the start of the beat.
+      return each(`.card[data-version="${t}"] :is(.marker, .wf-steps)`, FADE);
+    case 'show': {
+      const [surface, v] = t.split('|');
+      return each(`.surface[data-surface="${surface}"] [data-shown="${v}"]`, FADE);
+    }
     case 'network':
       return [
         ...(t === 'link' ? each(place('network'), LIGHT_UP) : []),

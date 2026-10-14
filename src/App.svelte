@@ -20,7 +20,11 @@
   let about = $state<HTMLDialogElement>();
   // The About window opens on every load and refresh (brief 06, as changed by the user on 2026-10-11).
   $effect(() => {
-    if (about && !about.open) about.showModal();
+    if (about && !about.open) {
+      // Opened on load there is no opener to return focus to; About lands it on the story instead.
+      about.dataset.onLoad = '';
+      about.showModal();
+    }
   });
 
   let step = $state(0);
@@ -48,6 +52,17 @@
     placeSide();
     await tick();
     document.getElementById('inspector-title')?.focus();
+  }
+
+  /** Focus never lands under the open inspector: if it would, the panel moves to the other side. */
+  function onFocusIn(e: FocusEvent) {
+    const el = e.target as HTMLElement;
+    const panel = document.querySelector('.inspector');
+    if (!panel || !el.closest('#canvas')) return;
+    const a = el.getBoundingClientRect();
+    const b = panel.getBoundingClientRect();
+    if (a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom)
+      side = side === 'left' ? 'right' : 'left';
   }
 
   /** Sides the inspector opposite the ring. Nothing is ringed when the target isn't drawn in this beat: keep the side. */
@@ -102,6 +117,7 @@
 
   function openAbout() {
     finishAll();
+    delete about?.dataset.onLoad;
     about?.showModal();
   }
 
@@ -130,7 +146,7 @@
   }
 </script>
 
-<svelte:window bind:innerWidth bind:innerHeight onkeydown={onKeydown} />
+<svelte:window bind:innerWidth bind:innerHeight onkeydown={onKeydown} onfocusin={onFocusIn} />
 
 <div class="viewport" style={tokenStyle}>
   <div
@@ -139,8 +155,12 @@
     style:height="{STAGE.h}px"
     style:transform="translate(-50%, -50%) scale({scale})"
   >
+    <!-- The header holds a stop per step; the skip link takes keyboard users straight to the canvas. -->
+    <a class="skip" href="#canvas">Skip to the story</a>
     <Header {step} {view} onJump={go} onView={setView} onAbout={openAbout} onReplay={replay} />
-    <Stage {stage} {routes} {view} {step} {selected} onSelect={select} />
+    <main id="canvas" tabindex="-1" aria-label="The automation system">
+      <Stage {stage} {routes} {view} {step} {selected} onSelect={select} />
+    </main>
     {#if selected}
       <Inspector
         target={selected}

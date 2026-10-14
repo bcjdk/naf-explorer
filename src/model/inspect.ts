@@ -4,6 +4,8 @@ import {
   STEPS,
   SURFACES,
   SURFACE_ROLES,
+  SURFACE_NAF,
+  RESPONSIBILITY_NAF,
   VERSIONS,
   kind,
   producerOf,
@@ -19,7 +21,7 @@ import type {
   Surface,
   View,
 } from '../scenario/types.ts';
-import { MARKER_TEXT, artifactName, describe, statusText } from './describe.ts';
+import { MARKER_TEXT, answerName, artifactName, describe, statusText } from './describe.ts';
 import { lineKey, stateAt, type Exchange } from './state.ts';
 
 /** What the reader can select (spec §7). A line is identified by its beat and its route key. */
@@ -41,8 +43,8 @@ export interface Item {
   status?: Status;
 }
 /** How a section is drawn (design uplift §4.2). */
-export type Look = 'text' | 'list' | 'blocks' | 'cards' | 'code' | 'highlight';
-export interface Section {
+type Look = 'text' | 'list' | 'blocks' | 'cards' | 'code' | 'highlight';
+interface Section {
   heading: string;
   items: Item[];
   look: Look;
@@ -175,6 +177,11 @@ export function inspect(target: Target, n: number, view: View): Inspection {
           ...sec('Role', [text(r.role)], 'text'),
           ...sec('Does', r.does.map(text)),
           ...sec('Does not', r.doesNot.map(text)),
+          ...sec(
+            'In NAF terms',
+            RESPONSIBILITY_NAF[p] ? [text(RESPONSIBILITY_NAF[p])] : [],
+            'text',
+          ),
           ...sec('In this step', now.length ? now : [text('Nothing in this beat.')], 'highlight'),
           ...sec(
             'Produced so far',
@@ -202,19 +209,12 @@ export function inspect(target: Target, n: number, view: View): Inspection {
           dashed: true,
           strip: { from: e.from, to: e.to },
           sections: [
-            ...sec('Asks', [text(info.asks)], 'text'),
+            // A request asks; an answer tells.
+            ...sec(info.answeredBy ? 'Asks' : 'Tells', [text(info.asks)], 'text'),
             ...sec('About', e.version ? [link(e.version)] : [], 'cards'),
             ...sec(
               'Answered by',
-              [
-                text(
-                  a
-                    ? a in SIGNALS
-                      ? SIGNALS[a as SignalId].label
-                      : kind(a as KindId).name
-                    : 'Nothing: it answers an earlier request.',
-                ),
-              ],
+              [text(a ? answerName(a) : 'Nothing: it answers an earlier request.')],
               'text',
             ),
           ],
@@ -247,6 +247,7 @@ export function inspect(target: Target, n: number, view: View): Inspection {
         by: 'presentation',
         sections: [
           ...sec('What it is', [text(SURFACE_ROLES[s])], 'text'),
+          ...sec('In NAF terms', [text(SURFACE_NAF[s])], 'text'),
           ...sec(
             'Showing',
             [shown ? link(shown) : text('Nothing received yet.')],

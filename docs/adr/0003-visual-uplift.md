@@ -5,7 +5,7 @@
 
 ## Context
 
-The owner found the explainer dull, and the inspector especially so. An Impeccable critique (2026-10-12, 29/40) agreed. It found that the NAF colours, the product's identity and its visual grammar, appeared only as a 2px region edge, a swatch and a dimmed card bar. With labels covered, the six responsibilities were six identical grey boxes. Type was `system-ui` at 10–12px, too small for a projector.
+The owner found the explainer dull, and the inspector especially so. An Impeccable critique (2026-10-12, 29/40) agreed. It found that the NAF colours, the product's identity and its visual grammar, appeared only as a 2px region edge, a swatch and a dimmed card bar. With labels covered, the six responsibilities were six identical grey boxes. Type was `system-ui` at 10-12px, too small for a projector.
 
 Brief 04 said provenance colour is "a thin accent… never fills or text colour". The spec made that rule binding in §10.
 

@@ -11,9 +11,11 @@ export const TOKENS = {
   'card-earlier': '#161b22',
   /** Hover on anything inspectable (cards, surfaces, labels): one step up from card. */
   'card-hover': '#232a34',
-  /** Text on a solid producer band (spec §2.2): dark on the light colours, white on Executor and The Network. */
+  /** Text on a solid producer band (design-uplift spec §2.2): dark on the light colours, white on Executor and The Network. */
   'on-band-dark': '#0f1216',
   'on-band-light': '#ffffff',
+  /** Keyboard focus ring: solid white, so it never reads as a provenance colour or the dashed selection. */
+  focus: '#ffffff',
   /** Earlier beats' cards: the dimmest text that still meets AA on their background. */
   faded: '#7d8796',
   'border-faint': '#222932',
@@ -29,7 +31,7 @@ export const TOKENS = {
   intent: '#ff6d2e',
   collector: '#f43f5e',
   executor: '#6366f1',
-  /** Executor's band fill only: 8% darker, so white text meets AA (4.47:1 on the true colour; plan 5 D1). */
+  /** Executor's band fill only: 8% darker, so white text meets AA (4.47:1 on the true colour; ADR 0003). */
   'executor-band': '#5b5ede',
   network: '#64748b',
   'chip-text': '#e6e9ee',

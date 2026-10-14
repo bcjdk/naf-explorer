@@ -30,6 +30,9 @@ colors:
   hatch-a: '#d4d9e0'
   hatch-b: '#aeb6c1'
   violated: '#e879f9'
+  chip-text: '#e6e9ee'
+  hatch-text: '#0f1216'
+  violated-text: '#0f1216'
 typography:
   body:
     fontFamily: "'Source Sans 3', system-ui, sans-serif"

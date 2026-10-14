@@ -1,6 +1,6 @@
 # Plan 6a: story fixes from the owner's Simple-view walk-through
 
-**Source:** owner assessment round, 2026-10-13 (points 2–6; point 1 kept as is). **Branch:** `plan-6a-story-fixes`.
+**Source:** owner assessment round, 2026-10-13 (points 2-6; point 1 kept as is). **Branch:** `plan-6a-story-fixes`.
 
 ## Changes
 

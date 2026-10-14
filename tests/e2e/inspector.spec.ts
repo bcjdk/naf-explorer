@@ -305,3 +305,31 @@ test('the Portal shows the order completed beside the service state from P15 on'
   await expect(portal).toContainText('HEALTHY');
   await expect(portal).toHaveAttribute('aria-label', /, order completed$/);
 });
+
+test('focus never lands under the open inspector: the panel moves aside', async ({ page }) => {
+  await tick(page, at('P10')).click();
+  await card(page, 'slorule').click();
+  const panel = page.locator('.inspector');
+  await expect(panel).toHaveClass(/\bright\b/);
+  // ds1 sits on the right, under the panel; focusing it moves the panel left.
+  await card(page, 'ds1').focus();
+  await expect(panel).toHaveClass(/\bleft\b/);
+});
+
+test('a skip link takes keyboard users past the step ticks to the canvas', async ({ page }) => {
+  const skip = page.getByRole('link', { name: 'Skip to the story' });
+  // It comes before every header control in the tab order.
+  expect(
+    await skip.evaluate((a) =>
+      [...document.querySelectorAll('header button')].every(
+        (b) => a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ),
+    ),
+  ).toBe(true);
+  await skip.focus();
+  await expect(skip).toBeVisible();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#canvas')).toBeFocused();
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate(() => !!document.activeElement?.closest('#canvas'))).toBe(true);
+});

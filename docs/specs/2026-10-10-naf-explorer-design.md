@@ -1,8 +1,8 @@
 # How Network Automation Works: design spec
 
 - **Date:** 2026-10-10
-- **Status:** draft, awaiting review
-- **Requirements:** `docs/brief/02`, `03`, `06` and `07` (decided), as amended by `docs/adr/0001-orchestrator-controls-every-job.md`. If anything here conflicts with them, the brief wins and the conflict is raised.
+- **Status:** approved and built (rev 16); the "As built" notes and the revision log at the end record what changed
+- **Requirements:** `docs/brief/02`, `03`, `06` and `07` (decided), as amended by the ADRs in `docs/adr/` (0001, 0002, 0004, 0005, 0006). If anything here conflicts with them, the brief wins and the conflict is raised.
 - **Guidance used:** `docs/brief/04`, `05`.
 
 ## 1. Intent
@@ -11,7 +11,7 @@ A desktop-first, self-guided explainer. A reader who knows networking steps thro
 
 **Success:** every item in `07-acceptance-checklist.md` holds. The semantic items are tested over the scenario data, not over the rendering.
 
-**Usage mode:** self-guided, so the reader sets the pace. There is no autoplay. Captions can run to 2–3 full lines. The design target is 1440×900, and the stage must also fit 1280×720 and 1920×1080.
+**Usage mode:** self-guided, so the reader sets the pace. There is no autoplay. Captions can run to 2-3 full lines. The design target is 1440×900, and the stage must also fit 1280×720 and 1920×1080.
 
 ## 2. User experience
 
@@ -23,21 +23,21 @@ A desktop-first, self-guided explainer. A reader who knows networking steps thro
 
 ## 3. Spatial model
 
-The stage is fixed at 1440×952 (rev 7; about 1440×900) and scaled uniformly to fit the window (`transform: scale()`, letterboxed, never scrolled). All positions are hard-coded in `layout.ts`.
+The stage is fixed at 1440×952 (about 1440×900) and scaled uniformly to fit the window (`transform: scale()`, letterboxed, never scrolled). All positions are hard-coded in `layout.ts`.
 
 | Band | y (px) | Content |
 |---|---|---|
-| Header | 0–36 | Title · chapters with step ticks · Simple \| Technical · About · Replay |
-| Presentation | 52–136 | Full width. Surfaces left to right, each with a role: Fault Management, ITSM, Portal, Performance Management (idle), API (idle) |
-| Top lane | 136–166 | Under Presentation, across the full width: the SLO definition, the service request, and Observability → Presentation |
-| Responsibilities | 166–514 | Observability (x 12–500) · left lane · Orchestrator (x 572–868, y 166–708, full height) · right lane · Intent (x 940–1428) |
-| Collector, Executor | 544–708 | As wide as Observability and Intent above them. Their exchanges with Orchestrator cross the same side lanes |
-| The Network | 738–844 | Full width. Name top-left, role top-right; raw signals on the left, facts on the right, the topology centred between them |
-| Caption bar | 860–944 | Full width. Chapter · n/N · step title · 2–3 caption lines · Back / Next on the right; Technical adds the scope note under them |
+| Header | 0-36 | Title · chapters with step ticks · Simple \| Technical · About · Replay |
+| Presentation | 52-136 | Full width. Surfaces left to right, each with a role: Fault Management, ITSM, Portal, Performance Management (idle), API (idle) |
+| Top lane | 136-166 | Under Presentation, across the full width: the SLO definition, the service request, and Observability → Presentation |
+| Responsibilities | 166-514 | Observability (x 12-500) · left lane · Orchestrator (x 572-868, y 166-702, full height) · right lane · Intent (x 940-1428) |
+| Collector, Executor | 538-702 | As wide as Observability and Intent above them. Their exchanges with Orchestrator cross the same side lanes |
+| The Network | 726-832 | Full width. Name top-left, role top-right; raw signals on the left, facts on the right, the topology centred between them |
+| Caption bar | 844-944 | Full width. Chapter · n/N · step title · 2-3 caption lines · Back / Next on the right; Technical adds the scope note under them |
 
 - **The read path is on the left and the write path on the right.** Altitude comes from the chains inside each region: Intent's derivation descends and Observability's understanding rises.
 - **Observability** has two columns: the column facing Orchestrator holds what it exchanges with Orchestrator (service state, events, path B health); the other holds the SLO rule, evidence and the SLI. **Intent's** cards all face Orchestrator. **Orchestrator** shows the workflow record, with its steps, the current step and what it is waiting for, and then its own requests in the order they are made.
-- **Each region** shows its name and a one-line role subtitle when idle. When active, the subtitle is replaced by the current work label (for example "● normalize").
+- **Each region** shows its name and a one-line role subtitle when idle. When active, the subtitle is replaced by the current work label (for example "normalize" in a pill).
 - **The Network** is drawn as a stretched diamond: CPH01 at the left point, AAR01 at the right point, ODE01 at the top and KOL01 at the bottom. Path A runs over the top and path B along the bottom.
   - ACME's current path is the thick line.
   - The degraded ODE01→CPH01 strand gets a hatched overlay, a direction arrow and "▲ DEGRADED", never red.
@@ -49,7 +49,7 @@ The stage is fixed at 1440×952 (rev 7; about 1440×900) and scaled uniformly to
   - **One fixed slot per artifact kind** in its producer's region (`SLOTS` in `layout.ts`). The card shows the kind's newest version: type and label, "by <producer>", status or marker, and its body (meaning or Technical lines) in every step. Earlier versions sit **stacked behind** it as offset edges, generalising "v2 stacked over v1"; their label, status and marker stay in the DOM for screen readers.
   - Slots are fixed and sized for the larger of the two bodies, so nothing moves between beats or views (§6, §8).
   - Nothing on the stage scrolls or clips: regions, cards, surfaces and the caption must fit their content in every beat and both views.
-- **The inspector** is a 400px panel that overlays the responsibilities zone (y 52–760) on the side **opposite the selection**. It opens on the left when the selection is in Intent, Executor or the right half of Presentation and The Network, and on the right otherwise. It never covers the selected element or the caption bar.
+- **The inspector** is a 400px panel that overlays the responsibilities zone (y 52-760) on the side **opposite the selection**. It opens on the left when the selection is in Intent, Executor or the right half of Presentation and The Network, and on the right otherwise. It never covers the selected element or the caption bar. If keyboard focus moves onto an element under the panel, the panel moves to the other side, so focus is never hidden (WCAG 2.4.11), even if that covers the selection.
 
 ## 4. Scenario data model
 
@@ -76,7 +76,7 @@ interface ArtifactKind {
 interface ArtifactVersion {
   id: VersionId; kind: KindId; label: string;       // "v2", "degraded", "0.4%"
   status?: Status; lineage: VersionId[];
-  meaning: string; technical: string[];             // Simple body; 1–4 Technical lines
+  meaning: string; technical: string[];             // Simple body; 1-4 Technical lines
 }
 
 interface SignalInfo { id: SignalId; label: string; asks: string; answeredBy?: SignalId | KindId }
@@ -120,7 +120,7 @@ interface Step { id: string; chapter: 'provision' | 'detect' | 'remediate'; titl
 
 "New" lists each party's new artifact (at most one per party). Exchanges are in causal order: ⇢ is a signal, → is a handoff. *mark* changes an existing version.
 
-Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift from the data. Times: Provision 09:10–09:13 · Detect 10:41–10:46 · Remediate 10:47–10:49.
+Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift from the data. Times: Provision 09:10-09:13 · Detect 10:41-10:46 · Remediate 10:47-10:49.
 
 ### Provision
 
@@ -146,14 +146,14 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 
 | # | Title | New | Events in order |
 |---|---|---|---|
-| D1 | Fault | none | Link CPH01–ODE01 ▲ DEGRADED |
+| D1 | Fault | none | Link CPH01-ODE01 ▲ DEGRADED |
 | D2 | Collect | The Network: Raw signals (degraded) | The Network → Collector: Raw signals (degraded) · Collector: collect |
 | D3 | Normalize | Collector: Normalized observations (degraded) | Collector: normalize |
 | D4 | Enrich | Collector: Enriched observations (degraded) | Collector: enrich · Collector → Observability: Enriched observations (degraded) |
 | D5 | Compute SLI | Observability: SLI (0.4%) | Observability: compute SLI |
 | D6 | Correlate | Observability: Correlated evidence (path A, 10:46) | Observability: correlate |
 | D7 | Link event | Observability: Event (link problem) | Observability: raise link event · Observability → Fault Management: Event (link problem) · Observability → Orchestrator: Event (link problem) |
-| D8 | Ticket | Orchestrator: Repair request (CPH01–ODE01) | Orchestrator → ITSM: Repair request (CPH01–ODE01) |
+| D8 | Ticket | Orchestrator: Repair request (CPH01-ODE01) | Orchestrator → ITSM: Repair request (CPH01-ODE01) |
 | D9 | Evaluate | Observability: Service state (10:46) | Observability: evaluate SLI against SLO · Observability → Portal: Service state (10:46) |
 | D10 | Raise event | Observability: Event (loss violation) | Observability: raise event · Observability → Fault Management: Event (loss violation) · Observability → Orchestrator: Event (loss violation) |
 
@@ -163,7 +163,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 |---|---|---|---|
 | R1 | Start workflow | Orchestrator: Workflow record (remediation) | Orchestrator: start workflow |
 | R2 | Query alternate path | Observability: Path health (path B) | Orchestrator ⇢ Observability: query alternate-path health · Observability: assess alternate path · Observability → Orchestrator: Path health (path B) |
-| R3 | Evaluate policy | Orchestrator: Remediation decision (exclude CPH01–ODE01) | Orchestrator: evaluate policy · Orchestrator → Intent: Remediation decision (exclude CPH01–ODE01) |
+| R3 | Evaluate policy | Orchestrator: Remediation decision (exclude CPH01-ODE01) | Orchestrator: evaluate policy · Orchestrator → Intent: Remediation decision (exclude CPH01-ODE01) |
 | R4 | Record | Intent: Derived network intent (v2) | Intent: record network intent v2 · Service intent (v1) = UNCHANGED |
 | R5 | Derive | Intent: Desired network state (v2) | Intent: derive desired state · Intent ⇢ Orchestrator: desired state ready v2 |
 | R6 | Order apply | Orchestrator: Apply request (desired state v2) | Orchestrator → Executor: Apply request (desired state v2) |
@@ -252,7 +252,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 - **Line types:**
   - **solid:** artifact handoff, from the producing card to the consuming card or surface;
   - **dashed:** coordination signal, between Orchestrator's edge and the other party, labelled in the lane between them;
-  - **dotted:** work inside one responsibility (for example SLI + SLO rule → service state). It runs under the cards, so it shows only in the gaps between them, and the region's work label ("● evaluate SLI against SLO") labels it.
+  - **thin solid, in the producer's colour:** work inside one responsibility (for example SLO rule → service state). It runs under the cards, so it shows only in the gaps between them, and the region's work label ("evaluate SLI against SLO") labels it. The caption bar's legend names all three kinds.
 - **Routes are computed in `src/routes.ts`** from the card and region rectangles in `layout.ts`: lanes for every exchange with Orchestrator (level with the card involved; Orchestrator's own artifacts leave from their card), facing edges for the rest, and hard-coded waypoints (`WAYPOINTS`) for the exceptions. Labels sit where they cover no card, label, header, surface or other line.
 - **No content line crosses Orchestrator or Presentation** unless one of them is an endpoint. The SLO definition runs through the top lane and the stage margin into the SLO rule.
 - **Every line has a text label**, rendered as an HTML button positioned next to the line. It can take focus, can be inspected, and is covered by the layout tests. The SVG itself is `aria-hidden`.
@@ -283,7 +283,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
   - → / ← step through the story from anywhere except inside the About dialog;
   - Enter or Space activates the focused item;
   - Esc closes the inspector or About.
-- **Tab order:** header (chapters and ticks, view switch, About, Replay) → canvas (Presentation surfaces, Observability, Collector, Orchestrator, Intent, Executor, The Network, then the current line labels) → caption bar (Back, Next).
+- **Tab order:** header (chapters and ticks, view switch, About, Replay) → canvas, reachable directly through a "Skip to the story" link (Presentation surfaces, Observability, Orchestrator, Intent, Collector, Executor, The Network, then the current line labels) → caption bar (Back, Next).
 - **Semantics:**
   - each region is a `<section>` with a heading;
   - cards and surfaces are buttons with a full accessible name, for example "Desired network state v2, by Intent, 1 earlier version";
@@ -299,7 +299,7 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 
 ## 12. Stack and project layout
 
-- **App:** Svelte 5 with TypeScript (`strict`) and Vite. The output is static and is deployed manually to GitHub Pages with a relative base path. There is no CI/CD until an ADR adds it.
+- **App:** Svelte 5 with TypeScript (`strict`) and Vite. The output is static and is served as a static-assets Cloudflare Worker (`wrangler.jsonc`), built and deployed by Cloudflare Workers Builds on every push, with a preview per pull request (ADR 0007).
 - **Checks:**
   - Prettier with the Svelte plugin;
   - `svelte-check`;
@@ -315,18 +315,22 @@ src/
   model/state.ts           stateAt, linesOf
   model/timeline.ts        timeline + timing constants
   model/inspect.ts         inspector content
-  layout.ts                geometry and line routes
-  theme.css                colour tokens
+  layout.ts                geometry, slots and waypoints
+  routes.ts                line routes and label placement
+  model/describe.ts        accessible names and one-line event text
+  model/beatTable.ts       the §5 beat table
+  storage.ts               the remembered view (guarded localStorage)
+  theme.ts                 colour tokens
   ui/motion.ts             the WAAPI overlay: play, finishAll
-  ui/*.svelte              App, Header, Stage, Region, Card, Surface, Network, Lines, CaptionBar, Inspector, About
+  ui/*.svelte              Header, Stage, Card, Network, Lines, CaptionBar, Inspector, About (App.svelte at the root)
 scripts/beat-table.ts      prints §5 from scenario.ts
-tests/unit/                semantics, story, timeline, contrast
-tests/e2e/                 walkthrough, navigation, inspector-focus, reduced-motion, layout, a11y, about
+tests/unit/                catalog, story, pairing, state, timeline, inspect, routes, layout, contrast, beatTable, storage
+tests/e2e/                 skeleton (walkthrough, navigation, layout), motion, inspector, axe, about
 ```
 
 ## 13. Testing (maps to `07`)
 
-- **Unit tests over the data** (`tests/unit/semantics.test.ts`, `story.test.ts`): every item in the `07` Semantics section, including the ADR 0001 additions:
+- **Unit tests over the data** (`tests/unit/catalog.test.ts`, `story.test.ts`): every item in the `07` Semantics section, including the ADR 0001 additions:
   - request/answer pairing before Orchestrator's next request;
   - apply → applied → read back → check conformance (ADR 0006);
   - *assurance onboarded* before the first apply;

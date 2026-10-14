@@ -1,4 +1,4 @@
-export type Responsibility =
+type Responsibility =
   'presentation' | 'intent' | 'orchestrator' | 'executor' | 'collector' | 'observability';
 export type Party = Responsibility | 'network';
 export type Surface = 'faultMgmt' | 'itsm' | 'portal' | 'perfMgmt' | 'api';
@@ -31,7 +31,7 @@ export type KindId =
   | 'event'
   | 'pathHealth';
 
-/** The amended signal vocabulary of brief 02 (ADR 0001). */
+/** The signal vocabulary of brief 02 (ADR 0001, ADR 0006). */
 export type SignalId =
   | 'desiredStateReady'
   | 'onboard'

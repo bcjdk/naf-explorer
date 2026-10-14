@@ -7,7 +7,7 @@ import {
   version,
 } from './scenario/scenario.ts';
 import type { Party, Step, Surface, View } from './scenario/types.ts';
-import { lineKey, linesOf, stateAt } from './model/state.ts';
+import { lineKey, linesOf, stateAt, type Exchange } from './model/state.ts';
 import { artifactName, describe } from './model/describe.ts';
 import {
   LABEL_NUDGE,
@@ -38,9 +38,8 @@ export interface Route {
   lane?: number;
   /** What a screen reader hears: who sends what to whom (the SVG itself is hidden). */
   spoken: string;
-  /** Where the label sits: its centre, or its left (start) or right (end) edge for Orchestrator docks. */
+  /** The label's centre. */
   at: Pt;
-  align: 'center' | 'start' | 'end';
 }
 
 const inSpan = (v: number, lo: number, len: number) => v >= lo && v <= lo + len;
@@ -96,7 +95,7 @@ function path(from: Rect, to: Rect, via: Pt[] | undefined): Pt[] {
 
 const sameRect = (a: Rect, b: Rect) => a.x === b.x && a.y === b.y && a.w === b.w && a.h === b.h;
 
-/** Whether the segment a–b passes through the inside of r. */
+/** Whether the segment a-b passes through the inside of r. */
 function segmentHits(r: Rect, [ax, ay]: Pt, [bx, by]: Pt): boolean {
   for (let t = 0.02; t < 1; t += 0.02) {
     const x = ax + (bx - ax) * t;
@@ -122,7 +121,7 @@ function along(points: Pt[], t: number): Pt {
   return points[0]!;
 }
 
-/** Approximate label box (11px system-ui) centred on p; a lane label wraps within maxW. */
+/** Approximate label box centred on p, generous so it never undercuts the rendered one; a lane label wraps within maxW. */
 export const labelBox = (label: string, [x, y]: Pt, maxW?: number): Rect => {
   // Generous per-character width, so estimated boxes never undercut the rendered ones.
   // Lane labels wrap in a smaller type (app.css .label.lane).
@@ -166,7 +165,7 @@ function placeLabel(label: string, points: Pt[], avoid: Rect[], lines: Pt[][] = 
 
 const cardOf = (id: string) => cardRect(version(id).kind, producerOf(id));
 
-/** The lane each party's exchanges with Orchestrator cross (spec §9, rev 4). */
+/** The lane each party's exchanges with Orchestrator cross (spec §9). */
 const SIDE: Partial<Record<Party, 'left' | 'right'>> = {
   observability: 'left',
   collector: 'left',
@@ -174,16 +173,14 @@ const SIDE: Partial<Record<Party, 'left' | 'right'>> = {
   executor: 'right',
 };
 
-type Draft = Omit<Route, 'at' | 'align'> & { fixed?: Pt };
+type Draft = Omit<Route, 'at'> & { fixed?: Pt };
 
 /** The current beat's lines (spec §9): handoffs and signals in causal order, then work lines. */
 export function routesOf(n: number, view: View, steps: readonly Step[] = STEPS): Route[] {
   const step = steps[n];
   if (!step) return [];
   const appeared = step.events.flatMap((e) => (e.t === 'appear' ? [e.version] : []));
-  const exchanges = linesOf(n, steps).filter(
-    (e): e is Extract<typeof e, { t: 'signal' | 'handoff' }> => e.t !== 'work',
-  );
+  const exchanges = linesOf(n, steps).filter((e): e is Exchange => e.t !== 'work');
   const out: Draft[] = [];
   const O = REGIONS.orchestrator;
 
@@ -317,7 +314,8 @@ export function routesOf(n: number, view: View, steps: readonly Step[] = STEPS):
   }
 
   // Work lines: a new version derived from an earlier artifact of the same producer.
-  const visibleCards = Object.values(stateAt(n, steps).slots).flatMap((slots) =>
+  const state = stateAt(n, steps);
+  const visibleCards = Object.values(state.slots).flatMap((slots) =>
     slots.flatMap((sl) => {
       const producer = kind(sl.kind).producer;
       return producer === 'presentation' ? [] : [cardRect(sl.kind, producer)];
@@ -351,14 +349,8 @@ export function routesOf(n: number, view: View, steps: readonly Step[] = STEPS):
 
   // Labels avoid every visible card, region header, surface, the network facts and labels placed before them.
   // Lane labels sit at their fixed spot in the lane; they are placed first.
-  const state = stateAt(n, steps);
   const avoid: Rect[] = [
-    ...Object.values(state.slots).flatMap((slots) =>
-      slots.flatMap((sl) => {
-        const producer = kind(sl.kind).producer;
-        return producer === 'presentation' ? [] : [cardRect(sl.kind, producer)];
-      }),
-    ),
+    ...visibleCards,
     // Region header text: the name, then the work label when active or the role when idle.
     ...(Object.keys(REGIONS) as Party[]).map((p) => {
       const r = REGIONS[p];
@@ -384,7 +376,7 @@ export function routesOf(n: number, view: View, steps: readonly Step[] = STEPS):
     const [dx, dy] = LABEL_NUDGE[r.key] ?? [0, 0];
     const at: Pt = [x + dx, y + dy];
     if (r.kind !== 'work' && !fixed) avoid.push(labelBox(r.label, at, r.lane));
-    return { ...r, at, align: 'center' as const };
+    return { ...r, at };
   });
 }
 

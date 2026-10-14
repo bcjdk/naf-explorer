@@ -2,7 +2,7 @@ import { STEPS, kind, version } from '../scenario/scenario.ts';
 import type { Party, Step } from '../scenario/types.ts';
 import { lineKey, stateAt } from './state.ts';
 
-export type MotionKind = 'work' | 'line' | 'appear' | 'mark' | 'network' | 'gain' | 'pulse';
+type MotionKind = 'work' | 'line' | 'appear' | 'mark' | 'network' | 'gain' | 'show' | 'pulse';
 
 /** One piece of a beat's motion (spec §8). `event` is the index of the step event that causes it. */
 export interface MotionSlot {
@@ -14,7 +14,7 @@ export interface MotionSlot {
 }
 
 /** Every duration, in ms, in one place. A pulse runs three times within its duration. */
-export const TIMING = {
+const TIMING = {
   work: 500,
   line: 1200,
   appear: 500,
@@ -61,6 +61,8 @@ export function timeline(n: number, steps: readonly Step[] = STEPS): MotionSlot[
         if (e.t === 'handoff') {
           const to = e.surface ? `surface:${e.surface}` : e.to;
           add('gain', to, i, arrived, TIMING.gain);
+          // A surface shows what it received only once the handoff has reached it.
+          if (e.surface) add('show', `${e.surface}|${e.version}`, i, arrived, TIMING.gain);
           if (
             e.surface &&
             status(e.version) &&

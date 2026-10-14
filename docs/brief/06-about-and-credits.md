@@ -11,27 +11,43 @@
 
 ## Content
 
-Wording may be polished. The framing statement and the credit must keep their meaning.
+Reworked with the owner on 2026-10-14: the window had grown into a hard-to-read wall of text. It now has **two views**. Wording may be polished. The framing statement and the credit must keep their meaning.
+
+### Welcome (opens on every load and from the About button)
 
 **How Network Automation Works**
 
-An interactive explainer of network automation as separate responsibilities connected by typed handoffs, based on the Network Automation Forum (NAF) framework. It follows one ACME L3VPN service through **Provision → Detect → Remediate**.
+Follow one ACME service through **Provision → Detect → Remediate**, and see how separate automation responsibilities hand work to each other.
 
-**Who it is for**
-Network engineers, architects and senior technical leadership who know networking and want a clear mental model of how automation systems divide the work.
+For network engineers, architects and technical leaders who know networking. Based on the Network Automation Forum (NAF) framework.
 
-**Why**
-Automation is easier to reason about as roles and handoffs than as a list of tools — and "the interface is UP" is not the same as "the service is healthy".
+- **→ / ←** step through the story
+- **Simple / Technical** choose the depth
+- **click / Enter** inspect anything on the canvas
 
-> This is an example of how good network automation can look when the NAF framework is used as the reference — not a prescription for how network automation should look.
+Footer: **Notes and credits →** on the left; "Press Esc to begin" on the right.
 
-**How to use it**
-→ / ← to step through · **Simple** / **Technical** for depth · click anything to inspect it.
+### Notes and credits (one click from the welcome; ← Back returns)
 
-**References**
+**An example, not a prescription.** This shows how good network automation can look with the NAF framework as the reference. It is not a prescription for how network automation should look.
 
-- [NAF Automation Framework](https://reference.networkautomation.forum/Framework/Framework/) — the Network Automation Forum reference architecture this story is built on.
-- With warm thanks to my good friend Thomas Kjær Aabo, whose [How the Internet Works](https://tkjaer.github.io/how-the-internet-works/) ([source](https://github.com/tkjaer/how-the-internet-works)) directly inspired this project — its explorable, step-by-step picture of a complex system and its switch between simple and technical explanations shaped the approach here.
+**Liberties taken**, each with a one-sentence why:
+
+- **Presentation holds more than NAF's Presentation layer.** ITSM is usually its own platform; Fault and Performance Management may or may not count. Each surface's inspector says which. *Why:* one band keeps every place people see the story on one canvas, without extra regions that teach nothing new about the handoffs.
+- **Collector enriches observations.** It tags them with link, path and service from a cached copy of intent. NAF places enrichment with intended-state context in Observability. *Why:* the signal stream is a first-class part of the system. Several consumers may use a signal as it arrives, without storing it, so it is tagged once, at the source, with authoritative IDs such as the service ID.
+
+The inspector repeats each liberty where it applies: every surface has an "In NAF terms" line, and so does Collector.
+
+**Credits**
+
+- Made by Brian C. Jeggesen. [Source on GitHub](https://github.com/bcjdk/naf-explorer).
+- [NAF Automation Framework](https://reference.networkautomation.forum/Framework/Framework/) by the Network Automation Forum, the reference this story is built on.
+- With warm thanks to my good friend Thomas Kjær Aabo, whose [How the Internet Works](https://tkjaer.github.io/how-the-internet-works/) ([source](https://github.com/tkjaer/how-the-internet-works)) directly inspired this project: its explorable, step-by-step picture of a complex system and its switch between simple and technical explanations.
+
+### Behaviour of the two views
+
+- Switching views moves focus to the new view's heading; closing from the notes reopens on the welcome next time.
+- Both views fit a 1440×900 window without scrolling.
 
 ## Credit notes
 

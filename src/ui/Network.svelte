@@ -10,13 +10,11 @@
   let {
     stage,
     view,
-    work,
     selected,
     onSelect,
   }: {
     stage: StageState;
     view: View;
-    work: string;
     selected: Target | null;
     onSelect: (t: Target) => void;
   } = $props();
@@ -45,7 +43,7 @@
 
 <section
   class="region network"
-  class:active={work !== '' || stage.faultNow}
+  class:active={stage.faultNow}
   class:selected={isSelected}
   aria-current={isSelected ? 'true' : undefined}
   data-party="network"

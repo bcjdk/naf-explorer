@@ -2,7 +2,11 @@
   "name": "naf-explorer",
   "private": true,
   "version": "0.0.0",
+  "license": "MIT",
   "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",

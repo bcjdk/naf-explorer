@@ -147,3 +147,30 @@ test('at time 0 of a beat, unchanged content shows and regions are not lit early
   });
   expect(style).toEqual({ strand: '1', fact: '1', executor: 'rgb(21, 26, 32)' });
 });
+
+test('a surface shows what it received only when the handoff arrives', async ({ page }) => {
+  // D9: Observability evaluates DEGRADED before handing it to the Portal; P15: the order completes last.
+  for (const [id, handed] of [
+    ['D9', ['ss2']],
+    ['P15', ['ss1', 'wf-prov']],
+  ] as const) {
+    await tick(page, at(id) - 1).click();
+    await next(page).click();
+    const opacity = await page.evaluate(
+      (ids) => {
+        document.getAnimations().forEach((a) => {
+          a.pause();
+          a.currentTime = 0;
+        });
+        return ids.map(
+          (v) =>
+            getComputedStyle(
+              document.querySelector(`.surface[data-surface="portal"] [data-shown="${v}"]`)!,
+            ).opacity,
+        );
+      },
+      handed as readonly string[] as string[],
+    );
+    expect(opacity, id).toEqual(handed.map(() => '0'));
+  }
+});

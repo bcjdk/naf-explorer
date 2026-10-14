@@ -106,25 +106,34 @@ describe('inspect: artifacts (spec §7)', () => {
 
 describe('inspect: responsibilities', () => {
   it('lists exactly the events of this beat that involve the party', () => {
-    STEPS.forEach((step, n) => {
+    // Counted by hand from the story, not by re-running the implementation's rule.
+    const count = (id: string, p: Party) =>
+      section(inspect({ t: 'responsibility', party: p }, at(id), 'simple'), 'In this step').length;
+    // P9: read back asked, raw signals in, read back, observed state made and handed on, done reported.
+    expect(count('P9', 'collector')).toBe(6);
+    // P10: check asked, desired state in, compare, in sync told.
+    expect(count('P10', 'observability')).toBe(4);
+    expect(count('P10', 'intent')).toBe(1);
+    // P15: the service state and the completed order reach the Portal; nothing else touches Presentation.
+    expect(count('P15', 'presentation')).toBe(2);
+    expect(count('D1', 'network')).toBe(1);
+    // A party with nothing this beat still gets one line saying so.
+    expect(count('P1', 'executor')).toBe(1);
+    STEPS.forEach((_, n) => {
       for (const p of Object.keys(RESPONSIBILITIES) as Party[]) {
-        const involved = step.events.filter((e) =>
-          e.t === 'work'
-            ? e.owner === p
-            : e.t === 'signal' || e.t === 'handoff'
-              ? e.from === p || e.to === p
-              : e.t === 'network'
-                ? p === 'network'
-                : producerOf(e.version) === p,
-        );
         const i = inspect({ t: 'responsibility', party: p }, n, 'simple');
-        expect(section(i, 'In this step').length, `${step.id} ${p}`).toBe(
-          Math.max(involved.length, 1),
-        );
         expect(texts(i, 'Does')).toEqual(RESPONSIBILITIES[p].does);
         expect(texts(i, 'Does not')).toEqual(RESPONSIBILITIES[p].doesNot);
       }
     });
+  });
+
+  it('says where Collector differs from NAF: it enriches at the source', () => {
+    const i = inspect({ t: 'responsibility', party: 'collector' }, at('P1'), 'simple');
+    expect(texts(i, 'In NAF terms')[0]).toMatch(/^NAF places enrichment .* in Observability/);
+    expect(
+      texts(inspect({ t: 'responsibility', party: 'intent' }, at('P1'), 'simple'), 'In NAF terms'),
+    ).toEqual([]);
   });
 
   it('links what the party has produced so far', () => {
@@ -177,6 +186,10 @@ describe('inspect: lines', () => {
       'simple',
     );
     expect(texts(applied, 'Answered by')).toEqual(['Nothing: it answers an earlier request.']);
+    // A request asks; an answer tells.
+    expect(texts(onboard, 'Asks')).toHaveLength(1);
+    expect(texts(applied, 'Tells')).toHaveLength(1);
+    expect(texts(applied, 'Asks')).toEqual([]);
   });
 
   it('says when a line belongs to another beat', () => {
@@ -194,6 +207,13 @@ describe('inspect: surfaces', () => {
       expect(
         texts(inspect({ t: 'surface', surface: s }, at('P15'), 'simple'), 'What it is'),
       ).toEqual([SURFACE_ROLES[s]]);
+  });
+  it('says, per surface, whether NAF would usually count it as Presentation', () => {
+    const naf = (s: keyof typeof SURFACES) =>
+      texts(inspect({ t: 'surface', surface: s }, at('P1'), 'simple'), 'In NAF terms')[0];
+    expect(naf('itsm')).toMatch(/^Generally not considered part of the Presentation layer/);
+    for (const s of ['faultMgmt', 'perfMgmt'] as const) expect(naf(s)).toMatch(/^May or may not/);
+    for (const s of ['portal', 'api'] as const) expect(naf(s)).toMatch(/^Generally considered/);
   });
   it('shows the latest received artifact and its sender, and the Portal its own request', () => {
     const i = inspect({ t: 'surface', surface: 'portal' }, at('P15'), 'simple');

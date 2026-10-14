@@ -14,7 +14,7 @@ export interface Rect {
 }
 
 /**
- * Spec §3 bands (rev 7, plan 5 D2), absolute stage coordinates. The blocks are 30px apart under Presentation
+ * The stage's bands, in absolute stage coordinates. The blocks are 30px apart under Presentation
  * and 24px elsewhere; the header bar hugs the canvas at 16px, the caption bar at 12px, and the side margins
  * are 12px. The lanes beside Orchestrator (72px) carry its exchanges; Orchestrator lines up with the rows beside it.
  */
@@ -28,8 +28,6 @@ export const REGIONS: Record<Party, Rect> = {
   network: { x: 12, y: 726, w: 1416, h: 106 },
 };
 
-export const CAPTION: Rect = { x: 12, y: 844, w: 1416, h: 100 };
-
 /**
  * Where exchange labels sit: the centre of each side lane. Orchestrator runs the full height, so the left lane
  * serves Observability and Collector and the right lane serves Intent and Executor.
@@ -37,7 +35,7 @@ export const CAPTION: Rect = { x: 12, y: 844, w: 1416, h: 100 };
 export const LANES = {
   left: 536,
   right: 904,
-  /** The top lane under Presentation: Observability → Portal on the upper track, the rest on the lower one. */
+  /** The top lane under Presentation, with an upper track (Observability → Portal, Intent → Observability desired state). */
   top: 156,
   topHigh: 147,
   /** Widest a lane label may be before it wraps. */
@@ -99,10 +97,13 @@ export const abs = (base: Rect, r: Rect): Rect => ({
 /** Children of a region sit inside its border: 1px at the left, 4px (the provenance edge) at the top. */
 const inside = (base: Rect, r: Rect): Rect => abs({ ...base, x: base.x + 1, y: base.y + 4 }, r);
 
-/** The card as drawn: its slot minus the 6px kept for the stacked edges of earlier versions. */
+/** Kept free right and below each card for the stacked edges of earlier versions. */
+export const STACK_ROOM = 6;
+
+/** The card as drawn: its slot minus the room for stacked edges. */
 export const cardRect = (k: KindId, producer: Party): Rect => {
   const r = inside(REGIONS[producer], SLOTS[k]!);
-  return { ...r, w: r.w - 6, h: r.h - 6 };
+  return { ...r, w: r.w - STACK_ROOM, h: r.h - STACK_ROOM };
 };
 export const surfaceRect = (s: Surface): Rect => inside(REGIONS.presentation, SURFACE_RECTS[s]);
 export const diamondRect = (): Rect => inside(REGIONS.network, DIAMOND);

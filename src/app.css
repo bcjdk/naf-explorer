@@ -31,8 +31,25 @@ code {
   font-family: 'Source Code Pro', ui-monospace, monospace;
 }
 :focus-visible {
-  outline: 2px solid #ffffff;
+  outline: 2px solid var(--focus);
   outline-offset: -2px;
+}
+/* Hidden by clipping, not by an offset: on tall windows the stage is letterboxed and an off-stage offset
+   would land in view. */
+.skip {
+  position: absolute;
+  left: 12px;
+  top: 8px;
+  z-index: 10;
+  clip-path: inset(50%);
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 600;
+}
+.skip:focus-visible {
+  clip-path: none;
 }
 .sr-only {
   position: absolute;
@@ -65,7 +82,7 @@ code {
   height: 36px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   padding: 0 12px;
   box-sizing: border-box;
   border-bottom: 1px solid var(--border);
@@ -78,7 +95,7 @@ code {
 }
 .header nav {
   display: flex;
-  gap: 22px;
+  gap: 16px;
   margin-left: auto;
 }
 .chapter {
@@ -160,7 +177,7 @@ code {
   color: var(--text);
 }
 .about {
-  width: min(780px, 92vw);
+  width: min(600px, 92vw);
   max-height: 90vh;
   padding: 0;
   border: 1px solid var(--border);
@@ -170,7 +187,7 @@ code {
   color: var(--text);
   box-shadow: 0 24px 64px rgb(0 0 0 / 0.5);
   font:
-    15px/1.6 'Source Sans 3',
+    15px/1.55 'Source Sans 3',
     system-ui,
     sans-serif;
 }
@@ -179,52 +196,34 @@ code {
 }
 .about-body {
   position: relative;
-  padding: 32px 40px 30px;
+  padding: 30px 34px 26px;
 }
 .about h2 {
-  margin: 0 40px 12px 0;
+  margin: 0 40px 10px 0;
   font-size: 26px;
-  line-height: 1.2;
+  line-height: 1.15;
   letter-spacing: -0.01em;
 }
+/* Headings receive focus when the view switches; the switch itself is the cue, not a ring. */
+.about [tabindex='-1']:focus {
+  outline: none;
+}
 .about-lead {
+  margin: 0 0 6px;
+  font-size: 17px;
+  line-height: 1.5;
+}
+.about-who {
   margin: 0;
-  font-size: 16px;
   color: var(--muted);
-}
-.about h3 {
-  margin: 24px 0 8px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.about p {
-  margin: 0;
-}
-.about-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 32px;
-}
-.about blockquote {
-  margin: 24px 0 0;
-  padding: 14px 18px;
-  border-left: 3px solid var(--border-new);
-  border-radius: 0 6px 6px 0;
-  background: var(--card);
-  font-size: 15.5px;
-}
-.about ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
 }
 .about-keys {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 28px;
+  display: grid;
+  gap: 10px;
+  margin: 20px 0 0;
+  padding: 20px 0 0;
+  border-top: 1px solid var(--border);
+  list-style: none;
 }
 .about-keys li {
   display: flex;
@@ -232,8 +231,7 @@ code {
   gap: 6px;
 }
 .about-keys li > span:last-child {
-  margin-left: 4px;
-  color: var(--muted);
+  margin-left: 6px;
 }
 .about kbd {
   padding: 1px 8px;
@@ -242,27 +240,70 @@ code {
   border-radius: 5px;
   background: var(--card);
   font:
-    600 13px/1.5 'Source Sans 3',
+    600 13.5px/1.5 'Source Sans 3',
     system-ui,
     sans-serif;
 }
 .about-or {
-  color: var(--muted);
+  color: var(--faded);
 }
-.about-refs li {
-  padding: 10px 0;
+.about-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 16px;
   border-top: 1px solid var(--border);
 }
-.about-refs li:first-child {
-  border-top: 0;
-  padding-top: 0;
-}
-.about-refs li > a:first-child {
-  display: block;
-  font-weight: 600;
-}
-.about-refs span {
+.about-hint {
   color: var(--muted);
+  font-size: 13.5px;
+}
+.about-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--border-new);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.about-link:hover {
+  text-decoration-color: currentColor;
+}
+.about h3 {
+  margin: 10px 40px 4px 0;
+  font-size: 24px;
+  line-height: 1.2;
+}
+.about h4 {
+  margin: 16px 0 4px;
+  font-size: 16px;
+}
+.about p {
+  margin: 0;
+}
+.about p + p {
+  margin-top: 8px;
+}
+.about-liberties {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+.about-liberties li + li {
+  margin-top: 10px;
+}
+.about-why {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+}
+.about-why strong {
+  color: var(--text);
+  font-weight: 600;
 }
 .about a {
   color: var(--text);
@@ -356,7 +397,7 @@ code {
   text-decoration-color: currentColor;
 }
 .region-name:focus-visible {
-  outline: 2px solid #ffffff;
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 /* Selection (spec §7): a dashed ring outside the element (inside cards and surfaces, below). Focus is a solid ring inside it; activity is the
@@ -386,7 +427,7 @@ code {
 }
 /* Focus stays visible on the selected element itself; the open inspector still shows what is selected. */
 .selected:focus-visible {
-  outline: 2px solid #ffffff;
+  outline: 2px solid var(--focus);
   outline-offset: -2px;
 }
 .swatch {
@@ -433,6 +474,13 @@ code {
 }
 .card:not(.new):not(.touched) .chip.violated {
   border-color: var(--violated);
+}
+/* The faded chip steps up with the card's text on the lighter hover fill, to keep AA. */
+.card:not(.new):not(.touched):hover .chip {
+  color: var(--muted);
+}
+.card:not(.new):not(.touched):hover .chip:not(.violated) {
+  border-color: var(--muted);
 }
 /* Used this beat: a neutral document with a full-strength 4px edge, and no band. */
 .card.touched {
@@ -510,7 +558,7 @@ code {
   text-transform: none;
   white-space: nowrap;
 }
-/* Only a new card names its producer (owner, plan 5 Task 4); afterwards the edge and the region say it. */
+/* Only a new card names its producer (owner's call); afterwards the edge and the region say it. */
 .card:not(.new) .by {
   display: none;
 }
@@ -529,7 +577,7 @@ code {
   overflow-wrap: anywhere;
 }
 /* Narrow cards (Collector's pipeline) step down to the floor sizes so their lines fit
-   (plan 5 Task 4). It comes after the base rules so it wins. */
+   It comes after the base rules so it wins. */
 @container (max-width: 160px) {
   /* The region already names the producer; the header needs the room. */
   .by {
@@ -808,7 +856,7 @@ code {
 .label.lane {
   display: block;
   width: max-content;
-  /* 2px less each side than before, so "Remediation" fits the 68px lane label at the 12px floor (plan 5 D5). */
+  /* 2px less each side than before, so "Remediation" fits the 68px lane label at the 12px floor. */
   padding: 1px 1px;
   white-space: normal;
   text-align: center;
@@ -1105,11 +1153,15 @@ code {
   text-decoration-color: currentColor;
 }
 .inspector-link:focus-visible {
-  outline: 2px solid #ffffff;
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 .inspector-link .swatch {
   width: 10px;
   height: 10px;
   margin-right: 6px;
+}
+/* The skip link lands focus on the canvas landmark itself; it is not a control, so no ring. */
+#canvas:focus-visible {
+  outline: none;
 }

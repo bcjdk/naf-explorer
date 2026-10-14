@@ -4,7 +4,7 @@
 - **Status:** built (plan 5, 2026-10-12). See "As built" at the end.
 - **Extends:** `docs/specs/2026-10-10-naf-explorer-design.md`. This spec replaces its §10 (Visual design) and the presentation parts of §7 (Inspector). Every other section, and every NAF semantic invariant in `CLAUDE.md`, stands unchanged.
 - **Decision record:** `docs/adr/0003-visual-uplift.md` (typefaces as project assets; how far NAF colour reaches).
-- **Evidence:** the Impeccable critique of 2026-10-12 (`.impeccable/critique/`, 29/40). Its findings were that provenance colour was too timid to carry identity, the inspector was an untyped bulleted form, type was flat and 10–12px, and activity and "new this step" barely registered.
+- **Evidence:** the Impeccable critique of 2026-10-12 (`.impeccable/critique/`, 29/40). Its findings were that provenance colour was too timid to carry identity, the inspector was an untyped bulleted form, type was flat and 10-12px, and activity and "new this step" barely registered.
 
 ## 1. Intent
 
@@ -249,7 +249,7 @@ Where this list and the sections above disagree, this list wins.
 - **D6. Status and marker** sit on their own line under the card header, never on the band.
 - **D7. The artifact inspector** keeps Meaning. "Produced by" became the kind line, and "Used by" became "Handed to".
 - **Card type is smaller than §2.1** (owner, at the check-in), because the cards did not fit the fixed stage: card text 13.5px, payload lines 12px, card header 11.5px, card line height 1.2. "by <producer>" shows on new cards only. Narrow Collector cards use 12.5 / 11 / 11, and Presentation minis 11.5. Every other size follows §2.1.
-- **13 copy shortenings** made to fit are listed in `docs/deferred-work.md` ("Plan 6: shortened for fit (plan 5)"). No sentence that carries a NAF invariant was cut.
+- **13 copy shortenings** made to fit were listed for review and decided by the owner in plan 6 (2026-10-13; see `docs/plans/2026-10-13-plan-6-accessibility-and-polish.md`). No sentence that carries a NAF invariant was cut.
 - **§3.3 opening intros were dropped** (owner, at the check-in): "Does" and "Does not" live only in the inspector.
 - **Surface subtitles were dropped from the canvas** (owner). The inspector's surface view opens with "What it is", a sentence or two per surface (`SURFACE_ROLES`).
 - **Work lines are coloured** (owner), replacing §2.2's "neutral" work line. A work line is a thinner (1.5px) solid line in the producer's colour, with a small arrowhead: a minor version of a handoff. The legend's work sample is a thin solid line.

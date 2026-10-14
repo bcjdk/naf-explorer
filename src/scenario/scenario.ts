@@ -21,32 +21,40 @@ export const TITLE = 'How Network Automation Works';
 /** The About window (brief 06). Links open in a new tab. */
 export const ABOUT = {
   title: 'How Network Automation Works',
-  intro:
-    'An interactive explainer of network automation as separate responsibilities connected by typed handoffs, based on the Network Automation Forum (NAF) framework. It follows one ACME L3VPN service through Provision → Detect → Remediate.',
-  sections: [
-    {
-      heading: 'Who it is for',
-      text: 'Network engineers, architects and senior technical leadership who know networking and want a clear mental model of how automation systems divide the work.',
-    },
-    {
-      heading: 'Why',
-      text: 'Automation is easier to reason about as roles and handoffs than as a list of tools — and “the interface is UP” is not the same as “the service is healthy”.',
-    },
-  ],
-  framing:
-    'This is an example of how good network automation can look when the NAF framework is used as the reference — not a prescription for how network automation should look.',
+  /** The welcome view: what this is, who it is for, how to use it. It opens on every load. */
+  lead: 'Follow one ACME service through Provision → Detect → Remediate, and see how separate automation responsibilities hand work to each other.',
+  who: 'For network engineers, architects and technical leaders who know networking. Based on the Network Automation Forum (NAF) framework.',
   howTo: [
     { keys: ['→', '←'], text: 'step through the story' },
     { keys: ['Simple', 'Technical'], text: 'choose the depth' },
+    { keys: ['click', 'Enter'], text: 'inspect anything on the canvas' },
+  ],
+  /** The notes view: the framing, the liberties taken with NAF and why, and the credits. */
+  framing:
+    'This shows how good network automation can look with the NAF framework as the reference. It is not a prescription for how network automation should look.',
+  liberties: [
     {
-      keys: ['click', 'Enter'],
-      text: 'any card, surface, line label or responsibility name to inspect it',
+      what: 'Presentation holds more than NAF’s Presentation layer.',
+      detail:
+        'ITSM is usually its own platform; Fault and Performance Management may or may not count. Each surface’s inspector says which.',
+      why: 'one band keeps every place people see the story on one canvas, without extra regions that teach nothing new about the handoffs.',
+    },
+    {
+      what: 'Collector enriches observations.',
+      detail:
+        'It tags them with link, path and service from a cached copy of intent. NAF places enrichment with intended-state context in Observability.',
+      why: 'the signal stream is a first-class part of the system. Several consumers may use a signal as it arrives, without storing it, so it is tagged once, at the source, with authoritative IDs such as the service ID.',
     },
   ],
+  author: {
+    before: 'Made by Brian C. Jeggesen. ',
+    label: 'Source on GitHub',
+    href: 'https://github.com/bcjdk/naf-explorer',
+  },
   naf: {
-    label: 'Network Automation Forum Automation Framework',
+    label: 'NAF Automation Framework',
     href: 'https://reference.networkautomation.forum/Framework/Framework/',
-    after: ' — the Network Automation Forum reference architecture this story is built on.',
+    after: ' by the Network Automation Forum, the reference this story is built on.',
   },
   credit: {
     before: 'With warm thanks to my good friend Thomas Kjær Aabo, whose ',
@@ -54,19 +62,19 @@ export const ABOUT = {
     href: 'https://tkjaer.github.io/how-the-internet-works/',
     source: 'https://github.com/tkjaer/how-the-internet-works',
     after:
-      ' directly inspired this project — its explorable, step-by-step picture of a complex system and its switch between simple and technical explanations shaped the approach here.',
+      ' directly inspired this project: its explorable, step-by-step picture of a complex system and its switch between simple and technical explanations.',
   },
 };
 
 export const SCOPE_NOTE = 'Values illustrative · NAF does not require SR-MPLS, gNMI or TWAMP.';
 
-/** The caption bar's completion line on the last beat (plan 5 D3; facts from P14, the Detect chapter and R15). */
+/** The caption bar's completion line on the last beat, summing up the three chapters. */
 export const ENDING =
   'Story complete: provisioned and verified, degradation detected, service restored on path B. The link still needs repair.';
 
 /** Ground-truth text for The Network region; which entry applies comes from stateAt. */
 export const NETWORK = {
-  link: 'Link CPH01–ODE01',
+  link: 'Link CPH01-ODE01',
   linkOk: T('OK', 'OK · Rx −2.4 dBm at CPH01 Hu0/0/0/1'),
   linkDegraded: T(
     'ODE01→CPH01 losing light',
@@ -75,8 +83,8 @@ export const NETWORK = {
   device: T('Interface and routing: UP', 'CPH01 Hu0/0/0/1 · oper UP · IS-IS UP'),
   acme: {
     none: T('ACME: not provisioned yet'),
-    A: T('ACME traffic: path A via ODE01', 'ACME (colour 100) · path A CPH01–ODE01–AAR01'),
-    B: T('ACME traffic: path B via KOL01', 'ACME (colour 100) · path B CPH01–KOL01–AAR01'),
+    A: T('ACME traffic: path A via ODE01', 'ACME (colour 100) · path A CPH01-ODE01-AAR01'),
+    B: T('ACME traffic: path B via KOL01', 'ACME (colour 100) · path B CPH01-KOL01-AAR01'),
   },
 };
 
@@ -198,6 +206,23 @@ export const WORKFLOW_STEPS: Record<string, { label: string; from: string }[]> =
     { label: 'verify config', from: 'R8' },
     { label: 'verify service', from: 'R10' },
   ],
+};
+
+/** Where a responsibility here differs from the NAF reference, said in its inspector (see ABOUT.liberties). */
+export const RESPONSIBILITY_NAF: Partial<Record<Party, string>> = {
+  collector:
+    'NAF places enrichment with intended-state context in Observability. Here Collector tags each signal at the source, so every consumer of the signal stream gets the same authoritative IDs. About’s notes say why.',
+};
+
+/** Whether NAF would usually count each surface as Presentation: the canvas takes liberties (see ABOUT.liberties). */
+export const SURFACE_NAF: Record<Surface, string> = {
+  faultMgmt:
+    'May or may not be considered part of the Presentation layer, depending on the implementation. It is often its own NOC platform.',
+  itsm: 'Generally not considered part of the Presentation layer. An ITSM system is usually its own platform that automation integrates with. It sits here so the whole story fits on one canvas.',
+  portal: 'Generally considered part of the Presentation layer.',
+  perfMgmt:
+    'May or may not be considered part of the Presentation layer, depending on the implementation.',
+  api: 'Generally considered part of the Presentation layer.',
 };
 
 /** What each surface is, shown in its inspector. */
@@ -553,8 +578,8 @@ export const VERSIONS: ArtifactVersion[] = [
     meaning: 'Configure ACME over path A via ODE01, with path B via KOL01 as the alternate.',
     technical: [
       'sr-policy colour 100, one per direction',
-      'preferred: CPH01–ODE01–AAR01 (A)',
-      'alternate: CPH01–KOL01–AAR01 (B)',
+      'preferred: CPH01-ODE01-AAR01 (A)',
+      'alternate: CPH01-KOL01-AAR01 (B)',
     ],
   },
   {
@@ -640,7 +665,7 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'baseline',
     lineage: ['raw-base'],
     meaning: 'The same measurements in one common shape.',
-    technical: ['{metric, device, interface, value, time}', 'window 09:12–09:13'],
+    technical: ['{metric, device, interface, value, time}', 'window 09:12-09:13'],
   },
   {
     id: 'enr-base',
@@ -649,7 +674,7 @@ export const VERSIONS: ArtifactVersion[] = [
     lineage: ['norm-base'],
     meaning: 'Measurements tagged with the link, path and service they belong to.',
     technical: [
-      'Hu0/0/0/1 → CPH01–ODE01 → path A → ACME',
+      'Hu0/0/0/1 → CPH01-ODE01 → path A → ACME',
       'probe → path A → ACME',
       'cached intent (network intent v1)',
     ],
@@ -663,7 +688,7 @@ export const VERSIONS: ArtifactVersion[] = [
     technical: [
       'loss CPH01→AAR01: 0.00%',
       'loss AAR01→CPH01: 0.00%',
-      'sli (worst) = 0.00%, 09:12–09:13',
+      'sli (worst) = 0.00%, 09:12-09:13',
     ],
   },
   {
@@ -709,9 +734,9 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'degraded',
     lineage: ['norm-deg'],
     meaning:
-      'CPH01’s interface to ODE01 is tagged link CPH01–ODE01, path A, carrying ACME; path B as its alternate.',
+      'CPH01’s interface to ODE01 is tagged link CPH01-ODE01, path A, carrying ACME; path B as its alternate.',
     technical: [
-      'Hu0/0/0/1 → CPH01–ODE01',
+      'Hu0/0/0/1 → CPH01-ODE01',
       '→ path A → ACME',
       'KOL01 links → path B',
       'cached intent (network intent v1)',
@@ -726,7 +751,7 @@ export const VERSIONS: ArtifactVersion[] = [
     technical: [
       'loss CPH01→AAR01: 0.00%',
       'loss AAR01→CPH01: 0.4%',
-      'sli (worst) = 0.4%, 10:45–10:46',
+      'sli (worst) = 0.4%, 10:45-10:46',
     ],
   },
   {
@@ -735,7 +760,7 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'path A, 10:46',
     lineage: ['sli2', 'enr-deg'],
     meaning:
-      'Loss lines up with low light and errors on CPH01–ODE01: likely optical degradation, a strong clue, not proof.',
+      'Loss lines up with low light and errors on CPH01-ODE01: likely optical degradation, a strong clue, not proof.',
     technical: [
       'path A · sli 0.4%',
       'Rx −10.9 dBm, CRC ≈1,240/min',
@@ -747,8 +772,8 @@ export const VERSIONS: ArtifactVersion[] = [
     kind: 'event',
     label: 'link problem',
     lineage: ['evid'],
-    meaning: 'Link CPH01–ODE01 is suspected of optical degradation. No service is named.',
-    technical: ['link-degradation CPH01–ODE01', 'suspect optics, not proof'],
+    meaning: 'Link CPH01-ODE01 is suspected of optical degradation. No service is named.',
+    technical: ['link-degradation CPH01-ODE01', 'suspect optics, not proof'],
   },
   {
     id: 'ss2',
@@ -765,8 +790,8 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'loss violation',
     status: 'VIOLATED',
     lineage: ['ss2', 'evid'],
-    meaning: 'Loss objective violated; suspect CPH01–ODE01 on path A.',
-    technical: ['acme-loss-violation', 'suspect CPH01–ODE01 · path A'],
+    meaning: 'Loss objective violated; suspect CPH01-ODE01 on path A.',
+    technical: ['acme-loss-violation', 'suspect CPH01-ODE01 · path A'],
   },
   // Remediate
   {
@@ -784,18 +809,18 @@ export const VERSIONS: ArtifactVersion[] = [
     status: 'HEALTHY',
     lineage: ['enr-deg'],
     meaning: 'Path B’s links look healthy; ACME itself is not yet measured there.',
-    technical: ['Rx −2.1 to −2.6 dBm', 'CRC 0, UP, 10:45–10:46', 'link telemetry only'],
+    technical: ['Rx −2.1 to −2.6 dBm', 'CRC 0, UP, 10:45-10:46', 'link telemetry only'],
   },
   {
     id: 'dec',
     kind: 'remediationDecision',
-    label: 'exclude CPH01–ODE01',
+    label: 'exclude CPH01-ODE01',
     lineage: ['ev-viol', 'pathB'],
     meaning:
       'Exclude the implicated link from ACME’s network intent. Intent chooses what replaces it.',
     technical: [
       'intent-change ACME-L3VPN-001',
-      'exclude-link CPH01–ODE01',
+      'exclude-link CPH01-ODE01',
       'policy pol-loss-reroute',
     ],
   },
@@ -804,8 +829,8 @@ export const VERSIONS: ArtifactVersion[] = [
     kind: 'networkIntent',
     label: 'v2',
     lineage: ['dec', 'si'],
-    meaning: 'Configure ACME to avoid CPH01–ODE01, which leaves path B via KOL01.',
-    technical: ['exclude: CPH01–ODE01', 'selected: CPH01–KOL01–AAR01 (B)', 'sr-policy colour 100'],
+    meaning: 'Configure ACME to avoid CPH01-ODE01, which leaves path B via KOL01.',
+    technical: ['exclude: CPH01-ODE01', 'selected: CPH01-KOL01-AAR01 (B)', 'sr-policy colour 100'],
   },
   {
     id: 'ds2',
@@ -815,7 +840,7 @@ export const VERSIONS: ArtifactVersion[] = [
     meaning: 'The configuration CPH01 and AAR01 should have to carry ACME over path B.',
     technical: [
       'CPH01, AAR01: sr-policy colour 100 → path B',
-      'exclude CPH01–ODE01',
+      'exclude CPH01-ODE01',
       'vrf ACME and probe unchanged',
     ],
   },
@@ -869,17 +894,17 @@ export const VERSIONS: ArtifactVersion[] = [
     label: 'after reroute',
     lineage: ['raw-after'],
     meaning: 'The fresh measurements in one common shape.',
-    technical: ['{metric, device, interface, value, time}', 'window 10:48–10:49'],
+    technical: ['{metric, device, interface, value, time}', 'window 10:48-10:49'],
   },
   {
     id: 'enr-after',
     kind: 'enriched',
     label: 'after reroute',
     lineage: ['norm-after'],
-    meaning: 'ACME’s probe is tagged to path B; link CPH01–ODE01 no longer carries ACME.',
+    meaning: 'ACME’s probe is tagged to path B; link CPH01-ODE01 no longer carries ACME.',
     technical: [
       'probe → path B → ACME',
-      'CPH01–ODE01 → no ACME service',
+      'CPH01-ODE01 → no ACME service',
       'cached intent (network intent v2)',
     ],
   },
@@ -892,7 +917,7 @@ export const VERSIONS: ArtifactVersion[] = [
     technical: [
       'loss CPH01→AAR01: 0.00%',
       'loss AAR01→CPH01: 0.00%',
-      'sli (worst) = 0.00%, 10:48–10:49',
+      'sli (worst) = 0.00%, 10:48-10:49',
     ],
   },
   {
@@ -916,10 +941,10 @@ export const VERSIONS: ArtifactVersion[] = [
   {
     id: 'rr',
     kind: 'repairRequest',
-    label: 'CPH01–ODE01',
+    label: 'CPH01-ODE01',
     lineage: ['ev-link'],
-    meaning: 'Fix suspect link CPH01–ODE01.',
-    technical: ['link CPH01–ODE01 · suspect optics'],
+    meaning: 'Fix suspect link CPH01-ODE01.',
+    technical: ['link CPH01-ODE01 · suspect optics'],
   },
 ];
 
@@ -984,7 +1009,7 @@ export const STEPS: Step[] = [
     title: 'Derive network intent',
     caption: T(
       'Intent derives network intent: configure ACME’s traffic over path A via ODE01, and keep path B via KOL01 as the alternate.',
-      'Intent derives network intent v1: SR-MPLS policy colour 100 per direction; preferred path A CPH01–ODE01–AAR01; alternate path B CPH01–KOL01–AAR01.',
+      'Intent derives network intent v1: SR-MPLS policy colour 100 per direction; preferred path A CPH01-ODE01-AAR01; alternate path B CPH01-KOL01-AAR01.',
     ),
     events: [work('intent', 'derive', 'derive network intent'), appear('ni1')],
   },
@@ -1107,7 +1132,7 @@ export const STEPS: Step[] = [
     title: 'Enrich',
     caption: T(
       'Collector tags each measurement with the link, path and service it belongs to, using its locally cached copy of intent, and hands the enriched observations to Observability. Tagging is not interpretation.',
-      'Collector enriches from cached intent: Hu0/0/0/1 → link CPH01–ODE01 → path A → ACME-L3VPN-001; probe → ACME. Collector → Observability: enriched observations (baseline, 09:12–09:13).',
+      'Collector enriches from cached intent: Hu0/0/0/1 → link CPH01-ODE01 → path A → ACME-L3VPN-001; probe → ACME. Collector → Observability: enriched observations (baseline, 09:12-09:13).',
     ),
     events: [
       work('collector', 'enrich', 'enrich', 'tag (cached intent)'),
@@ -1121,7 +1146,7 @@ export const STEPS: Step[] = [
     title: 'Compute SLI',
     caption: T(
       'Observability computes ACME’s SLI from the probe: no packets lost in the last minute.',
-      'Observability computes SLI = max(loss CPH01→AAR01, loss AAR01→CPH01) over 09:12–09:13 = 0.00%.',
+      'Observability computes SLI = max(loss CPH01→AAR01, loss AAR01→CPH01) over 09:12-09:13 = 0.00%.',
     ),
     events: [work('observability', 'computeSli', 'compute SLI'), appear('sli1')],
   },
@@ -1168,7 +1193,7 @@ export const STEPS: Step[] = [
     title: 'Collect',
     caption: T(
       'The network streams raw signals to Collector, each in its own format: falling light and rising errors from CPH01, loss from ACME’s probe, and interface and routing state from every link.',
-      'Network → Collector: gNMI telemetry (Rx −10.9 dBm and CRC/FCS ≈1,240/min on CPH01 Hu0/0/0/1; oper-status and IS-IS UP on all links) and TWAMP-Light results, 10:41–10:46.',
+      'Network → Collector: gNMI telemetry (Rx −10.9 dBm and CRC/FCS ≈1,240/min on CPH01 Hu0/0/0/1; oper-status and IS-IS UP on all links) and TWAMP-Light results, 10:41-10:46.',
     ),
     events: [
       appear('raw-deg'),
@@ -1182,7 +1207,7 @@ export const STEPS: Step[] = [
     title: 'Normalize',
     caption: T(
       'Collector puts the signals into one common shape, so they can be compared: the light has dropped, errors are rising and ACME’s probe is losing packets, while the interface and routing still say UP.',
-      'Collector normalizes to {metric, device, interface, value, time}: rx_power −10.9 dBm, crc_errors 1,240/min, oper_status UP, isis_adjacency UP, probe_loss AAR01→CPH01 0.4% (10:45–10:46).',
+      'Collector normalizes to {metric, device, interface, value, time}: rx_power −10.9 dBm, crc_errors 1,240/min, oper_status UP, isis_adjacency UP, probe_loss AAR01→CPH01 0.4% (10:45-10:46).',
     ),
     events: [work('collector', 'normalize', 'normalize'), appear('norm-deg')],
   },
@@ -1191,8 +1216,8 @@ export const STEPS: Step[] = [
     chapter: 'detect',
     title: 'Enrich',
     caption: T(
-      'Collector tags each measurement from its cached intent: the CPH01 interface facing ODE01 belongs to link CPH01–ODE01, on path A, carrying ACME. Path B’s links are tagged as ACME’s alternate. Collector hands the enriched observations to Observability.',
-      'Hu0/0/0/1 → CPH01–ODE01 → path A → ACME-L3VPN-001; CPH01–KOL01 and KOL01–AAR01 → path B (ACME alternate). Collector → Observability: enriched observations (degraded).',
+      'Collector tags each measurement from its cached intent: the CPH01 interface facing ODE01 belongs to link CPH01-ODE01, on path A, carrying ACME. Path B’s links are tagged as ACME’s alternate. Collector hands the enriched observations to Observability.',
+      'Hu0/0/0/1 → CPH01-ODE01 → path A → ACME-L3VPN-001; CPH01-KOL01 and KOL01-AAR01 → path B (ACME alternate). Collector → Observability: enriched observations (degraded).',
     ),
     events: [
       work('collector', 'enrich', 'enrich', 'tag (cached intent)'),
@@ -1206,7 +1231,7 @@ export const STEPS: Step[] = [
     title: 'Compute SLI',
     caption: T(
       'Observability computes ACME’s SLI: 0.4% of probe packets lost in the last minute, all in the AAR01→CPH01 direction. The probe measures each direction separately, so it sees loss on the damaged strand.',
-      'SLI = max(loss CPH01→AAR01 0.00%, loss AAR01→CPH01 0.4%) over 10:45–10:46 = 0.4%. TWAMP-Light is sent from CPH01 and reflected by AAR01; the stateful reflector’s sequence numbers separate forward from reverse loss. A one-way CPH01→AAR01 probe would miss this loss.',
+      'SLI = max(loss CPH01→AAR01 0.00%, loss AAR01→CPH01 0.4%) over 10:45-10:46 = 0.4%. TWAMP-Light is sent from CPH01 and reflected by AAR01; the stateful reflector’s sequence numbers separate forward from reverse loss. A one-way CPH01→AAR01 probe would miss this loss.',
     ),
     events: [work('observability', 'computeSli', 'compute SLI'), appear('sli2')],
   },
@@ -1215,8 +1240,8 @@ export const STEPS: Step[] = [
     chapter: 'detect',
     title: 'Correlate',
     caption: T(
-      'Observability correlates the loss with the low light and errors on path A in the same minute. The result is consistent with optical degradation on CPH01–ODE01: a strong clue, not proof.',
-      'Correlation window 10:45–10:46 on path A: SLI 0.4% with Rx −10.9 dBm and CRC/FCS ≈1,240/min on CPH01 Hu0/0/0/1. Suspected: optical degradation ODE01→CPH01. A strong clue, not proof of root cause.',
+      'Observability correlates the loss with the low light and errors on path A in the same minute. The result is consistent with optical degradation on CPH01-ODE01: a strong clue, not proof.',
+      'Correlation window 10:45-10:46 on path A: SLI 0.4% with Rx −10.9 dBm and CRC/FCS ≈1,240/min on CPH01 Hu0/0/0/1. Suspected: optical degradation ODE01→CPH01. A strong clue, not proof of root cause.',
     ),
     events: [work('observability', 'correlate', 'correlate'), appear('evid')],
   },
@@ -1225,8 +1250,8 @@ export const STEPS: Step[] = [
     chapter: 'detect',
     title: 'Link event',
     caption: T(
-      'The evidence points at a backbone link, whatever it carries. Observability raises a link event: CPH01–ODE01 is suspected of optical degradation. It goes to Fault Management and to Orchestrator.',
-      'Event link-degradation CPH01–ODE01 (suspect: ODE01→CPH01 Rx −10.9 dBm, CRC/FCS ≈1,240/min; not proof). No service is named. Observability → Fault Management, Orchestrator.',
+      'The evidence points at a backbone link, whatever it carries. Observability raises a link event: CPH01-ODE01 is suspected of optical degradation. It goes to Fault Management and to Orchestrator.',
+      'Event link-degradation CPH01-ODE01 (suspect: ODE01→CPH01 Rx −10.9 dBm, CRC/FCS ≈1,240/min; not proof). No service is named. Observability → Fault Management, Orchestrator.',
     ),
     events: [
       work('observability', 'raiseEvent', 'raise link event'),
@@ -1241,7 +1266,7 @@ export const STEPS: Step[] = [
     title: 'Ticket',
     caption: T(
       'Orchestrator asks ITSM for the suspect link to be checked and repaired. Automation can route around a link, but only people can repair the fibre.',
-      'Orchestrator → ITSM: repair request CPH01–ODE01 (from link-degradation). It needs no answer: the repair happens outside automation.',
+      'Orchestrator → ITSM: repair request CPH01-ODE01 (from link-degradation). It needs no answer: the repair happens outside automation.',
     ),
     events: [appear('rr'), hand('rr', 'orchestrator', 'presentation', 'itsm')],
   },
@@ -1265,7 +1290,7 @@ export const STEPS: Step[] = [
     title: 'Raise event',
     caption: T(
       'Observability raises a service-impact event: ACME’s loss objective is violated, with the suspected link and ACME’s current path attached. It goes to Fault Management and to Orchestrator. UP does not mean healthy: device state is not service state.',
-      'Event acme-loss-violation (VIOLATED): service ACME-L3VPN-001, SLO loss < 0.1%, implicated link CPH01–ODE01, current path A. Observability → Fault Management, Orchestrator.',
+      'Event acme-loss-violation (VIOLATED): service ACME-L3VPN-001, SLO loss < 0.1%, implicated link CPH01-ODE01, current path A. Observability → Fault Management, Orchestrator.',
     ),
     events: [
       work('observability', 'raiseEvent', 'raise event'),
@@ -1294,7 +1319,7 @@ export const STEPS: Step[] = [
     title: 'Query alternate path',
     caption: T(
       'The policy needs a healthy alternate. Orchestrator asks Observability about ACME’s alternate path. Observability finds from Collector’s tags that it is path B, and its latest link telemetry looks healthy: normal light, no errors, UP. That shows the links are fine, not yet that ACME will be; ACME’s probe shows that after the move.',
-      'Orchestrator ⇢ Observability: query alternate-path health for ACME-L3VPN-001. Observability resolves the alternate from enrichment tags (path B, CPH01–KOL01–AAR01) and assesses it from the 10:45–10:46 telemetry: Rx −2.1 to −2.6 dBm, CRC 0, oper UP. No probe runs on path B, so this is link health, not service health. Observability → Orchestrator: path B health HEALTHY.',
+      'Orchestrator ⇢ Observability: query alternate-path health for ACME-L3VPN-001. Observability resolves the alternate from enrichment tags (path B, CPH01-KOL01-AAR01) and assesses it from the 10:45-10:46 telemetry: Rx −2.1 to −2.6 dBm, CRC 0, oper UP. No probe runs on path B, so this is link health, not service health. Observability → Orchestrator: path B health HEALTHY.',
     ),
     events: [
       sig('queryAltPath', 'orchestrator', 'observability'),
@@ -1313,8 +1338,8 @@ export const STEPS: Step[] = [
     chapter: 'remediate',
     title: 'Evaluate policy',
     caption: T(
-      'The workflow evaluates the policy: the SLO is violated, the evidence implicates CPH01–ODE01 on ACME’s current path, and a healthy alternate exists. It sends Intent a remediation decision to exclude that link; Intent, not Orchestrator, chooses the new path. Other designs might evaluate policy elsewhere.',
-      'pol-loss-reroute conditions met. Orchestrator → Intent: remediation decision intent-change ACME-L3VPN-001, exclude-link CPH01–ODE01. The decision names no path. Where policy is evaluated is a design choice.',
+      'The workflow evaluates the policy: the SLO is violated, the evidence implicates CPH01-ODE01 on ACME’s current path, and a healthy alternate exists. It sends Intent a remediation decision to exclude that link; Intent, not Orchestrator, chooses the new path. Other designs might evaluate policy elsewhere.',
+      'pol-loss-reroute conditions met. Orchestrator → Intent: remediation decision intent-change ACME-L3VPN-001, exclude-link CPH01-ODE01. The decision names no path. Where policy is evaluated is a design choice.',
     ),
     events: [
       work('orchestrator', 'evaluatePolicy', 'evaluate policy'),
@@ -1327,8 +1352,8 @@ export const STEPS: Step[] = [
     chapter: 'remediate',
     title: 'Record',
     caption: T(
-      'Intent records derived network intent v2: exclude CPH01–ODE01, which leaves path B. ACME’s service intent is unchanged; only how the network delivers it changes.',
-      'Network intent v2: exclude CPH01–ODE01; selected path B CPH01–KOL01–AAR01; colour 100. Service intent v1 = UNCHANGED (still L3VPN CPH01 ↔ AAR01, loss < 0.1%).',
+      'Intent records derived network intent v2: exclude CPH01-ODE01, which leaves path B. ACME’s service intent is unchanged; only how the network delivers it changes.',
+      'Network intent v2: exclude CPH01-ODE01; selected path B CPH01-KOL01-AAR01; colour 100. Service intent v1 = UNCHANGED (still L3VPN CPH01 ↔ AAR01, loss < 0.1%).',
     ),
     events: [
       work('intent', 'record', 'record network intent v2'),
@@ -1342,7 +1367,7 @@ export const STEPS: Step[] = [
     title: 'Derive',
     caption: T(
       'Intent derives desired state v2 and tells Orchestrator it is ready, answering the remediation decision.',
-      'Desired state v2 for CPH01 and AAR01: colour-100 policy towards path B, excluding CPH01–ODE01. Intent ⇢ Orchestrator: desired state v2 ready.',
+      'Desired state v2 for CPH01 and AAR01: colour-100 policy towards path B, excluding CPH01-ODE01. Intent ⇢ Orchestrator: desired state v2 ready.',
     ),
     events: [
       work('intent', 'derive', 'derive desired state'),
@@ -1421,8 +1446,8 @@ export const STEPS: Step[] = [
     chapter: 'remediate',
     title: 'Collect',
     caption: T(
-      'Collector collects and normalizes fresh measurements. The fibre is still faulty, so errors continue on CPH01–ODE01, but ACME’s probe now runs over path B.',
-      'Network → Collector: telemetry and TWAMP-Light, 10:48–10:49. CRC/FCS ≈1,240/min continues on CPH01 Hu0/0/0/1; probe loss 0.00% in both directions. Normalized to the common shape.',
+      'Collector collects and normalizes fresh measurements. The fibre is still faulty, so errors continue on CPH01-ODE01, but ACME’s probe now runs over path B.',
+      'Network → Collector: telemetry and TWAMP-Light, 10:48-10:49. CRC/FCS ≈1,240/min continues on CPH01 Hu0/0/0/1; probe loss 0.00% in both directions. Normalized to the common shape.',
     ),
     events: [
       appear('raw-after'),
@@ -1437,8 +1462,8 @@ export const STEPS: Step[] = [
     chapter: 'remediate',
     title: 'Enrich',
     caption: T(
-      'Collector tags the measurements from its updated cached intent: ACME’s probe is on path B, and CPH01–ODE01 no longer carries ACME. Collector hands them to Observability.',
-      'Probe → path B → ACME-L3VPN-001; Hu0/0/0/1 → CPH01–ODE01 → no ACME service, from cached network intent v2. Collector → Observability: enriched observations (after reroute). How the cache follows Intent is out of scope here.',
+      'Collector tags the measurements from its updated cached intent: ACME’s probe is on path B, and CPH01-ODE01 no longer carries ACME. Collector hands them to Observability.',
+      'Probe → path B → ACME-L3VPN-001; Hu0/0/0/1 → CPH01-ODE01 → no ACME service, from cached network intent v2. Collector → Observability: enriched observations (after reroute). How the cache follows Intent is out of scope here.',
     ),
     events: [
       work('collector', 'enrich', 'enrich', 'tag (cached intent)'),
@@ -1452,7 +1477,7 @@ export const STEPS: Step[] = [
     title: 'Compute SLI',
     caption: T(
       'Observability computes ACME’s SLI: no packets lost in the last minute.',
-      'SLI = max(loss CPH01→AAR01 0.00%, loss AAR01→CPH01 0.00%) over 10:48–10:49 = 0.00%.',
+      'SLI = max(loss CPH01→AAR01 0.00%, loss AAR01→CPH01 0.00%) over 10:48-10:49 = 0.00%.',
     ),
     events: [work('observability', 'computeSli', 'compute SLI'), appear('sli3')],
   },
@@ -1490,7 +1515,7 @@ export const STEPS: Step[] = [
     title: 'Closing',
     caption: T(
       'The fibre is still faulty, and its repair ticket from Detect is still open in ITSM. The service is healthy while the link is degraded: device state is not service state, in both directions. Here the policy was pre-approved, so the loop closed automatically; another deployment could pause for operator approval.',
-      'Link CPH01–ODE01 still degraded (ODE01→CPH01 Rx −10.9 dBm); repair request CPH01–ODE01 open in ITSM. ACME-L3VPN-001 HEALTHY on path B. Closed-loop remediation is one pattern; an approval gate is another.',
+      'Link CPH01-ODE01 still degraded (ODE01→CPH01 Rx −10.9 dBm); repair request CPH01-ODE01 open in ITSM. ACME-L3VPN-001 HEALTHY on path B. Closed-loop remediation is one pattern; an approval gate is another.',
     ),
     events: [],
   },

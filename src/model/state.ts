@@ -3,6 +3,7 @@ import type {
   ArtifactVersion,
   Event,
   KindId,
+  SignalId,
   Marker,
   Party,
   Step,
@@ -31,7 +32,7 @@ export interface StageState {
   acmePath: 'A' | 'B' | null;
   work: Partial<Record<Party, Text[]>>;
   /** The answer Orchestrator is still waiting for at the end of this step, and from whom (ADR 0001). */
-  waiting: { answer: string; from: Party } | null;
+  waiting: { answer: SignalId | KindId; from: Party } | null;
   /** For each workflow record: the index of its current step in WORKFLOW_STEPS (its length once completed). */
   progress: Record<string, number>;
 }
@@ -107,11 +108,12 @@ export function stateAt(
         case 'work':
           if (current) (s.work[e.owner] ??= []).push(e.label);
           break;
-        case 'signal':
-          if (e.from === 'orchestrator' && SIGNALS[e.signal].answeredBy)
-            s.waiting = { answer: SIGNALS[e.signal].answeredBy!, from: e.to };
+        case 'signal': {
+          const answer = SIGNALS[e.signal].answeredBy;
+          if (e.from === 'orchestrator' && answer) s.waiting = { answer, from: e.to };
           else if (e.to === 'orchestrator' && s.waiting?.answer === e.signal) s.waiting = null;
           break;
+        }
         default:
           e satisfies never;
       }

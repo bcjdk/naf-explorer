@@ -54,7 +54,6 @@
 
 <section
   class="region"
-  class:active={work('presentation') !== ''}
   class:selected={isParty('presentation')}
   aria-current={isParty('presentation') ? 'true' : undefined}
   data-party="presentation"
@@ -80,11 +79,19 @@
         {#each ownRequest(s) as slot (slot.kind)}
           {@const own = version(slot.versions.at(-1)!)}
           <span class="mini own" class:new={stage.newIds.includes(own.id)} data-version={own.id}>
-            <span class="type">{kind(own.kind).name}{stage.orders[s] ? ' · completed' : ''}</span>
+            <span class="type"
+              >{kind(own.kind).name}{#if stage.orders[s]}<span data-shown={stage.orders[s]}
+                  >{' · completed'}</span
+                >{/if}</span
+            >
           </span>
         {/each}
         {#if received}
-          <span class="mini" style:--accent="var(--{kind(received.kind).producer})">
+          <span
+            class="mini"
+            data-shown={received.id}
+            style:--accent="var(--{kind(received.kind).producer})"
+          >
             <!-- Events differ by version (link problem, loss violation, cleared), so an Event says which. -->
             <span class="type"
               >{kind(received.kind).name}{received.kind === 'event'
@@ -118,6 +125,6 @@
   </section>
 {/each}
 
-<Network {stage} {view} work={work('network')} {selected} {onSelect} />
+<Network {stage} {view} {selected} {onSelect} />
 
 <Lines {routes} {step} {selected} {onSelect} />

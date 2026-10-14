@@ -67,7 +67,7 @@
 
     | Region | x | y | w | h |
     |---|---|---|---|---|
-    | header | — | 0 | — | 44 |
+    | header | none | 0 | none | 44 |
     | Presentation | 16 | 52 | 1408 | 84 |
     | Observability | 16 | 148 | 440 | 372 |
     | Intent | 984 | 148 | 440 | 372 |
@@ -75,9 +75,9 @@
     | Collector | 16 | 532 | 440 | 128 |
     | Executor | 984 | 532 | 440 | 128 |
     | The Network | 16 | 672 | 1408 | 108 |
-    | caption | — | 788 | — | to 892 |
+    | caption | none | 788 | none | to 892 |
 
-  - The SLO lane is y 140–196, above Orchestrator.
+  - The SLO lane is y 140-196, above Orchestrator.
   - `SLOTS: Record<KindId, Rect>` is region-relative, one per kind. Observability has a diagnosis column (path health, evidence, event) and an evaluation column (SLO rule, service state), with the SLI full width at the bottom. Intent's derivation descends: service intent and SLO definition, then network intent, then desired state. Presentation's service request is the Portal's own request, inside the Portal surface.
 - `Card.svelte`:
   - absolutely positioned at its slot;
