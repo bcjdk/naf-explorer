@@ -83,12 +83,14 @@ The site is a static-assets Cloudflare Worker (`wrangler.jsonc`). Cloudflare Wor
 
 ## Credits
 
-**Built by Brian Strube Jeggesen.** He set the direction and the story, and made the calls. The code and docs were written with [Claude](https://claude.ai) (Anthropic) in Claude Code, working under his direction, review and occasional colourful feedback, and at a token spend that is best not mentioned in polite company.
+**Built by Brian Strube Jeggesen.** Brian set the direction and the story, and made the calls. The code and docs were written with [Claude](https://claude.ai) (Anthropic) in Claude Code, working under Brian's direction, review and occasional colourful feedback, and at a token spend that is best not mentioned in polite company.
 
 **Inspired by [How the Internet Works](https://tkjaer.github.io/how-the-internet-works/) by Thomas Kjær Aabo** ([source](https://github.com/tkjaer/how-the-internet-works)). This project grew out of Thomas's explorable, step-by-step picture of a complex system, and his switch between simple and technical explanations. Thank you, Thomas. The same thanks lives in the app's About window.
 
-**Built on the [NAF Automation Framework](https://reference.networkautomation.forum/Framework/Framework/)** by the Network Automation Forum. NAF describes functional responsibilities, not one mandatory design; this explainer is one possible way to show them, and not an official NAF product.
+**Built on the [NAF Automation Framework](https://reference.networkautomation.forum/Framework/Framework/)** by the Network Automation Forum. NAF describes functional responsibilities, not one mandatory design; this explainer is one possible way to show them, and not an official NAF product. The responsibility colours are the NAF block colours from its [brand guidelines](https://reference.networkautomation.forum/Framework/brand-guidelines/).
+
+**Typefaces:** [Source Sans 3](https://github.com/adobe-fonts/source-sans) and [Source Code Pro](https://github.com/adobe-fonts/source-code-pro) by Adobe, under the [SIL Open Font License 1.1](src/assets/fonts/OFL.txt).
 
 ## Licence
 
-[MIT](LICENSE). Use it, change it, present it, learn from it. A link back is appreciated.
+[MIT](LICENSE). Use it, change it, present it, learn from it. A link back is appreciated. The bundled fonts keep their own licence (OFL 1.1).
