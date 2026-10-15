@@ -472,6 +472,14 @@ for (const [w, h] of [
   });
 }
 
+test('a phone gets a desktop notice; a desktop window does not', async ({ page }) => {
+  const notice = page.locator('.small-screen');
+  await expect(notice).toBeHidden();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(notice).toBeVisible();
+  await expect(notice).toContainText('desktop browser');
+});
+
 test('colour shows who made it: bands on new cards, edges on used ones, coloured handoffs', async ({
   page,
 }) => {

@@ -19,8 +19,8 @@ The demo shows **an example** of how good network automation *can* look with NAF
 
 ## Sources of truth
 
-- `docs/brief/` holds the rebuild brief. `02-domain-and-semantics.md`, `03-story-and-scenario.md`, `06-about-and-credits.md` and `07-acceptance-checklist.md` are **decided requirements**. `04-experience-and-visual-direction.md` and `05-lessons-learned.md` are guidance.
-- Approved design specs and plans belong under `docs/` (for example `docs/specs/`, `docs/plans/`). Record significant decisions as ADRs in `docs/adr/`.
+- `docs/brief/` holds the **decided requirements**: `02-domain-and-semantics.md`, `03-story-and-scenario.md`, `06-about-and-credits.md` and `07-acceptance-checklist.md`.
+- `docs/specs/2026-10-10-naf-explorer-design.md` is the design spec, kept in step with the build; `DESIGN.md` is the visual system and `PRODUCT.md` the product context. Record significant decisions as ADRs in `docs/adr/`. New specs and plans go under `docs/specs/` and `docs/plans/`; delete a plan once it is built, since git keeps it.
 - If implementation would conflict with a decided requirement or an approved spec, **stop and raise it**. Do not silently reinterpret the requirement.
 
 ## NAF semantic invariants (hard rules)

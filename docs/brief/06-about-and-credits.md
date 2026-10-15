@@ -2,7 +2,7 @@
 
 ## Behaviour
 
-- **One window, two ways to open it:** it opens automatically on **every load and refresh** (changed from first visit only by the user, 2026-10-11), and from an **About** button just right of the Simple/Technical switch.
+- **One window, two ways to open it:** it opens automatically on **every load and refresh**, and from an **About** button just right of the Simple/Technical switch.
 - **Closing:** a **✕ in the top-right corner**, **Esc**, or a click outside. There is **no Start button**.
 - **It is a modal dialog:**
   - focus moves to ✕ when it opens and returns to where it was when it closes;
@@ -11,7 +11,7 @@
 
 ## Content
 
-Reworked with the owner on 2026-10-14: the window had grown into a hard-to-read wall of text. It now has **two views**. Wording may be polished. The framing statement and the credit must keep their meaning.
+The window has **two views**, so the first one stays short. Wording may be polished. The framing statement and the credit must keep their meaning.
 
 ### Welcome (opens on every load and from the About button)
 

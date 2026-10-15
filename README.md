@@ -2,7 +2,7 @@
 
 An interactive explainer of network automation as separate **responsibilities** connected by **typed handoffs**, based on the [Network Automation Forum (NAF) framework](https://reference.networkautomation.forum/Framework/Framework/). One continuous story follows an ACME L3VPN service through **Provision → Detect → Remediate**.
 
-**Try it:** https://naf-explorer.brian-1e1.workers.dev
+**Try it:** https://hownetworkautomationworks.com
 
 ![The explainer in the Detect chapter: Observability raises a loss-violation event while the interface is still UP](docs/images/explorer.png)
 
@@ -71,24 +71,26 @@ The story is data. The canvas, the motion, the inspector and the step table are 
 ## Where the decisions live
 
 - `CLAUDE.md`: the NAF semantic invariants (hard rules) and how work is done in this repo.
-- `docs/brief/`: the decided requirements (domain, story, About, acceptance checklist) and guidance.
-- `docs/specs/`: the approved design specs.
+- `docs/brief/`: the decided requirements: domain, story, About and the acceptance checklist.
+- `docs/specs/`: the design spec, kept in step with the build.
 - `docs/adr/`: architecture decisions, for example why Observability, not Intent, checks configuration conformance (ADR 0006).
-- `docs/plans/`: the implementation plans, kept as a record.
 - `DESIGN.md` and `PRODUCT.md`: the visual system and the product context.
+- `docs/deferred-work.md`: known cosmetic issues, recorded rather than fixed.
 
 ## Deployment
 
-The site is a static-assets Cloudflare Worker (`wrangler.jsonc`). Cloudflare Workers Builds deploys `main` on every push and posts a preview for each pull request. See ADR 0007.
+The site is a static-assets Cloudflare Worker (`wrangler.jsonc`). Cloudflare Workers Builds deploys `main` on every push to https://hownetworkautomationworks.com and posts a preview for each pull request. See ADR 0007.
 
 ## Credits
 
-**Built by Brian Strube Jeggesen.** He set the direction and the story, and made the calls. The code and docs were written with [Claude](https://claude.ai) (Anthropic) in Claude Code, working under his direction, review and occasional colourful feedback, and at a token spend that is best not mentioned in polite company.
+**Built by Brian Strube Jeggesen.** Brian set the direction and the story, and made the calls. The code and docs were written with [Claude](https://claude.ai) (Anthropic) in Claude Code, working under Brian's direction, review and occasional colourful feedback, and at a token spend that is best not mentioned in polite company.
 
 **Inspired by [How the Internet Works](https://tkjaer.github.io/how-the-internet-works/) by Thomas Kjær Aabo** ([source](https://github.com/tkjaer/how-the-internet-works)). This project grew out of Thomas's explorable, step-by-step picture of a complex system, and his switch between simple and technical explanations. Thank you, Thomas. The same thanks lives in the app's About window.
 
-**Built on the [NAF Automation Framework](https://reference.networkautomation.forum/Framework/Framework/)** by the Network Automation Forum. NAF describes functional responsibilities, not one mandatory design; this explainer is one possible way to show them, and not an official NAF product.
+**Built on the [NAF Automation Framework](https://reference.networkautomation.forum/Framework/Framework/)** by the Network Automation Forum. NAF describes functional responsibilities, not one mandatory design; this explainer is one possible way to show them, and not an official NAF product. The responsibility colours are the NAF block colours from its [brand guidelines](https://reference.networkautomation.forum/Framework/brand-guidelines/).
+
+**Typefaces:** [Source Sans 3](https://github.com/adobe-fonts/source-sans) and [Source Code Pro](https://github.com/adobe-fonts/source-code-pro) by Adobe, under the [SIL Open Font License 1.1](src/assets/fonts/OFL.txt).
 
 ## Licence
 
-[MIT](LICENSE). Use it, change it, present it, learn from it. A link back is appreciated.
+[MIT](LICENSE). Use it, change it, present it, learn from it. A link back is appreciated. The bundled fonts keep their own licence (OFL 1.1).

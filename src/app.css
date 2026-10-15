@@ -66,6 +66,27 @@ code {
   background: var(--bg);
   color: var(--text);
 }
+/* The stage scales to fit, so on a phone it is legible only as a picture; say so in the letterbox. */
+.small-screen {
+  display: none;
+}
+@media (max-width: 899px) {
+  .small-screen {
+    display: block;
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    margin: 0;
+    padding: 10px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 15px;
+    text-align: center;
+    z-index: 1;
+  }
+}
 .stage {
   position: absolute;
   left: 50%;
