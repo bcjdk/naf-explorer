@@ -11,7 +11,7 @@ export const TOKENS = {
   'card-earlier': '#161b22',
   /** Hover on anything inspectable (cards, surfaces, labels): one step up from card. */
   'card-hover': '#232a34',
-  /** Text on a solid producer band (design-uplift spec §2.2): dark on the light colours, white on Executor and The Network. */
+  /** Text on a solid producer band (ADR 0003): dark on the light colours, white on Executor and The Network. */
   'on-band-dark': '#0f1216',
   'on-band-light': '#ffffff',
   /** Keyboard focus ring: solid white, so it never reads as a provenance colour or the dashed selection. */

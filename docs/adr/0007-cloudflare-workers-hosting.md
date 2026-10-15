@@ -11,9 +11,9 @@ The spec planned a manual deploy to GitHub Pages and no CI/CD. In practice the e
 
 - The built `dist/` is served as a static-assets-only Cloudflare Worker named `naf-explorer`, configured in `wrangler.jsonc` (`assets.directory: ./dist`, no Worker script).
 - Cloudflare Workers Builds builds (`npm run build`) and deploys `main` on every push, and runs `npx wrangler preview` for each pull request, posting the preview URL on it. The empty `previews` block means previews use the production settings.
-- The live site is https://naf-explorer.brian-1e1.workers.dev until a custom domain replaces it.
+- The live site is https://hownetworkautomationworks.com, a custom domain on the Worker.
 
 ## Consequences
 
-- The build and deploy settings live partly in the Cloudflare dashboard (build command) and partly in `wrangler.jsonc` (what is served).
+- The build and deploy settings live partly in the Cloudflare dashboard (build command, custom domain) and partly in `wrangler.jsonc` (what is served).
 - `npm run verify` is still run locally before committing; Workers Builds does not run the tests.

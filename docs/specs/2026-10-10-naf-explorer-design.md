@@ -1,9 +1,9 @@
 # How Network Automation Works: design spec
 
 - **Date:** 2026-10-10
-- **Status:** approved and built (rev 16); the "As built" notes and the revision log at the end record what changed
+- **Status:** built (rev 17). This spec describes the app as it is; the "As built" notes and the revision log at the end record what changed on the way.
 - **Requirements:** `docs/brief/02`, `03`, `06` and `07` (decided), as amended by the ADRs in `docs/adr/` (0001, 0002, 0004, 0005, 0006). If anything here conflicts with them, the brief wins and the conflict is raised.
-- **Guidance used:** `docs/brief/04`, `05`.
+- **Visual system:** `DESIGN.md`, with the decisions in ADR 0003 (§10).
 
 ## 1. Intent
 
@@ -110,7 +110,7 @@ interface Step { id: string; chapter: 'provision' | 'detect' | 'remediate'; titl
 - **`linesOf(step)`** gives the current step's handoffs, signals and work lines.
 - **`timeline(step)`** gives the motion slots (see §8).
 - **`inspect(target, n)`** gives the inspector content (see §7).
-- **`scripts/beat-table.ts`** prints the beat table in §5 as Markdown. Once `scenario.ts` exists, the table is regenerated from it and §5 is replaced with the generated output, so the two can never drift apart.
+- **`scripts/beat-table.ts`** (`npm run beats`) prints the beat table in §5 as Markdown from `scenario.ts`. Paste its output over §5 whenever the story changes.
 
 ### 4.3 Geometry is separate
 
@@ -259,23 +259,14 @@ Generated from `scenario.ts` with `npm run beats` (§4.2), so it can't drift fro
 
 ## 10. Visual design
 
-> Replaced by `docs/specs/2026-10-12-design-uplift.md` (plan 5) and ADR 0003. The D2 band numbers are in `src/layout.ts`; the built system is recorded in `DESIGN.md`.
+`DESIGN.md` is the built visual system: tokens, type scale, components and the named rules. ADR 0003 records the two decisions behind it: NAF colour reaches the documents (tints, header bands, handoff and work lines, the inspector header), and Source Sans 3 and Source Code Pro are self-hosted. Both are bound by the rules below.
 
-- **Canvas:** dark neutral background, thin borders, modest radii. `system-ui` for prose and `ui-monospace` for machine values, so no web fonts are loaded. No glow, heavy gradients, glassmorphism or NOC-wall styling.
-- **Provenance colour** is a thin accent only: the region's top edge and the card's left bar. It is never a fill or a text colour. The NAF colours are Presentation `#f5c518`, Observability `#00e676`, Orchestrator `#00d4ff`, Intent `#ff6d2e`, Collector `#F43F5E`, Executor `#6366F1` and Infrastructure `#64748b`.
-- **Cards look like documents:** a type label, "by <producer>", the version, and the body (meaning or Technical lines). Status chips sit inline with the text. Subdued earlier artifacts use a muted text colour, never opacity.
-- **Status chips** always show an icon and a word:
-
-  | Status | Treatment |
-  |---|---|
-  | ✓ HEALTHY | neutral outline |
-  | ▲ DEGRADED | achromatic with a pattern |
-  | ✕ VIOLATED | one magenta hue, used by no responsibility, with dark text |
-  | ✓ CLEARED | neutral; distinguished from HEALTHY by its word |
-  | = UNCHANGED / completed | neutral markers, not chips |
-
-  `UP` never appears in a chip.
-- **Colour tokens** are defined once in `src/theme.ts` and applied as CSS custom properties. A unit test checks the WCAG AA contrast of every text/background token pair, including subdued text and the VIOLATED chip.
+- **Colour = who produced it.** Provenance colour never colours a run of text, a status, selection, focus or activity. Regions stay neutral apart from their top edge and swatch.
+- **Status chips** always show an icon and a word: ✓ HEALTHY and ✓ CLEARED neutral outlined, ▲ DEGRADED hatched grey, ✕ VIOLATED magenta (used by no responsibility) with dark text. = UNCHANGED and completed are neutral markers, not chips. `UP` never appears in a chip.
+- **Four separate visual systems:** selection (dashed ring), focus (solid ring), activity (lifted region with its work pill) and gain (the motion overlay's inset shadow).
+- **Colour tokens** are defined once in `src/theme.ts` and applied as CSS custom properties. A unit test checks the WCAG AA contrast of every text and background pair, including text on each producer band and on tinted cards.
+- **Caption bar:** the line legend (solid handoff, dashed signal, thin solid work line) sits top right. On the last beat a completion line takes its place and Next becomes **Start over**, which goes to P1 and keeps focus.
+- **Inspector:** its header is tinted with the identity colour (the producer, the responsibility, Presentation for a surface, or a dashed Orchestrator edge for a signal). Party names in it are links to that responsibility's view. It is 400px wide and sized to its content, up to 708px.
 
 ## 11. Accessibility and keyboard
 
@@ -353,28 +344,15 @@ tests/e2e/                 skeleton (walkthrough, navigation, layout), motion, i
   - **fit:** no scrollbars at 1280×720 and 1920×1080;
   - **axe:** no serious or critical violations at P1, D10 and R14 in both views, and with About open;
   - **About:** opens on load and refresh, reopen, ✕, Esc and click outside, focus return, and arrow keys blocked.
-- **Mutation check (lesson 25):** each new semantic test is shown failing once, by temporarily breaking the data, before it is accepted.
+- **Mutation check:** each new semantic test is shown failing once, by temporarily breaking the data, before it is accepted.
 
-## 14. Delivery order
-
-1. **Walking skeleton.** The scaffold, `types.ts`, all 36 steps in `scenario.ts`, `stateAt`, the semantic tests green, and a plain stage: regions and cards at rough positions, the caption bar and keyboard navigation. This is a demonstrable end-to-end story.
-2. **Layout and visual design.** Final geometry, the network diamond, lines and labels, tokens, the layout and fit tests.
-3. **Motion.** `timeline`, the WAAPI overlay, Replay, reduced motion, the navigation-during-animation tests.
-4. **Inspector and About**, with the focus tests.
-5. **Accessibility hardening and the content pass.** The axe scan, a review of Simple and Technical parity, and the beat table regenerated into §5.
-
-## 15. Deferred
+## 14. Deferred
 
 - An in-app reduced-motion toggle.
 - An operator-approval variant of remediation.
 - Showing how Collector's cached intent stays in sync.
 - Deep links to a step.
 - Mobile, touch, analytics, a backend, scenario authoring.
-
-## 16. Open items
-
-- All Simple and Technical copy is drafted in `scenario.ts` during delivery steps 1 and 5, and the user reviews it against the parity rule.
-- The exact animation durations are tuned in the browser during step 3, within the constraints in §8.
 
 ## Revision log
 
@@ -389,10 +367,11 @@ tests/e2e/                 skeleton (walkthrough, navigation, layout), motion, i
 - **rev 7 (plan 2, user review):** every canvas block has the same 30px above and below it, matching the space under Presentation. The header and caption bars hug the canvas at 16px. The stage grows to 1440×952 so no card loses room; it still scales to fit, about 95% on a 900px-tall window.
 - **rev 8 (user):** About opens on every load and refresh (brief 06 and 07 amended), in a larger window.
 - **rev 9 (plan 3):** motion as a WAAPI overlay over the end state, from `timeline(n)`, replacing rev 3a's interim CSS line animation and the card fade. Replay sits right of About. See §8 "As built".
-- **rev 10 (plan 4):** the inspector, from `inspect(target, n, view)`; cards and surfaces are buttons; the selection ring is a dashed outline; hover states and a first-run hint make inspectables discoverable. See §7 "As built". The visual design (§10) and the inspector's presentation are extended by `docs/specs/2026-10-12-design-uplift.md` (plan 5).
-- **rev 11 (plan 5):** design uplift: Source Sans 3 and Source Code Pro; NAF colour on documents, handoff and work lines, and the inspector (ADR 0003); caption bar 100px and row gaps 24px; Start over on the last beat; line legend. See `docs/specs/2026-10-12-design-uplift.md` "As built".
-- **rev 12 (plan 6a):** Orchestrator's repair request to ITSM replaces Observability's repair-needed event (ADR 0004); The Network is active on the fault beat. See `docs/plans/2026-10-13-plan-6a-story-fixes.md`.
+- **rev 10 (plan 4):** the inspector, from `inspect(target, n, view)`; cards and surfaces are buttons; the selection ring is a dashed outline; hover states and a first-run hint make inspectables discoverable. See §7 "As built".
+- **rev 11 (plan 5):** design uplift: Source Sans 3 and Source Code Pro; NAF colour on documents, handoff and work lines, and the inspector (ADR 0003); caption bar 100px and row gaps 24px; Start over on the last beat; line legend.
+- **rev 12 (plan 6a):** Orchestrator's repair request to ITSM replaces Observability's repair-needed event (ADR 0004); The Network is active on the fault beat.
 - **rev 13 (plan 6b):** Observability raises a link event in Detect (D7) and Orchestrator opens the repair request in ITSM straight away (D8); the remediation workflow completes in R14 again and R15 is the closing only. "Service-impact event" becomes "Event" (link problem, loss violation, cleared). 40 beats (ADR 0004).
 - **rev 14:** the caption-bar hint is retired; P1's caption says inspection exists and About keeps the how-to. The legend holds the top-right slot from the first beat. An axe scan covers P1, D10 and R14 in both views, the inspector and About.
 - **rev 15:** Orchestrator hands the completed provisioning workflow record to the Portal at P15, and the Portal's service request reads "completed" beside the service state (ADR 0005). Observability's columns are 14px apart so P14's work line has a stem. A card's selection ring is a haloed overlay, visible over a bright band. Raw signals (degraded) name `Hu0/0/0/1` again.
 - **rev 16:** Observability, not Intent, checks configuration conformance (ADR 0006): the read-back goes Collector → Observability, Intent hands desired state directly to Observability in the check beat, and Observability answers *in sync*. Same 40 beats.
+- **rev 17 (2026-10-15):** the spec describes the app as built. §10 points to `DESIGN.md` and ADR 0003, replacing the separate design-uplift spec; the delivery order and open items are gone, and the implementation plans were removed from the repo (git keeps them).

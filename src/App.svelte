@@ -149,6 +149,9 @@
 <svelte:window bind:innerWidth bind:innerHeight onkeydown={onKeydown} onfocusin={onFocusIn} />
 
 <div class="viewport" style={tokenStyle}>
+  <p class="small-screen">
+    Built for a desktop browser. On a small screen the canvas is too small to read.
+  </p>
   <div
     class="stage"
     style:width="{STAGE.w}px"
